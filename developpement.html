@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests; frame-src 'self'; child-src 'self'; worker-src 'self'; media-src 'self'; manifest-src 'self'">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+  <meta name="description" content="Développement&nbsp;: comprendre les systèmes en les construisant — Rust, moteurs écrits from scratch, contrats entre programmes et documentation vérifiée contre le code.">
+  <meta name="theme-color" content="#070407">
+  <meta name="color-scheme" content="dark">
+  <title>Développement — Yosuljin</title>
+  <link rel="canonical" href="https://yosuljin.github.io/developpement.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Yosuljin — Entre les mondes">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Développement — Yosuljin">
+  <meta property="og:description" content="Développement&nbsp;: comprendre les systèmes en les construisant — Rust, moteurs écrits from scratch, contrats entre programmes et documentation vérifiée contre le code.">
+  <meta property="og:url" content="https://yosuljin.github.io/developpement.html">
+  <meta property="og:image" content="https://yosuljin.github.io/og/yosuljin.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Yosuljin&nbsp;: développement, photographie, écriture, mondes.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/contenu.css?v=20261009-r2">
+  <link rel="preload" href="fonts/instrument-serif-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=20261009-r2">
+  <link rel="stylesheet" href="css/motifs.css?v=20261009-r2">
+  <script src="js/boot.js?v=20261009-r2"></script>
+  <script src="js/ui/immersive-nav.js?v=20261009-r2" defer></script>
+  <script src="js/ui/fullscreen.js?v=20261009-r2" defer></script>
+  <script type="module" src="js/page.js?v=20261009-r2"></script>
+  <script type="module" src="js/motifs.js?v=20261009-r2"></script>
+</head>
+<body class="detail-page domain-dev" data-world="dev">
+  <a class="skip-link" href="#content">Aller au contenu</a>
+  <div class="noise" aria-hidden="true"></div>
+  <canvas class="world-canvas" aria-hidden="true"></canvas>
+  <div class="world-fallback" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand-cluster">
+      <a class="brand" href="index.html" aria-label="Yosuljin — retour à l'entrée">
+        <span class="brand-mark">Y</span>
+        <span class="brand-copy"><b>YOSULJIN</b><small>ENTRE LES MONDES</small></span>
+      </a>
+      <button class="mode-toggle" type="button" data-mode-toggle>FULL 3D</button>
+      <button class="sound-toggle" type="button" data-sound-toggle aria-pressed="true" aria-label="Son"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-word">SON</span></button>
+    </div>
+    <div class="top-meta" aria-hidden="true"><span>DÉVELOPPEMENT</span><span>2026</span></div>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu">
+      <span class="menu-word">MENU</span><span class="menu-icon" aria-hidden="true"><i></i><i></i></span>
+    </button>
+  </header>
+
+  <nav id="site-menu" class="site-menu" aria-label="Index du site" aria-hidden="true" inert>
+    <div class="menu-inner">
+      <div class="menu-top"><span>INDEX</span><span class="menu-top-mid">CANAL 01 · DÉVELOPPEMENT</span><span>Y / 2026</span></div>
+      <div class="menu-structure">
+        <div class="menu-block menu-domains">
+          <div class="menu-block-head"><span>DOMAINES</span><span>04 ANGLES</span></div>
+          <a href="developpement.html" data-accent="dev"><small>01</small><b>Développement</b><em>systèmes · Rust · <span lang="en">from scratch</span></em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="photographie.html" data-accent="photo"><small>02</small><b>Photographie</b><em>lumière · lieux · fragments</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="ecriture.html" data-accent="writing"><small>03</small><b>Écriture</b><em>corps · regard · existence</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="mondes.html" data-accent="worlds"><small>04</small><b>Mondes</b><em>Constellation · Libera · futurs</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+        </div>
+        <div class="menu-aether">
+          <div class="menu-block-head"><span>DOSSIER CENTRAL</span><span>01</span></div>
+          <a class="menu-project-main" href="aether.html">
+            <span class="menu-aether-sigil" aria-hidden="true"><i></i><i></i><i></i><b></b></span>
+            <small>DOSSIER 01</small>
+            <b>AETHER</b>
+            <span>documentation · Lumina · TheHive · furu</span>
+            <i>OUVRIR LE DOSSIER<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i>
+          </a>
+          <p class="menu-note">Le seul dossier présenté comme tel. Les domaines sont des angles&#8239;; Aether est un dossier.</p>
+        </div>
+      </div>
+      <div class="menu-bottom">
+        <div class="menu-presence">
+          <a href="https://github.com/Yosuljin" target="_blank" rel="noopener noreferrer">GITHUB<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+          <a href="https://www.instagram.com/myli.beral/" target="_blank" rel="noopener noreferrer">INSTAGRAM<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+          <a href="https://matrix.to/#/@yosuljin:matrix.org" target="_blank" rel="noopener noreferrer">ELEMENT X<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+        </div>
+        <span class="menu-legal"><a href="contact.html">CONTACT</a><a href="mentions-legales.html">MENTIONS</a><a href="confidentialite.html">CONFIDENTIALITÉ</a><a href="cgu.html">CGU</a></span>
+        <span class="menu-motto">RIEN NE DISPARAÎT VRAIMENT.</span>
+      </div>
+    </div>
+  </nav>
+  <button class="menu-shade" type="button" aria-label="Fermer le menu" tabindex="-1"></button>
+
+  <main id="content" class="detail-shell">
+  <div class="detail-top"><a class="detail-back" href="index.html"><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-w"/></svg>RETOUR À L’ESPACE</a></div>
+  <section class="detail-hero">
+    <div><p class="detail-index">DOMAINE 01 / 04</p><h1 class="detail-title">Développement</h1><p class="detail-lead">Comprendre les systèmes en les construisant&nbsp;: Rust surtout, des moteurs écrits <em lang="en">from scratch</em>, des contrats entre programmes, et une documentation qu’on vérifie contre le code.</p></div>
+    <aside class="detail-aside" aria-labelledby="perimetre"><b id="perimetre">PÉRIMÈTRE</b><p>Cette page parle de technique. Les projets qui composent Aether sont présentés dans son dossier&#8239;; ici, seulement la manière de travailler et les chantiers qui en sortent.</p></aside>
+    <span class="colophon write" lang="zh-Hant" aria-hidden="true"><span class="write-win"><span class="write-ink">開發</span></span><span class="write-beam"></span></span>
+  </section>
+  <div class="divider" aria-hidden="true"><svg class="salve" viewBox="0 0 48 12"><use href="motifs.svg#salve"/></svg><span class="rule"><i class="sweep"></i></span></div>
+  <section class="detail-grid">
+    <article class="detail-block wide"><h2>Construire <em>pour comprendre.</em></h2><p>Je préfère reconstruire que reproduire&nbsp;: un moteur réécrit depuis zéro apprend plus qu’un moteur emprunté. Chaque pièce garde son propre code, son propre rythme et ses propres épreuves.</p></article>
+    <article class="detail-block"><h2>Chantiers</h2><ul>
+      <li><b>01</b><span><strong><a href="aether.html#projet-almas">AlmaS</a></strong> — reconstruction Rust propre d’Alma, une première IA écrite par un autre auteur&#8239;; aujourd’hui banc d’essai.</span><i>IA</i></li>
+      <li><b>02</b><span><strong><a href="aether.html#projet-linh">Linh</a></strong> — agent portable de terrain, réécrit <em lang="en">from scratch</em> en <code>vAlpha1.0</code>.</span><i>AGENT</i></li>
+      <li><b>03</b><span><strong><a href="aether.html#projet-la-lumina">la lumina</a></strong> — le langage de Lumina, <code>.lum</code>, son interpréteur et son shell.</span><i>LANGAGE</i></li>
+      <li><b>04</b><span><strong><a href="aether.html#projet-greffe">Greffe</a></strong> — le contrat qui permet à un module de s’ajouter sans s’incruster.</span><i>SOCLE</i></li>
+      <li><b>05</b><span><strong><a href="aether.html#projet-lucarne">Lucarne</a></strong> — une interface graphique vectorielle (SVG) engendrée en Rust.</span><i>INTERFACE</i></li>
+      <li><b>06</b><span><strong><a href="aether.html#projet-net">Net</a></strong> — réutiliser proprement une session que j’ai ouverte moi-même, pour un client HTTP léger.</span><i>ACCÈS</i></li>
+      <li><b>07</b><span><strong><a href="aether.html#projet-furu">furu</a></strong> — moteur de sentience et base des futurs organes&#8239;; spécification en cours, sans code attribué.</span><i>SENTIENCE</i></li>
+    </ul></article>
+    <article class="detail-block"><h2>Principes</h2><p><b>La doc peut mentir.</b> Une affirmation que le code dément est une faute&nbsp;: on vérifie contre les fichiers, pas l’inverse.</p><p><b>Un module s’ajoute.</b> Retirez-le et lancez le produit&nbsp;: ce dont le cœur ne peut pas se passer n’est pas un module.</p><p><b>Ce qui se compte s’engendre.</b> Les recensements sont produits depuis le code, jamais recopiés à la main.</p></article>
+    <article class="detail-block wide"><h2>Ce site, <em>aussi.</em></h2><p>Ces pages suivent la même méthode&nbsp;: tout ce qu’elles chargent vient du site lui-même.</p><ul>
+      <li><b>01</b><span>HTML, CSS et modules JavaScript natifs&nbsp;: ni framework, ni étape de compilation.</span><i>WEB</i></li>
+      <li><b>02</b><span>En <span lang="en">FULL 3D</span>, le monde en arrière-plan est rendu en WebGL par des shaders écrits pour le site&#8239;; le mode <span lang="en">LITE</span> l’éteint.</span><i>WEBGL</i></li>
+      <li><b>03</b><span>Le son est synthétisé en direct par Web Audio&nbsp;: aucun fichier audio.</span><i>SON</i></li>
+      <li><b>04</b><span>Polices auto-hébergées, aucune ressource tierce&#8239;; le code ne dépose aucun cookie et ne mesure pas l’audience (<a href="confidentialite.html">confidentialité</a>).</span><i>SOBRIÉTÉ</i></li>
+      <li><b>05</b><span>La préférence système «&nbsp;réduire les animations&nbsp;» est respectée&nbsp;: les animations automatiques s’arrêtent.</span><i>ACCESSIBILITÉ</i></li>
+    </ul></article>
+  </section>
+  <nav class="domain-route" aria-label="Parcours des domaines">
+    <a class="a1" href="index.html#channels"><small><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-w"/></svg>Index</small><b>Domaines</b><em>quatre angles, pas quatre projets</em></a>
+    <a class="a1 domain-route-next" href="photographie.html" data-accent="photo"><small>02 · suivant<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></small><b>Photographie</b><em>lumière · lieux · fragments</em></a>
+  </nav>
+  <div class="detail-foot">
+    <div class="divider" aria-hidden="true"><svg class="salve" viewBox="0 0 48 12"><use href="motifs.svg#salve"/></svg><span class="rule"><i class="sweep"></i></span></div>
+    <p>Lumina (le système cognitif), TheHive et les <a href="aether.html#parc">autres projets techniques</a> (réseau maillé, mémoire propre, outils de vérification) sont rangés dans le dossier Aether, à leur place dans l’architecture.</p><a class="a1" href="aether.html">DOSSIER AETHER<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></a>
+    <p class="detail-motto">RIEN NE DISPARAÎT VRAIMENT.</p>
+  </div>
+</main>
+</body>
+</html>

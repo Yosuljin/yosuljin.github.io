@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Les 10 pages publiées (404.html exclue : noindex). L'entrée est listée sous son URL canonique « / ». -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://yosuljin.github.io/</loc></url>
+  <url><loc>https://yosuljin.github.io/developpement.html</loc></url>
+  <url><loc>https://yosuljin.github.io/photographie.html</loc></url>
+  <url><loc>https://yosuljin.github.io/ecriture.html</loc></url>
+  <url><loc>https://yosuljin.github.io/mondes.html</loc></url>
+  <url><loc>https://yosuljin.github.io/aether.html</loc></url>
+  <url><loc>https://yosuljin.github.io/contact.html</loc></url>
+  <url><loc>https://yosuljin.github.io/mentions-legales.html</loc></url>
+  <url><loc>https://yosuljin.github.io/confidentialite.html</loc></url>
+  <url><loc>https://yosuljin.github.io/cgu.html</loc></url>
+</urlset>

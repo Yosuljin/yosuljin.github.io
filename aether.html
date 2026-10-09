@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests; frame-src 'self'; child-src 'self'; worker-src 'self'; media-src 'self'; manifest-src 'self'">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+  <meta name="description" content="Aether — le méta-dépôt qui documente tout le parc de Yosuljin&nbsp;: TheHive, Lumina, la lumina, furu, Linh, AlmaS, Greffe, Lucarne, Net et les projets de vision.">
+  <meta name="theme-color" content="#070407">
+  <meta name="color-scheme" content="dark">
+  <title>Aether — Yosuljin</title>
+  <link rel="canonical" href="https://yosuljin.github.io/aether.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Yosuljin — Entre les mondes">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Aether — Yosuljin">
+  <meta property="og:description" content="Aether — le méta-dépôt qui documente tout le parc de Yosuljin&nbsp;: TheHive, Lumina, la lumina, furu, Linh, AlmaS, Greffe, Lucarne, Net et les projets de vision.">
+  <meta property="og:url" content="https://yosuljin.github.io/aether.html">
+  <meta property="og:image" content="https://yosuljin.github.io/og/yosuljin.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Yosuljin&nbsp;: développement, photographie, écriture, mondes.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/instrument-serif-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/contenu.css?v=20261009-r2">
+  <link rel="stylesheet" href="styles.css?v=20261009-r2">
+  <link rel="stylesheet" href="css/motifs.css?v=20261009-r2">
+  <link rel="stylesheet" href="css/aether.css?v=20261009-r2">
+  <script src="js/boot.js?v=20261009-r2"></script>
+  <script src="js/ui/immersive-nav.js?v=20261009-r2" defer></script>
+  <script src="js/ui/fullscreen.js?v=20261009-r2" defer></script>
+  <script type="module" src="js/page.js?v=20261009-r2"></script>
+  <script src="aether.js?v=20261009-r2" defer></script>
+</head>
+<body class="detail-page domain-aether aether-grand">
+  <a class="skip-link" href="#content">Aller au contenu</a>
+  <div class="noise" aria-hidden="true"></div>
+  <canvas class="world-canvas" aria-hidden="true"></canvas>
+  <div class="world-fallback" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand-cluster">
+      <a class="brand" href="index.html" aria-label="Yosuljin — retour à l'entrée">
+        <span class="brand-mark">Y</span>
+        <span class="brand-copy"><b>YOSULJIN</b><small>ENTRE LES MONDES</small></span>
+      </a>
+      <button class="mode-toggle" type="button" data-mode-toggle>FULL 3D</button>
+      <button class="sound-toggle" type="button" data-sound-toggle aria-pressed="true" aria-label="Son"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-word">SON</span></button>
+    </div>
+    <div class="top-meta" aria-hidden="true"><span>AETHER / CARTOGRAPHIE</span><span>2026</span></div>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu"><span class="menu-word">MENU</span><span class="menu-icon" aria-hidden="true"><i></i><i></i></span></button>
+  </header>
+
+  <nav id="site-menu" class="site-menu" aria-label="Index du site" aria-hidden="true" inert>
+    <div class="menu-inner">
+      <div class="menu-top"><span>INDEX</span><span class="menu-top-mid">SOURCE · AETHER</span><span>Y / 2026</span></div>
+      <div class="menu-structure">
+        <div class="menu-block menu-domains">
+          <div class="menu-block-head"><span>DOMAINES</span><span>04 ANGLES</span></div>
+          <a href="developpement.html" data-accent="dev"><small>01</small><b>Développement</b><em>systèmes · Rust · <span lang="en">from scratch</span></em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="photographie.html" data-accent="photo"><small>02</small><b>Photographie</b><em>lumière · lieux · fragments</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="ecriture.html" data-accent="writing"><small>03</small><b>Écriture</b><em>corps · regard · existence</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="mondes.html" data-accent="worlds"><small>04</small><b>Mondes</b><em>Constellation · Libera · futurs</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+        </div>
+        <div class="menu-aether">
+          <div class="menu-block-head"><span>DOSSIER CENTRAL</span><span>01</span></div>
+          <a class="menu-project-main" href="aether.html">
+            <span class="menu-aether-sigil" aria-hidden="true"><i></i><i></i><i></i><b></b></span>
+            <small>DOSSIER 01</small>
+            <b>AETHER</b>
+            <span>documentation · Lumina · TheHive · furu</span>
+            <i>OUVRIR LE DOSSIER<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i>
+          </a>
+          <p class="menu-note">Le seul dossier présenté comme tel. Les domaines sont des angles&#8239;; Aether est un dossier.</p>
+        </div>
+      </div>
+      <div class="menu-bottom">
+        <div class="menu-presence">
+          <a href="https://github.com/Yosuljin" target="_blank" rel="noopener noreferrer">GITHUB<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+          <a href="https://www.instagram.com/myli.beral/" target="_blank" rel="noopener noreferrer">INSTAGRAM<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+          <a href="https://matrix.to/#/@yosuljin:matrix.org" target="_blank" rel="noopener noreferrer">ELEMENT X<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+        </div>
+        <span class="menu-legal"><a href="contact.html">CONTACT</a><a href="mentions-legales.html">MENTIONS</a><a href="confidentialite.html">CONFIDENTIALITÉ</a><a href="cgu.html">CGU</a></span>
+        <span class="menu-motto">RIEN NE DISPARAÎT VRAIMENT.</span>
+      </div>
+    </div>
+  </nav>
+  <button class="menu-shade" type="button" aria-label="Fermer le menu" tabindex="-1"></button>
+
+  <main id="content" class="detail-shell aether-shell">
+    <div class="detail-top"><a class="detail-back" href="index.html"><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-w"/></svg>RETOUR À L’ESPACE</a><span class="detail-top-meta">AETHER / DOSSIER CENTRAL</span></div>
+
+    <section class="aether-hero" aria-labelledby="aether-title">
+      <div class="aether-hero-copy">
+        <p class="detail-index">AETHER / 00 — CARTOGRAPHIE VIVANTE</p>
+        <h1 class="aether-big-title lit" id="aether-title">Voir le parc.<br><em>En mouvement.</em></h1>
+        <p class="aether-hero-lead">Aether est le méta-dépôt qui tient la documentation de tout le parc&nbsp;: on y lit ce qu’est un projet avant d’aller lire son code. Décisions, architecture, projets, recherches et frontières — ici, le parc devient lisible comme un monde.</p>
+        <div class="aether-live-readout"><span><b data-count="projects">16</b> PROJETS · <b data-count="inscrits">2</b> INSCRITS</span><span><b data-count="relations">12</b> RELATIONS</span><span><b>D103</b> REGISTRE</span><span><b>2026-10-07</b> ÉTAT DOCUMENTÉ</span></div>
+
+      </div>
+
+      <div class="aether-orbit-stage">
+        <div class="aether-orbit-ring ring-1" aria-hidden="true"></div>
+        <div class="aether-orbit-ring ring-2" aria-hidden="true"></div>
+        <div class="aether-orbit-ring ring-3" aria-hidden="true"></div>
+        <div class="aether-core-glow" aria-hidden="true"></div>
+        <p id="aether-graph-help" class="aether-sr">Carte du parc&nbsp;: une seule étape de tabulation. Les flèches passent au nœud voisin dans leur direction, Début et Fin au premier et au dernier, Entrée ouvre sa fiche.</p>
+        <svg class="aether-graph" viewBox="0 0 1000 660" role="group" aria-labelledby="aether-graph-title" aria-describedby="aether-graph-desc aether-graph-help">
+          <title id="aether-graph-title">Carte des relations du parc</title>
+          <desc id="aether-graph-desc">Lumina réside dans TheHive, qui porte la lumina, furu et le substrat de reminiscence. Memoria, inscrit au registre sans être un projet, dépend de la durabilité de TheHive. Linh active TheHive. AlmaS et Linh s’appuient sur Greffe. Lucarne héberge AlmaS. Chaque nœud mène à sa fiche.</desc>
+          <defs>
+            <radialGradient id="coreFill"><stop offset="0" stop-color="#fff2d6" stop-opacity=".55"/><stop offset=".5" stop-color="#ffd36b" stop-opacity=".2"/><stop offset="1" stop-color="#0b0710" stop-opacity="0"/></radialGradient>
+          </defs>
+          <g class="aether-pulses" fill="none" aria-hidden="true">
+            <circle cx="500" cy="300" r="198" class="pulse pulse-a"/><circle cx="500" cy="300" r="265" class="pulse pulse-b"/>
+          </g>
+          <circle class="core-halo" cx="500" cy="300" r="96" fill="url(#coreFill)" aria-hidden="true"/>
+          <g class="aether-links" fill="none" aria-hidden="true">
+            <path class="link-noyau" data-link="thehive la-lumina" d="M500 300 L290 172"/>
+            <path class="link-noyau" data-link="thehive furu" d="M500 300 L710 172"/>
+            <path class="link-noyau" data-link="thehive reminiscence" d="M500 300 L500 96"/>
+            <path class="link-build" data-link="memoria thehive" d="M205 336 L500 300"/>
+            <path class="link-build" data-link="la-lumina memoria" d="M290 172 L205 336"/>
+            <path class="link-build" data-link="almas greffe" d="M330 500 L520 528"/>
+            <path class="link-build" data-link="linh greffe" d="M795 336 L520 528"/>
+            <path class="link-build" data-link="linh net" d="M795 336 L872 520"/>
+            <path class="link-role" data-link="linh thehive" d="M795 336 L500 300"/>
+            <path class="link-role" data-link="lucarne almas" d="M160 572 L330 500"/>
+            <path class="link-role" data-link="linhmesh linh" d="M905 236 L795 336"/>
+          </g>
+          <g class="aether-nodes">
+            <g class="a-node a-node-core" role="link" tabindex="0" data-target="projet-thehive" data-node="thehive" data-nav-offset="0 98" aria-label="TheHive, le corps&nbsp;: squelette matériel dans lequel Lumina réside. Voir la fiche." transform="translate(500 300)"><rect class="node-hit" x="-96" y="78" width="192" height="44"/><circle r="70"/><text y="98">THEHIVE</text><text y="114" class="node-sub">CORPS · SQUELETTE</text></g>
+            <g class="a-node a-node-inner" role="link" tabindex="-1" data-target="projet-lumina" data-node="lumina" aria-label="Lumina, le système cognitif, qui réside dans TheHive. Voir la fiche." transform="translate(500 300)"><circle r="30"/><text y="-1">LUMINA</text><text y="14" class="node-sub">COGNITION</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-future" role="link" tabindex="-1" data-target="projet-reminiscence" data-node="reminiscence" aria-label="reminiscence, la mémoire propre future de Lumina. Voir la fiche." transform="translate(500 96)"><circle r="17"/><text y="-43">REMINISCENCE</text><text y="-28" class="node-sub">MÉMOIRE FUTURE</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-noyau" role="link" tabindex="-1" data-target="projet-la-lumina" data-node="la-lumina" aria-label="la lumina, langage et shell de Lumina. Voir la fiche." transform="translate(290 172)"><circle r="22"/><text y="43">LA LUMINA</text><text y="58" class="node-sub">LANGAGE · SHELL</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-future" role="link" tabindex="-1" data-target="projet-furu" data-node="furu" aria-label="furu, le moteur de sentience. Voir la fiche." transform="translate(710 172)"><circle r="22"/><text y="43">FURU</text><text y="58" class="node-sub">SENTIENCE</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-code" role="link" tabindex="-1" data-target="projet-memoria" data-node="memoria" data-owner="inscrit" aria-label="Memoria, inscrit, pas un projet&nbsp;: la rénovation d’un moteur de mémoire. Voir la fiche." transform="translate(205 336)"><circle r="21"/><text y="42">MEMORIA</text><text y="57" class="node-sub">INSCRIT</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-code" role="link" tabindex="-1" data-target="projet-linh" data-node="linh" aria-label="Linh, agent de terrain. Voir la fiche." transform="translate(795 336)"><circle r="22"/><text y="43">LINH</text><text y="58" class="node-sub">TERRAIN</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-code" role="link" tabindex="-1" data-target="projet-almas" data-node="almas" aria-label="AlmaS, banc d’essai des modules. Voir la fiche." transform="translate(330 500)"><circle r="20"/><text y="41">ALMAS</text><text y="56" class="node-sub">BANC D’ESSAI</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-code" role="link" tabindex="-1" data-target="projet-greffe" data-node="greffe" aria-label="Greffe, socle neutre des modules. Voir la fiche." transform="translate(520 528)"><circle r="20"/><text y="41">GREFFE</text><text y="56" class="node-sub">SOCLE</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-code" role="link" tabindex="-1" data-target="projet-lucarne" data-node="lucarne" aria-label="Lucarne, surface graphique SVG. Voir la fiche." transform="translate(160 572)"><circle r="16"/><text y="37">LUCARNE</text><text y="52" class="node-sub">SURFACE SVG</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-code" role="link" tabindex="-1" data-target="projet-net" data-node="net" aria-label="Net, réutiliser sa propre session. Voir la fiche." transform="translate(872 520)"><circle r="15"/><text y="36">NET</text><text y="51" class="node-sub">SESSIONS</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-code" role="link" tabindex="-1" data-target="projet-linhmesh" data-node="linhmesh" aria-label="LinhMesh, réseau maillé. Voir la fiche." transform="translate(905 236)"><circle r="13"/><text y="34">LINHMESH</text><text y="49" class="node-sub">MAILLAGE</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-vision" role="link" tabindex="-1" data-target="projet-constellation" data-node="constellation" aria-label="Constellation, recherche. Voir la fiche." transform="translate(118 92)"><circle r="11"/><text y="32">CONSTELLATION</text><text y="47" class="node-sub">RECHERCHE</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-vision" role="link" tabindex="-1" data-target="projet-reseau" data-node="reseau" aria-label="Réseau, projet de vision. Voir la fiche." transform="translate(112 214)"><circle r="11"/><text y="32">RÉSEAU</text><text y="47" class="node-sub">VISION</text><circle class="node-hit" r="44"/></g>
+            <g class="a-node a-node-vision" role="link" tabindex="-1" data-target="projet-libera" data-node="libera" aria-label="Libera, projet de vision. Voir la fiche." transform="translate(885 92)"><circle r="11"/><text y="32">LIBERA</text><text y="47" class="node-sub">VISION</text><circle class="node-hit" r="44"/></g>
+          </g>
+        </svg>
+      </div>
+      <div class="aether-reading">
+        <p class="aether-reading-title">LIRE LA CARTE</p>
+        <ul class="aether-legend">
+          <li class="legend-noyau"><i aria-hidden="true"></i>Architecture du noyau</li>
+          <li class="legend-build"><i aria-hidden="true"></i>Dépendance de build (Cargo)</li>
+          <li class="legend-role"><i aria-hidden="true"></i>Rôle&nbsp;: active, héberge, relie</li>
+          <li class="legend-future"><i aria-hidden="true"></i>Spécifié, pas encore de code</li>
+          <li class="legend-inscrit"><i aria-hidden="true"></i>Inscrit, pas un projet</li>
+        </ul>
+        <div class="aether-node-panel" data-node-panel aria-live="polite">
+          <p class="node-panel-hint" data-panel-hint><span class="hint-pointer">Survolez un nœud, ou entrez dans la carte avec Tab puis parcourez-la avec les flèches (Début et Fin pour les extrêmes). Entrée ouvre sa fiche.</span><span class="hint-touch">Touchez un nœud pour ouvrir sa fiche&#8239;; elles sont toutes détaillées plus bas.</span></p>
+          <div class="node-panel-body" data-panel-body hidden>
+            <p class="node-panel-state" data-panel-state></p>
+            <p class="node-panel-name" data-panel-name></p>
+            <p class="node-panel-line" data-panel-line></p>
+            <p class="node-panel-links" data-panel-links></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="aether-section architecture-section" aria-labelledby="architecture-title">
+      <div class="aether-section-head"><p class="detail-index">01 / ARCHITECTURE</p><h2 id="architecture-title">Quatre niveaux à <em>ne pas confondre.</em></h2><span>D88 · D89 · D90 · D102</span><div class="divider" aria-hidden="true"><svg class="salve" viewBox="0 0 48 12"><use href="motifs.svg#salve"/></svg><span class="rule"><i class="sweep"></i></span></div></div>
+      <div class="aether-architecture-grid">
+        <article class="aether-arch-card aether-arch-card-main">
+          <div class="arch-top"><span>LUMINA ⊂ THEHIVE</span><span>NOYAU</span></div>
+          <div class="arch-3d" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+          <h3>Un système cognitif.<br><em>Un corps pour l’abriter.</em></h3>
+          <p><b>Lumina</b> est le système cognitif&nbsp;: un conscient doté d’une forme d’ego, un inconscient composé de systèmes spécialisés qui ne remontent pas tout, et des lumens hétérogènes. Elle réside dans <b>TheHive</b>, son squelette matériel. <b>La lumina</b> est son langage et son shell, <b>reminiscence</b> sera sa mémoire propre, et <b>furu</b> portera ses organes de perception et d’action.</p>
+          <div class="arch-tags"><span>CONSCIENT</span><span>INCONSCIENT</span><span>LUMENS</span></div>
+        </article>
+        <article class="aether-arch-card">
+          <div class="arch-top"><span>AETHER</span><span>MÉTA-DÉPÔT</span></div>
+          <h3>La carte, <em>pas le territoire.</em></h3>
+          <p>Aether ne contient aucun code produit&nbsp;: vision, registre des décisions, cartographie, règles communes, et un recensement de la surface publique de chaque projet Rust, engendré depuis le code plutôt qu’écrit à la main.</p>
+          <div class="arch-status-line"><span></span><b>ACTIF · DOCUMENTATION DU PARC</b></div>
+        </article>
+        <article class="aether-arch-card">
+          <div class="arch-top"><span>DISTINCTIONS</span><span>LEXIQUE</span></div>
+          <h3>Ce que les noms <em>ne disent pas.</em></h3>
+          <ul class="arch-distinctions">
+            <li><b>TheHive</b> n’est pas Lumina&nbsp;: c’est son corps.</li>
+            <li><b>La lumina</b> n’est pas Lumina&nbsp;: c’est son langage.</li>
+            <li><b>Memoria</b> n’est pas reminiscence.</li>
+            <li><b>Furu</b> n’est ni la mémoire, ni le contrôle de vol.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="parc" class="aether-section park-section" aria-labelledby="parc-title">
+      <div class="aether-section-head"><p class="detail-index">02 / PARC</p><h2 id="parc-title">Les projets ne sont pas <em>des cases.</em></h2><span>FICHES · ÉTATS · RELATIONS</span><div class="divider" aria-hidden="true"><span class="rule"></span></div></div>
+      <p class="aether-park-intro">Chaque fiche dit ce qu’est le projet et où il en est&#8239;; quand la confusion est possible, ce qu’il n’est pas. Les décomptes (crates, fonctions, épreuves) ne sont pas recopiés ici&nbsp;: ils se demandent au code.</p>
+
+      <h3 class="aether-group-title"><span>A</span>Noyau — Lumina et son corps</h3>
+      <div class="aether-project-grid grid-noyau">
+        <article class="aether-project" id="projet-thehive">
+          <div class="project-head"><span class="project-state live">EN CONSTRUCTION</span><span class="project-meta">RUST · CHANTIER PRINCIPAL</span></div>
+          <h4>TheHive</h4>
+          <p class="project-line">Le squelette matériel dans lequel Lumina réside et s’exécute.</p>
+          <p>Le plus petit système possible&nbsp;: noyau, pilotes, squelette et modules, pas une distribution complète. La production vise une machine dédiée, sans couche intermédiaire&#8239;; un banc virtuel sert à la conception et aux essais. Première fondation livrée&nbsp;: une durabilité déclarée et mesurable, où la fenêtre de perte après une coupure est lue dans le montage réel plutôt que supposée.</p>
+          <p class="project-not">Ce n’est pas Lumina&nbsp;: c’est son corps et son habitat.</p>
+          <p class="project-rel">Relié à <a href="#projet-lumina">Lumina</a> <a href="#projet-la-lumina">la lumina</a> <a href="#projet-furu">furu</a> <a href="#projet-reminiscence">reminiscence</a> <a class="rel-inscrit" href="#projet-memoria">Memoria<span class="aether-sr"> (inscrit, pas un projet)</span></a> <a href="#projet-linh">Linh</a></p>
+        </article>
+        <article class="aether-project" id="projet-lumina">
+          <div class="project-head"><span class="project-state research">ARCHITECTURE</span><span class="project-meta">SYSTÈME COGNITIF · D89</span></div>
+          <h4>Lumina</h4>
+          <p class="project-line">Le système cognitif, persona centrale du parc.</p>
+          <p>Un conscient, un inconscient fait de systèmes spécialisés, des lumens hétérogènes. Ses moteurs sont écrits pour elle, sans monoculture&nbsp;: elle ne réutilise pas la mémoire d’un autre agent. Sa forme complète se construit après les fondations de TheHive.</p>
+          <p class="project-not">Ce n’est pas la lumina, qui est son langage.</p>
+          <p class="project-rel">Relié à <a href="#projet-thehive">TheHive</a> <a href="#projet-la-lumina">la lumina</a> <a href="#projet-reminiscence">reminiscence</a> <a href="#projet-furu">furu</a></p>
+        </article>
+        <article class="aether-project" id="projet-la-lumina">
+          <div class="project-head"><span class="project-state live">PROTOTYPE ACTIF</span><span class="project-meta">RUST · .LUM</span></div>
+          <h4>la lumina</h4>
+          <p class="project-line">Un vrai langage de programmation, écrit en latin, conçu comme shell.</p>
+          <p>Pipelines typés et données structurées — listes, enregistrements, tables — plutôt que du texte brut. Un interpréteur en Rust presque sans dépendance&nbsp;: les seules bibliothèques externes sont les primitives cryptographiques (RustCrypto) qu’apporte Memoria pour reminiscence&#8239;; le moteur GPU reste optionnel. Le latin y est du vocabulaire technique, pas un ornement. Une suite de conformité exécute de vrais scripts et compare sorties et codes de sortie octet pour octet. C’est le shell par défaut de TheHive.</p>
+          <p class="project-not">Ce n’est pas la persona Lumina.</p>
+          <p class="project-rel">Relié à <a href="#projet-thehive">TheHive</a> <a href="#projet-lumina">Lumina</a> <a class="rel-inscrit" href="#projet-memoria">Memoria<span class="aether-sr"> (inscrit, pas un projet)</span></a></p>
+        </article>
+        <article class="aether-project" id="projet-furu">
+          <div class="project-head"><span class="project-state research">SPÉCIFICATION</span><span class="project-meta">D102 · AUCUN CODE ATTRIBUÉ</span></div>
+          <h4>furu</h4>
+          <p class="project-line">Le moteur de sentience&nbsp;: moteur de rendu et base commune des futurs organes.</p>
+          <p>Tous les organes de perception et d’action de Lumina se construiront sur lui. Le premier organe nommé est la vision distante — voir à travers un drone —, qui ne le définit pas à elle seule. Ordre de travail&nbsp;: contrat général, premiers organes, frontière avec TheHive, emplacement du code, puis implémentation.</p>
+          <p class="project-not">Ni mémoire, ni autopilote&nbsp;: le contrôle de vol restera un module distinct.</p>
+          <p class="project-rel">Relié à <a href="#projet-thehive">TheHive</a> <a href="#projet-lumina">Lumina</a></p>
+        </article>
+        <article class="aether-project" id="projet-reminiscence">
+          <div class="project-head"><span class="project-state research">EN TRANSITION</span><span class="project-meta">D90 · API OUVERTE</span></div>
+          <h4>reminiscence</h4>
+          <p class="project-line">La mémoire propre, future, de Lumina.</p>
+          <p>Une implémentation de transition existe dans le dépôt du langage, avec trois verbes&nbsp;: <i lang="la">memento</i>, <i lang="la">recordare</i>, <i lang="la">oblivisce</i>. Son architecture et son API finales restent ouvertes&#8239;; TheHive devra lui fournir son substrat.</p>
+          <p class="project-not">Ce n’est pas Memoria, qui figure parmi les inscrits.</p>
+          <p class="project-rel">Relié à <a href="#projet-lumina">Lumina</a> <a href="#projet-thehive">TheHive</a> <a class="rel-inscrit" href="#projet-memoria">Memoria<span class="aether-sr"> (inscrit, pas un projet)</span></a></p>
+        </article>
+      </div>
+
+      <h3 class="aether-group-title"><span>B</span>Projets en code</h3>
+      <div class="aether-project-grid grid-code">
+        <article class="aether-project" id="projet-almas">
+          <div class="project-head"><span class="project-state live">ACTIF</span><span class="project-meta">RUST · BANC D’ESSAI</span></div>
+          <h4>AlmaS</h4>
+          <p class="project-line">Reconstruction Rust de l’Alma d’origine — l’œuvre d’un autre auteur, portée avec son accord —, devenue banc d’essai des modules.</p>
+          <p>Trois qualités, dans cet ordre&nbsp;: la mieux documentée, la meilleure pour les épreuves d’intégration, la plus stable. La méthode&nbsp;: rénover fidèlement d’abord, simplifier et optimiser ensuite — le S d’AlmaS veut dire <i lang="en">Simplified</i>.</p>
+          <p class="project-not">Sa mémoire n’est pas reminiscence.</p>
+          <p class="project-rel">Relié à <a href="#projet-greffe">Greffe</a> <a href="#projet-lucarne">Lucarne</a></p>
+        </article>
+        <article class="aether-project" id="projet-linh">
+          <div class="project-head"><span class="project-state live">ACTIF</span><span class="project-meta">RUST · VALPHA1.0</span></div>
+          <h4>Linh</h4>
+          <p class="project-line">Agent portable de terrain, réécrit <i lang="en">from scratch</i>, et clé d’activation de TheHive.</p>
+          <p>Sans runtime asynchrone, avec des outils qui agissent réellement sur la machine et un essaim d’agents qu’elle orchestre elle-même. Persona et mémoire légères&#8239;; le fournisseur de modèle est une donnée, pas du code. Elle doit rester utilisable seule.</p>
+          <p class="project-not">Ce n’est pas «&nbsp;l’intelligence&nbsp;» du parc&nbsp;: cette lecture appartient à une carte antérieure.</p>
+          <p class="project-rel">Relié à <a href="#projet-thehive">TheHive</a> <a href="#projet-greffe">Greffe</a> <a href="#projet-net">Net</a> <a href="#projet-linhmesh">LinhMesh</a></p>
+        </article>
+        <article class="aether-project" id="projet-greffe">
+          <div class="project-head"><span class="project-state live">ACTIF</span><span class="project-meta">RUST · SOCLE NEUTRE</span></div>
+          <h4>Greffe</h4>
+          <p class="project-line">Le contrat par lequel un module se greffe sur un agent — et les modules eux-mêmes.</p>
+          <p>Trois invariants&nbsp;: le cœur tourne sans aucun module&#8239;; l’absence d’un module produit un message clair, jamais un crash&#8239;; ajouter un module ne demande aucune modification du cœur. Un module est un programme séparé qui parle en lignes JSON sur ses flux standard&nbsp;: il peut être écrit dans n’importe quel langage.</p>
+          <p class="project-not">Neutre&nbsp;: il n’appartient à aucun agent, pour qu’aucun n’ait à le recopier.</p>
+          <p class="project-rel">Relié à <a href="#projet-almas">AlmaS</a> <a href="#projet-linh">Linh</a></p>
+        </article>
+        <article class="aether-project" id="projet-lucarne">
+          <div class="project-head"><span class="project-state live">ACTIF</span><span class="project-meta">RUST · D103</span></div>
+          <h4>Lucarne</h4>
+          <p class="project-line">La surface graphique hôte de la famille Alma — AlmaS, Alma, Rose, Linh et AlmaF —, avec AlmaS par défaut.</p>
+          <p>Une interface dont la surface est du SVG, engendrée en Rust et servie en local&#8239;; elle s’ouvre aujourd’hui dans une fenêtre d’application du navigateur, une fenêtre native est en chantier. Depuis D103, elle vise plusieurs sessions simultanées à très basse consommation mémoire — un objectif, pas encore une mesure. Les agents vivent dans la surface&#8239;; la surface ne vit pas dans un agent.</p>
+          <p class="project-not">Ce n’est pas une fenêtre d’AlmaS&nbsp;: AlmaS en est la première occupante, pas la propriétaire.</p>
+          <p class="project-rel">Relié à <a href="#projet-almas">AlmaS</a> <a href="#projet-linh">Linh</a></p>
+        </article>
+        <article class="aether-project" id="projet-net">
+          <div class="project-head"><span class="project-state live">ACTIF</span><span class="project-meta">RUST · SESSIONS</span></div>
+          <h4>Net</h4>
+          <p class="project-line">Réutiliser proprement une session que j’ai ouverte moi-même, pour un client HTTP léger.</p>
+          <p>Ses limites sont mesurées et documentées, pas supposées. Piste ouverte, non décidée&nbsp;: un moteur de recherche natif plus léger.</p>
+          <p class="project-rel">Relié à <a href="#projet-linh">Linh</a></p>
+        </article>
+        <article class="aether-project" id="projet-linhmesh">
+          <div class="project-head"><span class="project-state research">OUVERT</span><span class="project-meta">FLUTTER · YGGDRASIL</span></div>
+          <h4>LinhMesh</h4>
+          <p class="project-line">Un réseau maillé décentralisé bâti sur Yggdrasil&nbsp;: application Android et client web.</p>
+          <p>Un réservoir d’idées pair-à-pair. Absorption dans Linh ou réécriture&nbsp;: non tranché, et non bloquant. Yggdrasil et Matrix y sont rangés pour plus tard.</p>
+          <p class="project-rel">Relié à <a href="#projet-linh">Linh</a></p>
+        </article>
+        <article class="aether-project" id="projet-temoin">
+          <div class="project-head"><span class="project-state tool">OUTIL</span><span class="project-meta">SHELL · CC0</span></div>
+          <h4>Temoin</h4>
+          <p class="project-line">Une garde sait-elle encore dire non&#8239;?</p>
+          <p>Une garde qui ne trouve rien est indiscernable d’une garde qui ne regarde rien&nbsp;: les deux rendent un vert. Temoin lui présente quatre cas dont la réponse est connue d’avance — périmètre fantôme, bac vide, témoin positif, témoin négatif.</p>
+        </article>
+      </div>
+
+      <h3 class="aether-group-title"><span>C</span>Vision — pas encore de code</h3>
+      <div class="aether-project-grid grid-vision">
+        <article class="aether-project is-vision" id="projet-libera">
+          <div class="project-head"><span class="project-state vision">VISION</span><span class="project-meta">MULTI-OS</span></div>
+          <h4>Libera</h4>
+          <p class="project-line">Une suite d’applications natives multi-OS, qui n’espionnent pas.</p>
+        </article>
+        <article class="aether-project is-vision" id="projet-reseau">
+          <div class="project-head"><span class="project-state vision">VISION</span><span class="project-meta">NOM OUVERT</span></div>
+          <h4>Réseau</h4>
+          <p class="project-line">Un espace d’échange centré sur le code et un transhumanisme sérieux, sans traçage.</p>
+        </article>
+        <article class="aether-project is-vision" id="projet-constellation">
+          <div class="project-head"><span class="project-state vision">RECHERCHE</span><span class="project-meta">A HUNDRED BILLION LIVES</span></div>
+          <h4>Constellation</h4>
+          <p class="project-line">Une recherche parallèle sur l’immortalité relative et la continuité de la personne. Aucun code.</p>
+          <p class="project-rel">Voir aussi <a href="mondes.html">Mondes</a></p>
+        </article>
+        <article class="aether-project is-vision" id="projet-rose-almaf">
+          <div class="project-head"><span class="project-state vision">VISION</span><span class="project-meta">FAMILLE ALMA</span></div>
+          <h4>Rose · AlmaF</h4>
+          <p class="project-line">Futures éditions de la famille Alma, natives sur Termux.</p>
+          <p class="project-rel">Relié à <a href="#projet-lucarne">Lucarne</a></p>
+        </article>
+      </div>
+
+      <h3 class="aether-group-title"><span>D</span>Inscrits, pas des projets</h3>
+      <p class="aether-group-note">Ces travaux viennent d’autres mains que les miennes. Le parc s’en sert et le registre les inscrit&#8239;; ils ne comptent pas parmi ses projets.</p>
+      <div class="aether-project-grid grid-inscrits">
+        <article class="aether-project is-inscrit" id="projet-memoria">
+          <div class="project-head"><span class="project-state inscrit">INSCRIT</span><span class="project-meta">RUST · MOTEUR MESURABLE</span></div>
+          <h4>Memoria</h4>
+          <p class="project-line">La rénovation en Rust d’un moteur de mémoire existant, MEMORIA&nbsp;: réelle et mesurable.</p>
+          <p>Segment en ajout, réouverture, scellement, rappel, révocation. Un seul critère, avant la vitesse et la richesse du rappel&nbsp;: être incapable de perdre en silence. Il s’appuie sur la durabilité mesurée de TheHive.</p>
+          <p class="project-not">Ni une création originale — c’est une rénovation —, ni reminiscence&nbsp;: ce qu’elle en reprendra reste ouvert.</p>
+        </article>
+        <article class="aether-project is-inscrit" id="projet-ardupilot">
+          <div class="project-head"><span class="project-state inscrit">INSCRIT</span><span class="project-meta">GODOT · PYTHON</span></div>
+          <h4>ArduPilot-FPV-Game</h4>
+          <p class="project-line">Un jeu et simulateur FPV, utilisé comme banc d’essai et de visualisation.</p>
+          <p class="project-not">Ni l’autopilote, ni furu.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="echelles" class="aether-section scales-section" aria-labelledby="echelles-title">
+      <div class="aether-section-head"><p class="detail-index">03 / ÉCHELLES</p><h2 id="echelles-title">Trois tailles de <em>projet.</em></h2><span>VISION / HORIZON</span><div class="divider" aria-hidden="true"><span class="rule"></span></div></div>
+      <div class="aether-scale-grid">
+        <article class="scale-card scale-sentience">
+          <p>SENTIENCES</p>
+          <h3>Des systèmes qui <em>prennent corps.</em></h3>
+          <p>Les projets Sentiences visent des systèmes complets avec organes, perception, action et information incarnée. <b>Lumina</b>, dans son corps <b>TheHive</b>, en est la première grande forme&#8239;; <b>furu</b> en portera les organes.</p>
+          <ul><li>organes</li><li>perception</li><li>action</li></ul>
+        </article>
+        <article class="scale-card scale-universe">
+          <p>UNIVERS</p>
+          <h3>Des projets à l’échelle du <em>possible.</em></h3>
+          <p>Les projets Univers sont des projets théoriquement faisables, mais d’une ampleur telle qu’ils deviennent presque des mondes à eux seuls. <b>Constellation</b> en est la première direction.</p>
+          <ul><li>immortalité relative</li><li>incarnation</li><li>civilisations techniques</li></ul>
+        </article>
+        <article class="scale-card scale-rick">
+          <p>RICK</p>
+          <h3>Au-delà des <em>Univers.</em></h3>
+          <p>Les projets Rick désignent l’horizon le plus lointain&nbsp;: des idées dépassant encore l’échelle des projets Univers. Leur nature peut rester spéculative jusqu’à ce qu’un chemin réel apparaisse.</p>
+          <ul><li>frontières extrêmes</li><li>science-fiction dure</li><li>hors-horizon</li></ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="trajectoire" class="aether-section roadmap-section" aria-labelledby="trajectoire-title">
+      <div class="aether-section-head"><p class="detail-index">04 / TRAJECTOIRE</p><h2 id="trajectoire-title">Le prochain mouvement est <em>TheHive.</em></h2><span>FEUILLE DE ROUTE · 2026-10-07</span><div class="divider" aria-hidden="true"><span class="rule"></span></div></div>
+      <div class="aether-timeline">
+        <article class="timeline-now"><span>MAINTENANT</span><b>TheHive</b><p>Déjà vus fonctionner en banc&nbsp;: la durabilité mesurée, la pose signée, le terminal en la lumina. Ensuite&nbsp;: démarrer Lumina cognitive, poursuivre les protections, décider puis construire la voie réseau, rejouer les scénarios importants sur la machine réelle.</p></article>
+        <article><span>EN PARALLÈLE</span><b>la lumina · reminiscence</b><p>Le langage continue comme dépôt réel&#8239;; reminiscence est en transition, son API finale reste ouverte.</p></article>
+        <article><span>EN PARALLÈLE</span><b>furu</b><p>Contrat général → premiers organes → frontière avec TheHive → emplacement du code → implémentation.</p></article>
+        <article><span>ENTRETENU</span><b>Le reste du parc</b><p>AlmaS, Linh, Greffe, Net, Lucarne, LinhMesh, Temoin&nbsp;: maintenus, sans être tous le chantier principal à la fois.</p></article>
+        <article><span>PLUS TARD</span><b>Persona · organes · éditions</b><p>La persona complète de Lumina, reminiscence finale, les premiers organes furu, AlmaF et Rose, Libera, Réseau&#8239;; Constellation en recherche parallèle.</p></article>
+      </div>
+    </section>
+
+    <section id="regles" class="aether-section principles-section" aria-labelledby="regles-title">
+      <div class="aether-section-head"><p class="detail-index">05 / RÈGLES</p><h2 id="regles-title">Ce qui empêche la carte de <em>mentir.</em></h2><span>DISCIPLINE</span><div class="divider" aria-hidden="true"><span class="rule"></span></div></div>
+      <div class="aether-rules">
+        <div><b>01</b><span>Décision ≠ idée.</span><p>La prospective peut chercher loin&#8239;; une décision structurante entre dans le registre Aether.</p></div>
+        <div><b>02</b><span>Mesuré ≠ rapporté ≠ spéculé.</span><p>Les régimes restent visibles et ne se mélangent pas en silence.</p></div>
+        <div><b>03</b><span>Fiche ≠ recensement.</span><p>Ce qui se compte est engendré depuis le code&#8239;; ce qui s’explique est écrit.</p></div>
+        <div><b>04</b><span>Projet ≠ module.</span><p>Un gros module devient un projet lorsqu’il possède son propre cycle, ses épreuves et ses frontières.</p></div>
+        <div><b>05</b><span>Récent &gt; ancien.</span><p>Une décision amendée se lit dans sa dernière forme&#8239;; un texte ancien garde son régime historique au lieu d’être présenté comme actuel.</p></div>
+        <div><b>06</b><span>Nommer ce qu’on ne sait pas.</span><p>Un blanc nommé coûte une ligne&#8239;; un blanc comblé par une supposition coûte une refonte.</p></div>
+      </div>
+    </section>
+
+    <section id="espace" class="aether-section references-section" aria-labelledby="espace-title">
+      <div class="aether-final">
+        <p class="detail-index">06 / L’ESPACE</p>
+        <h2 id="espace-title">Aether est la <em>mémoire cartographique</em> du parc.<span class="colophon write final-colophon" lang="zh-Hant" aria-hidden="true"><span class="write-win"><span class="write-ink" data-zh="以太"></span></span><i class="write-beam"></i></span></h2>
+        <p>Ce site n’expose pas tout. Il donne une forme publique à la structure générale&nbsp;: ce qui existe, ce qui est en construction, ce qui est recherché et ce qui n’a pas encore de nom définitif.</p>
+        <div class="aether-final-links">
+          <p class="aether-final-private"><span>01</span>AETHER · DÉPÔT PRIVÉ, NON CONSULTABLE</p>
+          <a href="contact.html"><span>02</span>ME CONTACTER <i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="index.html#channels"><span>03</span>REVENIR AUX DOMAINES <i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+        </div>
+      </div>
+    </section>
+
+    <div class="detail-foot"><div class="divider" aria-hidden="true"><svg class="salve" viewBox="0 0 48 12"><use href="motifs.svg#salve"/></svg><span class="rule"><i class="sweep"></i></span></div><p>Yosuljin / Aether · carte publique, partielle et en mouvement.</p><p class="detail-motto">RIEN NE DISPARAÎT VRAIMENT.</p></div>
+  </main>
+</body>
+</html>

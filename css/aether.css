@@ -1,0 +1,379 @@
+/* Aether dossier — complements styles.css (loaded after it, scoped to .aether-grand). */
+
+/* Palette (styles.css 02): the Aether page takes gold as its hue (--acc, --tint); what is only
+   specified or envisioned stays violet, code cyan, roles magenta, as on the map; work from other
+   hands, inscribed but not a project, takes --dim (#9a8590 as a triplet). */
+.aether-grand{--aether-pink:var(--acc-aether);--aether-violet:var(--acc-worlds);--aether-cyan:var(--acc-dev);--rgb-inscrit:154,133,144}
+.aether-grand .aether-orbit-stage{background:radial-gradient(circle at 50% 46%,rgba(var(--tint),.13),transparent 30%),radial-gradient(circle at 18% 20%,rgba(var(--rgb-violet),.1),transparent 34%),radial-gradient(circle at 86% 82%,rgba(var(--rgb-magenta),.07),transparent 32%),linear-gradient(180deg,rgba(255,255,255,.018),transparent)}
+.aether-grand .aether-core-glow{background:radial-gradient(circle,rgba(255,246,225,.34),rgba(var(--tint),.16) 32%,transparent 68%)}
+
+/* The hero title stays in its column: « mouvement. » is one unbreakable word about 5.1 em wide,
+   so beside the map its size is capped by the column's own width. */
+@media(min-width:901px){
+  .aether-grand .aether-hero-copy{container-type:inline-size}
+  .aether-grand .aether-big-title{font-size:min(clamp(72px,8.6vw,142px),18.8cqi)}
+}
+
+/* Text for screen readers only (map keyboard instructions). */
+.aether-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* Reveal: content is visible by default; aether.js opts in to the fade once it runs. */
+.aether-grand .aether-section{opacity:1;transform:none}
+.aether-grand.aether-reveal .aether-section:not(.is-visible){opacity:.12;transform:translateY(28px)}
+/* Deep links (#parc, #echelles…) land below the fixed top bar. */
+.aether-section[id]{scroll-margin-top:24px}
+
+/* Readable body text: --dim is below 4.5:1 on the background at these sizes. */
+.aether-grand .aether-arch-card p,.aether-grand .aether-timeline p,.aether-grand .aether-rules p,
+.aether-grand .scale-card>p:last-of-type,.aether-grand .aether-final>p:not(.detail-index){color:var(--muted)}
+.aether-grand .aether-timeline p,.aether-grand .aether-rules p{font-size:13px;line-height:1.6}
+/* Labels in --dim, over-titles (the section indexes) in --muted: the rose and the vivid hues are kept
+   for links, focus and what is lit or read. */
+.aether-grand .aether-section-head>span,.aether-grand .aether-live-readout{font-size:10px;color:var(--dim)}
+.aether-grand .detail-index{color:var(--muted)}
+.aether-grand .aether-live-readout{gap:12px 22px}
+
+/* Map reading aid: legend + detail panel. In the HTML it follows the map, so in one column it sits
+   below the graph and its changing height never moves the node under a finger or a pointer;
+   with two columns it is placed back under the copy, beside the map. */
+.aether-reading{display:grid;gap:14px}
+.aether-grand .aether-hero{row-gap:0}
+.aether-grand .aether-hero-copy{grid-column:1;grid-row:1}
+.aether-grand .aether-reading{grid-column:1;grid-row:2;align-self:start}
+.aether-reading-title{margin:0;font:400 10px var(--mono);letter-spacing:.18em;color:var(--dim)}
+.aether-legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none;font:400 11px/1.4 var(--mono);color:var(--dim)}
+.aether-legend li{display:flex;align-items:center;gap:8px}
+.aether-legend i{display:inline-block;width:22px;height:0;border-top:2px solid}
+.legend-noyau i{border-color:rgba(var(--rgb-gold),.9)}
+.legend-build i{border-top-style:dashed;border-color:rgba(var(--rgb-cyan),.85)}
+.legend-role i{border-top-style:dotted;border-color:rgba(var(--rgb-magenta),.9)}
+.legend-future i{width:12px;height:12px;border:1.5px dashed rgba(var(--rgb-violet),.95);border-radius:50%}
+.legend-inscrit i{width:12px;height:12px;border:2px dotted rgba(var(--rgb-inscrit),.8);border-radius:50%}
+/* Swatches lit like the filaments they stand for. */
+.legend-noyau i{box-shadow:0 0 8px rgba(var(--rgb-gold),.6)}
+.legend-build i{filter:drop-shadow(0 0 4px rgba(var(--rgb-cyan),.8))}
+.legend-role i{filter:drop-shadow(0 0 4px rgba(var(--rgb-magenta),.8))}
+.legend-future i{box-shadow:0 0 8px rgba(var(--rgb-violet),.55)}
+/* The live readout's figures read first, in gold (not lit: the screen has one lit title). */
+.aether-grand .aether-live-readout b{color:rgb(var(--tint))}
+.aether-node-panel{min-height:132px;padding:16px 18px;border:1px solid rgba(var(--panel-hue,var(--tint)),.45);box-shadow:0 0 12px rgba(var(--panel-hue,var(--tint)),.18),inset 0 0 18px rgba(var(--panel-hue,var(--tint)),.07);transition:border-color .35s ease,box-shadow .35s ease;
+  background:rgba(12,8,17,.82)}
+.node-panel-hint{margin:0;font-size:13px;line-height:1.55;color:var(--muted)}
+.hint-touch{display:none}
+@media(hover:none){.hint-pointer{display:none}.hint-touch{display:inline}}
+.node-panel-body p{margin:0}
+.node-panel-state{font:400 10px var(--mono);letter-spacing:.16em;color:rgb(var(--panel-hue,var(--tint)))}
+.node-panel-name{margin-top:8px!important;font:400 30px/1 var(--serif);color:var(--paper)}
+.node-panel-line{margin-top:10px!important;font-size:14px;line-height:1.5;color:var(--paper)}
+.node-panel-links{margin-top:10px!important;font:400 11px/1.5 var(--mono);letter-spacing:.06em;color:var(--muted)}
+
+/* Graph: steady (no rotating text), links typed by relation, nodes are focusable links.
+   The stage stays in view beside the copy column, so the detail panel and the map are read together. */
+.aether-grand .aether-hero{align-items:start}
+.aether-grand .aether-orbit-stage{grid-column:2;grid-row:1/span 2;position:sticky;top:100px;height:min(700px,calc(100vh - 124px));min-height:520px}
+.aether-grand .aether-graph{transform:none}
+.aether-grand .core-halo{pointer-events:none}
+/* Lumina sits inside TheHive (D88): TheHive answers on its ring and on its whole label block. */
+.aether-grand .node-hit{fill:transparent;stroke:none;pointer-events:all}
+.aether-grand .aether-links path{transition:opacity .3s ease,stroke-width .3s ease;vector-effect:non-scaling-stroke}
+.aether-grand .aether-links .link-noyau{stroke:rgba(var(--rgb-gold),.55);stroke-width:1.4;stroke-dasharray:none;animation:none}
+.aether-grand .aether-links .link-build{stroke:rgba(var(--rgb-cyan),.45);stroke-width:1.1;stroke-dasharray:5 6}
+.aether-grand .aether-links .link-role{stroke:rgba(var(--rgb-magenta),.55);stroke-width:1.2;stroke-dasharray:1.5 5;stroke-linecap:round}
+.aether-grand .aether-graph.has-focus .aether-links path{opacity:.1}
+.aether-grand .aether-graph.has-focus .aether-links path.is-lit{opacity:1;stroke-width:2.2}
+
+.aether-grand .a-node{cursor:pointer;outline:none}
+/* No ambient animation inside the SVG: an animated stroke repaints the whole map every frame, which
+   alone kept a phone's main thread busy. The map is a reading surface: in SVG (LITE, no WebGL) it is
+   still — rings and core glow included — and in WebGL only the labels' one-off fade-in
+   and the node moves touch the SVG; the constellation alone carries the light. */
+.aether-grand .a-node circle,.aether-grand .aether-links path,.aether-grand .aether-pulses .pulse,
+.aether-grand .aether-orbit-ring,.aether-grand .aether-core-glow{animation:none}
+/* The 10 px floor (RÉMANENCE §4.4) in a map drawn in its own units: aether.js sets --u, the map units in
+   one CSS pixel at the map's real scale, and no label or subtitle is drawn under 10 px on screen;
+   a subtitle that grows steps down as much, so it never touches its label. */
+.aether-grand .a-node text{font-size:max(15px,calc(10px * var(--u,1)))}
+.aether-grand .a-node .node-sub{font-size:max(9px,calc(10px * var(--u,1)));fill:rgba(var(--rgb-gold),.85);transform:translateY(calc(max(0px,10px * var(--u,1) - 9px) * .9))}
+.aether-grand .a-node-inner .node-sub{fill:rgba(var(--rgb-accent),.95)}
+.aether-grand .a-node-noyau .node-sub{fill:rgba(var(--rgb-magenta),.92)}
+.aether-grand .a-node-code .node-sub{fill:rgba(var(--rgb-cyan),.88)}
+.aether-grand .a-node-future .node-sub,.aether-grand .a-node-vision .node-sub{fill:var(--acc-worlds-text)}
+.aether-grand .a-node-core circle{fill:rgba(18,10,18,.96);stroke:rgba(var(--rgb-gold),.85);stroke-width:2}
+.aether-grand .a-node-core text{font-size:max(20px,calc(10px * var(--u,1)));font-weight:600;letter-spacing:.2em}
+.aether-grand .a-node-inner circle{fill:rgba(30,13,26,.98);stroke:rgba(var(--rgb-accent),.95);stroke-width:1.6}
+.aether-grand .a-node-inner text{font-size:max(11px,calc(10px * var(--u,1)));letter-spacing:.14em}
+.aether-grand .a-node-inner .node-sub{font-size:max(7px,calc(10px * var(--u,1)));transform:translateY(calc(max(0px,10px * var(--u,1) - 7px) * .9))}
+.aether-grand .a-node-noyau circle{stroke:rgba(var(--rgb-magenta),.85)}
+.aether-grand .a-node-code circle{stroke:rgba(var(--rgb-cyan),.7)}
+.aether-grand .a-node-future circle{stroke:rgba(var(--rgb-violet),.9);stroke-dasharray:4 4}
+.aether-grand .a-node-vision circle{stroke:rgba(var(--rgb-violet),.6);stroke-dasharray:2 3}
+.aether-grand .a-node-vision text{font-size:max(12px,calc(10px * var(--u,1)));fill:var(--muted)}
+.aether-grand .a-node-vision .node-sub{font-size:max(8px,calc(10px * var(--u,1)));transform:translateY(calc(max(0px,10px * var(--u,1) - 8px) * .9))}
+/* Work from other hands (data-owner="inscrit", Memoria): a hollow dotted ring in --dim, no halo, no
+   role colour; its documented relations dotted at 30 % (aether.js marks them). */
+.aether-grand .a-node[data-owner="inscrit"] circle{fill:rgba(16,11,18,.96);stroke:rgba(var(--rgb-inscrit),.45);stroke-width:2;stroke-dasharray:0 4.5;stroke-linecap:round;filter:none}
+.aether-grand .a-node[data-owner="inscrit"]:not(.is-focus) text,.aether-grand .a-node[data-owner="inscrit"] .node-sub{fill:var(--dim)}
+.aether-grand .aether-links path.is-inscrit{stroke:rgba(var(--rgb-inscrit),.3);stroke-width:1.4;stroke-dasharray:0 5;stroke-linecap:round}
+.aether-grand .aether-graph.has-focus .a-node{opacity:.3}
+.aether-grand .aether-graph.has-focus .a-node.is-near{opacity:.9}
+.aether-grand .aether-graph.has-focus .a-node.is-focus{opacity:1}
+.aether-grand .a-node.is-focus circle{animation:none;stroke:var(--aether-pink);stroke-width:2.6;stroke-dasharray:none}
+.aether-grand .a-node:focus-visible circle{stroke:#fff;stroke-width:3.2;stroke-dasharray:none}
+.aether-grand .a-node:focus-visible text{fill:#fff;text-decoration:underline}
+
+/* Rest (aether.js): after a while without input the page's ambient motion stops, so an idle page
+   draws no frames; any input brings it back. */
+.aether-grand.is-resting .aether-shell *,.aether-grand.is-resting .aether-shell *::before,.aether-grand.is-resting .aether-shell *::after{animation-play-state:paused!important}
+/* …except the labels' one-off fade-in: paused at its first keyframe they would stay dim. */
+.aether-grand.is-resting .aether-orbit-stage.is-gl .a-node text{animation-play-state:running!important}
+/* Pause every ambient animation that is off-screen (aether.js sets .is-offscreen on the final block, whose
+   colophon is written while it is on screen). */
+.aether-grand .is-offscreen,.aether-grand .is-offscreen *,.aether-grand .is-offscreen::before,.aether-grand .is-offscreen::after,
+.aether-grand .is-offscreen *::before,.aether-grand .is-offscreen *::after{animation-play-state:paused!important}
+
+/* WebGL constellation (js/world/constellation.js, FULL 3D with motion allowed). The canvas draws the
+   map as light under the SVG; the SVG keeps its nodes — labels, focus ring, hit areas, screen-reader
+   names — and drops what the canvas now draws. Without the .is-gl class the SVG map is unchanged. */
+.aether-orbit-stage{isolation:isolate}
+.aether-constellation{position:absolute;inset:0;z-index:-1;display:block;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity .9s ease}
+.aether-orbit-stage.is-gl .aether-constellation{opacity:1}
+.aether-orbit-stage.is-gl.is-asleep .aether-constellation{opacity:.6;transition-duration:2.4s}
+/* The background can be dragged to look around (mouse or pen); nodes keep the pointer cursor. */
+@media(pointer:fine){.aether-orbit-stage.is-gl{cursor:grab}.aether-orbit-stage.is-gl.is-dragging{cursor:grabbing;user-select:none}}
+.aether-orbit-stage.is-gl .aether-orbit-ring,.aether-orbit-stage.is-gl .aether-core-glow,
+.aether-orbit-stage.is-gl .aether-pulses,.aether-orbit-stage.is-gl .core-halo,.aether-orbit-stage.is-gl .aether-links{display:none}
+.aether-grand .is-gl .a-node circle{fill:transparent;stroke:transparent;filter:none;transition:none}
+/* The keyboard ring sits on a glow: a dark halo keeps it above 3:1 against light and dark alike. */
+.aether-grand .is-gl .a-node:focus-visible circle{stroke:#fff;stroke-width:3.2;stroke-dasharray:none;filter:drop-shadow(0 0 1.2px #000) drop-shadow(0 0 2.6px rgba(0,0,0,.9))}
+/* Touch targets: each node (TheHive has its label block) carries an invisible hit circle of 44 map
+   units, about 30 px on a 375 px phone; nothing of it is ever drawn, focus ring included. */
+.aether-grand .aether-graph .a-node circle.node-hit{fill:transparent;stroke:none;filter:none;animation:none;transition:none;transform:none;pointer-events:all}
+/* A dark halo keeps the labels legible over the glows; Lumina's label leaves the heart of light
+   for the lower half of TheHive. */
+.aether-grand .is-gl .a-node text{paint-order:stroke;stroke:rgba(4,2,8,.8);stroke-width:4px;stroke-linejoin:round}
+.aether-grand .is-gl .a-node-inner text{transform:translateY(34px)}
+.aether-grand .is-gl .a-node-inner .node-sub{transform:translateY(calc(34px + max(0px,10px * var(--u,1) - 7px) * .9))}
+/* The label of the node being read glows in its kind's neon (one filtered element at a time). */
+.aether-grand .is-gl .a-node.is-focus text{filter:drop-shadow(0 0 4px rgba(var(--node-glow,var(--tint)),.95)) drop-shadow(0 0 10px rgba(var(--node-glow,var(--tint)),.55))}
+.aether-grand .a-node-core{--node-glow:var(--rgb-gold)}
+.aether-grand .a-node-inner{--node-glow:var(--rgb-accent)}
+.aether-grand .a-node-noyau{--node-glow:var(--rgb-magenta)}
+.aether-grand .a-node-code{--node-glow:var(--rgb-cyan)}
+.aether-grand :is(.a-node-future,.a-node-vision){--node-glow:var(--rgb-violet)}
+.aether-grand .is-gl .a-node[data-owner="inscrit"].is-focus text{filter:none}
+/* When the constellation lights up, the labels come up with its stars, unevenly (once). */
+.aether-orbit-stage.is-gl .a-node text{animation:aetherLabelIn 1.4s ease-out both}
+.aether-orbit-stage.is-gl .a-node:nth-child(3n) text{animation-delay:.15s}
+.aether-orbit-stage.is-gl .a-node:nth-child(3n+1) text{animation-delay:.3s}
+@keyframes aetherLabelIn{from{opacity:.12}}
+
+/* Architecture */
+.arch-distinctions{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.arch-distinctions li{padding:10px 0 0;border-top:1px solid var(--line-2);font-size:14px;line-height:1.5;color:var(--muted)}
+.arch-distinctions b{color:var(--paper);font-weight:500}
+
+/* Park: project sheets grouped by régime. */
+.aether-park-intro{max-width:70ch;margin:-10px 0 34px;font-size:15px;line-height:1.6;color:var(--muted)}
+.aether-group-title{display:flex;align-items:baseline;gap:14px;margin:44px 0 16px;font:400 12px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--paper)}
+.aether-group-title span{color:var(--aether-pink)}
+.aether-project-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px}
+.aether-project{position:relative;display:flex;flex-direction:column;gap:12px;padding:24px 22px;background:rgba(10,7,13,.95);box-shadow:0 0 0 1px var(--line);scroll-margin-top:110px}
+.aether-project p{margin:0}
+.project-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.aether-grand .project-state{margin:0;font-size:10px}
+.project-state.vision{color:var(--acc-worlds);border-style:dashed}
+.project-meta{font:400 10px var(--mono);letter-spacing:.14em;color:var(--dim)}
+.aether-project h4{margin:6px 0 0;font:400 34px/1 var(--serif);letter-spacing:-.01em}
+.project-line{font-size:15px;line-height:1.5;color:var(--paper)}
+.aether-project p:not([class]){font-size:13.5px;line-height:1.62;color:var(--muted)}
+.project-not{padding-left:12px;border-left:2px solid var(--aether-violet);font-size:13px;line-height:1.5;color:var(--muted);font-style:italic}
+.project-rel{margin-top:auto!important;padding-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:400 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.project-rel a{padding:5px 8px;border:1px solid var(--line);color:var(--paper);text-decoration:none;letter-spacing:.06em;text-transform:none;font-size:11px;transition:border-color .2s,color .2s}
+.project-rel a:hover,.project-rel a:focus-visible{border-color:var(--aether-pink);color:var(--aether-pink)}
+
+/* The Aether repository is private: its entry among the final links is a statement, not a link. */
+.aether-final-links .aether-final-private{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:center;margin:0;padding:16px 14px;border-right:1px solid var(--line);font:400 10px var(--mono);letter-spacing:.14em;color:var(--muted)}
+.aether-final-links .aether-final-private span{color:var(--muted)}
+@media(max-width:900px){.aether-final-links .aether-final-private{border-right:0;border-bottom:1px solid var(--line)}}
+
+/* ---------- Panels below the map: calm glass ----------
+   Dark glass, faintly tinted, drawn with a hairline. One vivid hue: the dossier's gold, except on the
+   project sheets, which take the colour their project's role has on the map (the park is the map's
+   list). Nothing moves and nothing glows at rest; nothing tilts (text being read never moves). */
+/* Default hue in :where(), so that every per-sheet hue below wins. */
+.aether-grand :where(.aether-arch-card,.aether-project,.scale-card,.aether-timeline>article,.aether-rules>div){--hue:var(--rgb-gold)}
+.aether-grand :is(.aether-arch-card,.aether-project,.scale-card,.aether-timeline>article,.aether-rules>div){
+  position:relative;z-index:0;
+  background:radial-gradient(130% 90% at 50% 0%,rgba(var(--hue),.07),transparent 62%),rgba(12,8,17,.93);
+  box-shadow:inset 0 0 48px rgba(0,0,0,.45);border:0}
+.aether-grand :is(.aether-arch-card,.scale-card,.aether-timeline>article,.aether-rules>div,.aether-project.is-inscrit)::before{
+  content:"";position:absolute;inset:0;z-index:-1;width:auto;height:auto;border:1px solid rgba(var(--hue),.24);border-radius:0;background:none;
+  opacity:1;pointer-events:none;animation:none}
+/* A project sheet draws its hairline as an inset shadow: its two pseudo-elements are the lit edge (A1,
+   in two layers): the hue on ::after goes out in 300 ms, the rose on ::before in 900 ms, both come on
+   in 120 ms — the trace ends rose. Lit under the pointer or the focus, when the sheet is reached by a
+   link (:target), or when the "Relié à" link being read names it; one sheet at a time. Work from
+   other hands takes no light. */
+.aether-grand .aether-project:not(.is-inscrit){box-shadow:inset 0 0 0 1px rgba(var(--hue),.24),inset 0 0 48px rgba(0,0,0,.45)}
+.aether-grand .aether-project:not(.is-inscrit)::before,.aether-grand .aether-project:not(.is-inscrit)::after{content:"";position:absolute;left:-1px;top:0;bottom:0;width:2px;opacity:0;pointer-events:none}
+.aether-grand .aether-project:not(.is-inscrit)::before{background:var(--rose);box-shadow:0 0 8px rgba(var(--rgb-rose),.6);transition:opacity var(--t-off) var(--ease-decay)}
+.aether-grand .aether-project:not(.is-inscrit)::after{background:rgb(var(--hue));box-shadow:0 0 8px rgba(var(--hue),.8),0 0 18px rgba(var(--hue),.35);transition:opacity 300ms ease-out}
+.aether-grand .aether-project:not(.is-inscrit):is(:hover,:focus-within,:target,.is-related)::before,
+.aether-grand .aether-project:not(.is-inscrit):is(:hover,:focus-within,:target,.is-related)::after{opacity:1;transition-duration:var(--t-on);transition-timing-function:ease-out}
+.aether-grand .park-section:has(.is-related) .aether-project:not(.is-related,.is-inscrit)::before,
+.aether-grand .park-section:has(.is-related) .aether-project:not(.is-related,.is-inscrit)::after,
+.aether-grand .park-section:has(.aether-project:not(.is-inscrit):is(:hover,:focus-within):not(:target)) .aether-project:target:not(:hover,:focus-within,.is-inscrit)::before,
+.aether-grand .park-section:has(.aether-project:not(.is-inscrit):is(:hover,:focus-within):not(:target)) .aether-project:target:not(:hover,:focus-within,.is-inscrit)::after{opacity:0}
+/* Nothing in an architecture card overflows: its sigil may (240 px). */
+.aether-grand .aether-arch-card{overflow:visible}
+
+/* Hues of the project sheets: the colour each project's role has on the map (vision violet, code cyan,
+   the language magenta, Lumina its accent, what is only specified violet). */
+.aether-grand .grid-code .aether-project{--hue:var(--rgb-cyan)}
+.aether-grand .grid-vision .aether-project{--hue:var(--rgb-violet)}
+.aether-grand #projet-lumina{--hue:var(--rgb-accent)}
+.aether-grand #projet-la-lumina{--hue:var(--rgb-magenta)}
+.aether-grand #projet-reminiscence,.aether-grand #projet-furu{--hue:var(--rgb-violet)}
+
+/* Panels breathe apart; numerals in the dossier's gold, labels in --dim, the current step in rose. */
+.aether-grand .aether-architecture-grid,.aether-grand .aether-timeline,.aether-grand .aether-rules{gap:18px;background:none}
+.aether-grand .aether-project-grid{gap:18px}
+.aether-grand .aether-rules b{color:rgb(var(--hue))}
+.aether-grand .aether-timeline article>span{color:var(--dim)}
+.aether-grand .aether-timeline .timeline-now>span{color:var(--rose)}
+.aether-grand .project-state{border-color:currentColor}
+.aether-grand .project-not{border-left-color:rgb(var(--hue))}
+.aether-grand .project-rel a{border-color:rgba(var(--hue),.4);transition:border-color .2s,color .2s}
+.aether-grand .project-rel a:hover,.aether-grand .project-rel a:focus-visible{border-color:rgb(var(--hue));color:#fff}
+.aether-grand .aether-final-links a{transition:background .3s,box-shadow .3s}
+.aether-grand .aether-final-links a:hover,.aether-grand .aether-final-links a:focus-visible{background:rgba(var(--hue),.06);box-shadow:inset 0 0 0 1px rgba(var(--hue),.5)}
+
+/* Inscrits, pas des projets: work from other hands that the park uses (data-owner="inscrit" on the
+   map, .is-inscrit on its sheet). Hollow, dotted or dashed, in --dim, without light — no lit edge,
+   no glow, no motif — on the map, in the legend, in the park's last group, and on the "Relié à" links
+   that lead there (which also say it in words for screen readers). Reached from the map, its sheet
+   only firms its dashed frame. */
+.aether-group-note{max-width:70ch;margin:-4px 0 18px;font-size:14px;line-height:1.6;color:var(--muted)}
+.aether-grand .project-state.inscrit{color:var(--dim);border-style:dashed}
+.aether-grand .grid-inscrits .aether-project{--hue:var(--rgb-inscrit);background:rgba(12,8,17,.62);box-shadow:none}
+.aether-grand .grid-inscrits .aether-project::before{border-style:dashed}
+.aether-grand .grid-inscrits .aether-project:target::before{border-color:rgba(var(--rgb-inscrit),.8)}
+.aether-grand .project-rel a.rel-inscrit{border-style:dashed;border-color:rgba(var(--rgb-inscrit),.55);color:var(--muted)}
+.aether-grand .project-rel a.rel-inscrit:is(:hover,:focus-visible){border-color:rgb(var(--rgb-inscrit));color:var(--paper)}
+
+/* Readability: no mono label under 10 px below the map; labels in --dim (6:1 on the glass). */
+.aether-grand :is(.arch-top,.arch-tags,.aether-arch-card small,.aether-timeline article>span,.scale-card>p:first-of-type,.scale-card li,.aether-final-links a){font-size:10px}
+.aether-grand :is(.arch-top,.arch-tags,.aether-arch-card small,.aether-final-links span,.project-state.ref,.scale-card>p:first-of-type,.scale-card li){color:var(--dim)}
+/* The screen's one lit title (RÉMANENCE §4.3), in the source's gold: a white core and a gold bloom,
+   painted once. Every other title stays in --paper, without halo. */
+.aether-grand .aether-big-title{color:var(--phosphor);text-shadow:0 0 .02em rgba(var(--rgb-phosphor),.6),0 0 .1em rgba(var(--rgb-gold),.26),0 0 .42em rgba(var(--rgb-gold),.1)}
+/* Every link of the dossier is at least 44 px tall, whatever the pointer. */
+.aether-grand .project-rel{gap:8px}
+.aether-grand .project-rel a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px}
+.aether-grand .aether-final-links a{min-height:44px}
+
+/* Ornaments: still. The light of this page lives in the constellation; below the map nothing loops. */
+/* Section titles: the site's divider (css/motifs.css). The salve (96 x 24) only on the page's first one and
+   in the footer, each swept once the first time it is seen (aether.js sets .is-seen); elsewhere the 1 px
+   line alone. */
+.aether-grand .aether-section-head>.divider{grid-column:1/-1;width:min(420px,70%);margin-top:6px}
+.aether-grand .aether-section-head .divider .salve{width:96px;height:24px}
+html .aether-grand .divider .sweep{animation:none}
+html:not(.mode-lite) .aether-grand .divider.is-seen .sweep{animation:sweep 1.8s var(--ease-scan) both}
+/* The footer's salve waits for the footer's own fade-in (.reveal, js/ui/chrome.js): seen first, it would
+   sweep while the footer is still transparent. */
+html:not(.mode-lite) .aether-grand .detail-foot.reveal:not(.visible) .divider.is-seen .sweep{animation-play-state:paused}
+
+/* Architecture sigil: a still gyroscope — gold rings and Lumina's accent, a honeycomb plate for TheHive,
+   Lumina's light in the middle. */
+.aether-grand .arch-3d{width:240px;height:240px}
+.aether-grand .arch-3d::before,.aether-grand .arch-3d::after,.aether-grand .arch-3d i{border-width:2px;animation:none}
+.aether-grand .arch-3d::before{border-color:rgba(var(--rgb-gold),.8);box-shadow:0 0 8px rgba(var(--rgb-gold),.3),inset 0 0 8px rgba(var(--rgb-gold),.18)}
+.aether-grand .arch-3d::after{border-color:rgba(var(--rgb-gold),.45);box-shadow:0 0 8px rgba(var(--rgb-gold),.18),inset 0 0 8px rgba(var(--rgb-gold),.1)}
+.aether-grand .arch-3d i:nth-child(1){border-color:rgba(var(--rgb-accent),.55);box-shadow:0 0 8px rgba(var(--rgb-accent),.2),inset 0 0 8px rgba(var(--rgb-accent),.12)}
+.aether-grand .arch-3d i:nth-child(2){inset:44px;border:0;border-radius:0;transform:rotateX(58deg) rotateZ(30deg);filter:drop-shadow(0 0 4px rgba(var(--rgb-gold),.4));
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%23ffd36b' stroke-width='2'%3E%3Cpath d='M50 4 90 27v46L50 96 10 73V27Z'/%3E%3Cpath d='M50 28 69 39v22L50 72 31 61V39Z' stroke-opacity='.75'/%3E%3Cpath d='M50 4v24M90 27 69 39M90 73 69 61M50 96V72M10 73l21-12M10 27l21 12' stroke-opacity='.5'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat}
+.aether-grand .arch-3d i:nth-child(3){left:calc(50% - 9px);top:calc(50% - 9px);width:18px;height:18px;border:0;background:radial-gradient(circle,#fff 0 22%,rgba(var(--rgb-accent),.95) 45%,rgba(var(--rgb-accent),0) 72%);box-shadow:0 0 18px rgba(var(--rgb-accent),.6),0 0 44px rgba(var(--rgb-accent),.25)}
+
+/* Scale cards: one vivid hue, the dossier's gold, in the italic of their titles (RÉMANENCE §3.4). */
+.aether-grand .scale-card h3 em{color:var(--aether-pink)}
+
+/* Timeline (five columns): a still gold line across, a point on it for each step, the current one lit
+   in rose. */
+@media(min-width:1101px){
+  .aether-grand .aether-timeline{position:relative;padding-top:28px}
+  .aether-grand .aether-timeline::before{content:"";position:absolute;left:0;right:0;top:9px;height:1px;background:linear-gradient(90deg,rgba(var(--rgb-gold),.85),rgba(var(--rgb-gold),.2))}
+  .aether-grand .aether-timeline>article>span::before{content:"";position:absolute;left:22px;top:-24px;width:9px;height:9px;border-radius:50%;background:rgba(var(--rgb-gold),.55)}
+  .aether-grand .aether-timeline>.timeline-now>span::before{background:var(--rose);box-shadow:0 0 6px rgba(var(--rgb-rose),.8),0 0 16px rgba(var(--rgb-rose),.35)}
+}
+
+/* Final block: its own frame and rings (styles.css), and the page's one Chinese word, 以太 (Aether), set
+   after the title as a vertical colophon: Song/Ming at 400, sakura resting at the phosphor floor, no
+   frame, written once by the beam while the block is on screen (css/motifs.css .colophon .write). Sized
+   with the title (a quarter of its em, 18 px at most, 12 at least) and hanging a little below the
+   baseline, it never makes the last line taller. From data-zh with an empty alternative, aria-hidden,
+   lang zh-Hant: the heading's name and its copied text stay French. */
+.aether-grand .aether-final{--hue:var(--rgb-accent);z-index:0}
+.aether-grand .final-colophon{margin-left:.7em;vertical-align:-.35em;font-size:clamp(12px,.26em,18px);letter-spacing:.3em;user-select:none}
+.aether-grand .final-colophon .write-ink::before{content:attr(data-zh);content:attr(data-zh) / ""}
+
+/* LITE is the page's pause (WCAG 2.2.2): no animation at all in the dossier, every motif at rest. */
+html.mode-lite .aether-shell :is(*,*::before,*::after){animation:none!important}
+/* More contrast or forced colours: no halo, no lit layer, no decoration. */
+@media(forced-colors:active),(prefers-contrast:more){
+  .aether-grand .aether-big-title{text-shadow:none}
+  .aether-grand :is(.aether-node-panel,.legend-noyau i,.legend-future i,.arch-3d i){box-shadow:none}
+  .aether-grand .arch-3d::before,.aether-grand .arch-3d::after{box-shadow:none}
+  .aether-grand :is(.legend-build i,.legend-role i,.arch-3d i){filter:none}
+  .aether-grand .aether-project::before,.aether-grand .aether-project::after{display:none}
+  .aether-grand .aether-project.is-inscrit::before{display:block}
+}
+
+/* Trajectory: five columns; rules: three. */
+.aether-grand .aether-timeline{grid-template-columns:1.35fr repeat(4,1fr)}
+.aether-grand .aether-timeline b{font-size:25px}
+.aether-grand .aether-rules{grid-template-columns:repeat(3,1fr)}
+
+@media(max-width:1100px){
+  .aether-project-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .aether-grand .aether-timeline{grid-template-columns:1fr 1fr}
+  .aether-grand .aether-timeline .timeline-now{grid-column:1/-1}
+}
+@media(max-width:900px){
+  .aether-grand .aether-rules{grid-template-columns:1fr 1fr}
+  .aether-grand .aether-hero{row-gap:36px}
+  .aether-grand .aether-hero-copy,.aether-grand .aether-orbit-stage,.aether-grand .aether-reading{grid-column:1;grid-row:auto}
+  .aether-grand .aether-orbit-stage{position:relative;top:auto;height:auto;min-height:560px}
+}
+@media(max-width:700px){
+  /* One column: panels hug their text (desktop minimum heights left big empty frames). */
+  .aether-grand .aether-timeline>article,.aether-grand .aether-rules>div{min-height:0}
+  .aether-grand .aether-timeline b{margin:18px 0 10px}
+  .aether-grand .aether-rules span{margin:16px 0 10px}
+  .aether-grand .arch-3d{width:190px;height:190px}
+  .aether-project-grid,.aether-grand .aether-timeline,.aether-grand .aether-rules{grid-template-columns:1fr}
+  .aether-project h4{font-size:30px}
+  .aether-grand .aether-orbit-stage{min-height:0;aspect-ratio:1000/720}
+  /* Phones: labels at their floor without tracking, and the SVG map steps back like the
+     constellation (its zoom, .965), so the edge labels keep their margin; Lumina's label, which could
+     not reach 10 px inside TheHive, is left to its node's name (aria-label) and the panel. */
+  .aether-grand .aether-orbit-stage:not(.is-gl) .aether-graph{transform:scale(.965)}
+  .aether-grand .a-node text{font-size:max(26px,calc(10px * var(--u,1)))}
+  .aether-grand .a-node:not(.a-node-core) text{letter-spacing:0}
+  .aether-grand .a-node-core text{font-size:max(28px,calc(10px * var(--u,1)))}
+  .aether-grand .a-node-inner text{display:none}
+  .aether-grand .a-node-vision text{font-size:max(21px,calc(10px * var(--u,1)))}
+  .aether-grand .a-node .node-sub{display:none}
+  .aether-grand .aether-hero{row-gap:18px}
+  /* The top row keeps each label on one line: the drawn back arrow is wider than the typed one, so the
+     labels sit closer, and on the narrowest phones the page's name takes its own line. */
+  .aether-grand .detail-top{flex-wrap:wrap;gap:0 12px}
+  .aether-grand .detail-top-meta{display:inline-flex;align-items:center;min-height:32px}
+}
+@media(max-width:380px){
+  /* « cartographique » is one unbreakable word: 46px overflowed a 320px screen by 17px. */
+  .aether-grand .aether-final h2{font-size:min(46px,12.5vw);overflow-wrap:break-word}
+}
+@media(prefers-reduced-motion:reduce){
+  .aether-project{transition:none}
+}

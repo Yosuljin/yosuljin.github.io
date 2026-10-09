@@ -1,0 +1,185 @@
+/* =====================================================================
+   YOSULJIN — PAGES LÉGALES, CONTACT, 404
+   Chargée après styles.css sur cgu, confidentialite, mentions-legales, contact et 404, avant css/motifs.css.
+   Calme, comme LITE (RÉMANENCE §9.9) : des plaques, des filets simples (ni salve ni balayage), aucun motif, rien qui
+   bouge dans une colonne de lecture. La 404 garde un seul geste : un pétale qui tombe sur le filet.
+   01 lisibilité · 02 fiches légales · 03 contact · 04 page 404 · 05 tactile + petits écrans · 06 mouvement réduit
+   ===================================================================== */
+
+/* 01 · LISIBILITÉ */
+/* Un texte juridique se cite et un identifiant se copie : la colonne de lecture redevient sélectionnable. */
+.legal-page,.contact-shell{-webkit-user-select:text;user-select:text}
+.visually-hidden{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+.menu-legal a[aria-current="page"],.legal-nav a[aria-current="page"]{color:var(--rose)}
+/* Mesure de lecture (60 à 70 signes par ligne) ; les paragraphes évitent le mot seul en dernière ligne,
+   les titres équilibrent leurs lignes. Amélioration progressive : sans text-wrap, rien ne casse. */
+.legal-page section>p{max-width:66ch}
+.legal-intro{max-width:60ch}
+:is(.legal-page p,.legal-page dd,.contact-card p,.contact-note){text-wrap:pretty}
+:is(.legal-page h1,.legal-page h2,.contact-card h2){text-wrap:balance}
+/* Hiérarchie du rose : sur-titres en --muted, étiquettes en --dim ; le rose reste aux liens, au focus, aux états
+   allumés et à l'italique de la seconde ligne. */
+.legal-page .legal-kicker,.contact-page .detail-index{color:var(--muted)}
+/* Rien ne bouge dans une colonne de lecture : les sections sont là, sans fondu ni glissement à l'arrivée (page.js
+   les marque .reveal) ni cadre autour de chacune. */
+.legal-page section.reveal{opacity:1;transform:none;transition:none}
+/* Flèches dessinées (motifs.svg) : ← → ↗ manquent aux polices du site, chaque appareil les prenait ailleurs. */
+.ico-arrow{display:inline-block;flex:none;width:12px;height:12px;vertical-align:-1px;overflow:visible}
+/* Les retours : des cibles de 44 px, la flèche à côté du libellé, comme sur les pages de domaine. */
+.legal-page .legal-back,.contact-page .detail-back{display:inline-flex;align-items:center;gap:10px;min-height:44px}
+:is(.legal-back,.detail-back) .ico-arrow{width:14px;height:14px}
+
+/* 02 · FICHES LÉGALES — couples intitulé / valeur */
+.legal-facts{margin:0}
+.legal-facts>div{display:grid;grid-template-columns:minmax(150px,.42fr) minmax(0,1fr);gap:4px 22px;padding:9px 0;border-bottom:1px solid var(--line-2)}
+.legal-facts>div:last-child{border-bottom:0}
+.legal-facts dt{font:400 var(--label)/2.1 var(--mono);letter-spacing:var(--label-ls);text-transform:uppercase;color:var(--dim)}
+.legal-facts dd{margin:0;color:var(--paper)}
+.legal-page code{font:400 .9em var(--mono);color:var(--paper);overflow-wrap:anywhere}
+/* Les clés de stockage sont sensibles à la casse : l'intitulé en capitales ne doit pas les transformer. */
+.legal-facts dt code{font-size:11px;letter-spacing:.02em;text-transform:none}
+/* Les encadrés sont des plaques de verre, le matériau des blocs des pages de domaine ; le texte y garde sa marge
+   (.legal-page section ôtait celle des sources). */
+.legal-page :is(.legal-warning,.legal-sources){padding:22px 20px;background:linear-gradient(120deg,rgba(var(--tint),.075),transparent 46%),var(--plate)}
+/* Sommaire : les titres numérotés de la page, sur deux colonnes quand la largeur le permet. */
+.legal-toc{margin:0 0 30px}
+.legal-toc ol{margin:0;padding:0;list-style:none;counter-reset:toc;columns:2 140px;column-gap:28px}
+.legal-toc li{counter-increment:toc;break-inside:avoid;margin:0}
+.legal-page .legal-toc a{display:grid;grid-template-columns:2.2em minmax(0,1fr);column-gap:10px;align-items:baseline;align-content:center;min-height:44px;padding:4px 0;color:var(--muted);font-size:14px;line-height:1.4;text-decoration:none;transition:color var(--t-off) var(--ease-decay)}
+.legal-toc a::before{content:counter(toc) ".";font:400 var(--label) var(--mono);letter-spacing:.1em;color:var(--dim);transition:color var(--t-off) var(--ease-decay)}
+.legal-page .legal-toc a:is(:hover,:focus-visible){color:var(--paper);transition-duration:var(--t-on);transition-timing-function:ease-out}
+.legal-toc a:is(:hover,:focus-visible)::before{color:var(--rose);transition-duration:var(--t-on);transition-timing-function:ease-out}
+/* Références externes : une liste, un lien par ligne ; la flèche suit le dernier mot, même quand le titre passe à la ligne. */
+.legal-page .legal-refs{margin:10px 0 0;padding:0;list-style:none}
+.legal-page .legal-refs li{margin:0}
+.legal-page .legal-refs a{display:block;min-height:44px;padding:11px 0}
+.legal-refs .ico-arrow{margin-left:7px}
+.legal-refs .ref-tail{white-space:nowrap}
+/* Fin du document : un filet simple, puis les autres documents ; la ligne lue s'allume (A1) et sa trace finit rose. */
+.legal-page .legal-end{margin-top:34px}
+.legal-page .legal-nav{margin:0 0 0 -12px;padding-top:10px;border-top:0}
+.legal-page .legal-nav a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 4px 0 12px;font:400 var(--label)/1.4 var(--mono);letter-spacing:var(--label-ls)}
+/* Pied de page dans la voix des libellés ; la date se détache de la navigation (même voix que la 404). */
+.legal-page .legal-date{margin-top:24px;text-transform:uppercase}
+
+/* 03 · CONTACT */
+/* Les deux teintes de la page reprennent les jetons du site : le rose des liens et des états allumés, le violet des
+   Mondes pour le Réseau (styles.css les lit sous ces noms). */
+.contact-page{--aether-pink:var(--rose);--aether-violet:var(--acc-worlds-text)}
+/* La nuit derrière la page reste vide : ni planète ni anneau (seul, l'anneau du repli se lirait comme un trait égaré). */
+.contact-page .world-fallback::after{content:none}
+/* Le seul titre allumé de l'écran, statique : un cœur blanc et une floraison dans le rose de l'espace (RÉMANENCE §4.3). */
+.contact-hero h1{color:var(--phosphor);text-shadow:0 0 .02em rgba(var(--rgb-phosphor),.6),0 0 .1em rgba(var(--rgb-rose),.22),0 0 .42em rgba(var(--rgb-accent),.08)}
+/* Sous le titre, un filet simple au lieu d'une bordure. */
+.contact-hero{border-bottom:0}
+/* Texte courant en --muted, comme les chapôs et paragraphes des autres pages (contraste AA). */
+.contact-hero>p:last-child{color:var(--muted)}
+.contact-card{display:flex;flex-direction:column}
+.contact-card p{color:var(--muted)}
+/* La lueur violette du Réseau repose sur un fond opaque : le rose de la grille ne transparaît plus sous le texte. */
+.contact-future{background:linear-gradient(140deg,rgba(var(--rgb-violet),.08),transparent 60%),rgba(10,7,13,.96)}
+.contact-card .contact-state,.contact-card .contact-number{font-size:var(--label)}
+.contact-future .contact-state{color:var(--dim)}
+/* Une carte se lit comme une plaque : survolée ou atteinte au clavier, son arête s'allume (A1) dans la teinte de son
+   canal, puis la trace finit rose. */
+.contact-future{--acc:var(--acc-worlds);--tint:var(--rgb-violet)}
+.contact-card.a1:has(a:focus-visible)::before,.contact-card.a1:has(a:focus-visible)::after{opacity:1;transition-duration:var(--t-on);transition-timing-function:ease-out}
+.contact-card .contact-handle{position:relative;z-index:1;max-width:none;margin:auto 0 0;padding-top:22px;font:400 var(--label)/1.6 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.contact-handle code{display:block;margin-top:6px;font:400 14px/1.4 var(--mono);letter-spacing:.02em;text-transform:none;color:var(--paper);-webkit-user-select:all;user-select:all}
+.contact-card .contact-cta{max-width:none;margin:22px 0 0;font:400 var(--label)/1.4 var(--mono);letter-spacing:.17em;color:var(--paper)}
+.contact-future .contact-cta{margin-top:auto;color:var(--muted)}
+.contact-cta a{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:inherit;text-decoration:none}
+/* Le lien du Réseau garde son libellé d'un seul tenant : la ligne se coupe après « · ». */
+.contact-future .contact-cta a{color:var(--paper);white-space:nowrap}
+/* The state of the project, then its one action: a label above the link, at every width. */
+.contact-cta-note{display:block;color:var(--dim)}
+/* Toute la carte reste cliquable, mais le lien n'annonce que son action ; l'identifiant passe au-dessus pour rester sélectionnable. */
+.contact-cta a::after{content:"";position:absolute;inset:0}
+.contact-cta .ico-arrow{color:var(--rose)}
+.contact-live:focus-within{background:rgba(25,14,24,.98)}
+/* The violet card keeps its own ground when lit: its edge is the only lit sign, never two colours at once. */
+.contact-future:is(:hover,:focus-within){background:linear-gradient(140deg,rgba(var(--rgb-violet),.08),transparent 60%),rgba(10,7,13,.96)}
+.contact-future h2{color:var(--paper)}
+/* « Présence publique » est un titre de section (h2) dans la voix des libellés ; remplace .contact-signature>p de styles.css. */
+.contact-signature>h2{margin:0;font:400 var(--label) var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+/* La marge négative garde les libellés alignés sur la colonne : la couche allumée prend place dans la gouttière. */
+.contact-links{gap:4px 22px;margin:8px 0 0 -12px}
+.contact-links a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 4px 0 12px;font-size:var(--label);color:var(--paper)}
+.contact-links a:is(:hover,:focus-visible){color:var(--rose)}
+.contact-note{max-width:62ch;margin:30px 0 0;font-size:14px;line-height:1.7;color:var(--muted)}
+.contact-note a{color:var(--rose);text-decoration:underline;text-decoration-color:rgba(var(--tint),.4);text-underline-offset:3px}
+
+/* 04 · PAGE 404 — page introuvable : le 404 allumé, un pétale sur le filet, les pages du site */
+.lost-page{display:flex;flex-direction:column;justify-content:center;min-height:100svh}
+/* Le seul titre allumé de l'écran, statique : un cœur blanc et une floraison de phosphore dans le rose de l'espace.
+   Chiffres alignés d'Instrument Serif ; interligne plein, pour que les chiffres ne mordent pas sur le texte. */
+.legal-page .lost-title{margin:0 0 26px;font:400 clamp(112px,21vw,224px)/1 var(--serif);font-variant-numeric:lining-nums;letter-spacing:-.05em;color:var(--phosphor);text-shadow:0 0 .02em rgba(var(--rgb-phosphor),.6),0 0 .1em rgba(var(--rgb-rose),.22),0 0 .42em rgba(var(--rgb-accent),.08)}
+.lost-title em{font-style:italic;color:var(--rose)}
+/* Un pétale tombe une fois sur le filet (A5) quand le filet entre dans la vue (js/motifs.js pose .is-seen) : là où il
+   touche, un cœur blanc de 120 ms, puis un halo rose qui lui survit ; la ligne garde un segment brûlé, rose, et le
+   pétale reste couché sur elle. L'état de base est ce repos : mouvement réduit et LITE le montrent tel quel.
+   Ici, pas de salve : le pétale est le seul geste. La chute a lieu dans la bande vide au-dessus du filet, elle ne
+   traverse aucun texte. Quatre calques, une animation chacun, transform et opacity seulement. */
+.lost-divider{--touch:68%;height:24px;margin-top:72px}
+.lost-burn{position:absolute;inset:0;background:radial-gradient(ellipse 15% 100% at var(--touch) 50%,rgba(var(--rgb-rose),.9),rgba(var(--rgb-rose),.3) 45%,transparent) center/100% 1px no-repeat;opacity:var(--glow-floor)}
+.lost-halo,.lost-core,.lost-petal{position:absolute;pointer-events:none}
+.lost-halo{left:calc(var(--touch) - 38px);top:calc(50% - 38px);width:76px;height:76px;border-radius:50%;background:radial-gradient(circle,rgba(var(--rgb-rose),.5),rgba(var(--rgb-accent),.12) 38%,transparent 70%);opacity:.22}
+.lost-core{left:calc(var(--touch) - 9px);top:calc(50% - 9px);width:18px;height:18px;border-radius:50%;background:radial-gradient(circle,#fff,rgba(var(--rgb-phosphor),.6) 40%,transparent 70%);opacity:0}
+/* Sous 32 px, une silhouette pleine (#ffe1ec à .9, sans contour) ; au repos couchée sur la ligne, la pointe à gauche. */
+.lost-petal{left:calc(var(--touch) - 9px);top:-5px;width:18px;height:24px;color:#ffe1ec;opacity:.9;transform:translate3d(0,0,0) rotate(-84deg) scale(.62,1)}
+.lost-petal svg{display:block;width:100%;height:100%}
+html:not(.mode-lite) .lost-divider.is-seen .lost-petal{animation:lostFall 3.4s linear 1s both}
+html:not(.mode-lite) .lost-divider.is-seen .lost-core{animation:lostCore .6s linear 4.06s both}
+html:not(.mode-lite) .lost-divider.is-seen .lost-halo{animation:lostHalo 2.4s linear 4.06s both}
+html:not(.mode-lite) .lost-divider.is-seen .lost-burn{animation:lostBurn 2.6s linear 4.06s both}
+/* Avant d'être vu, le filet est nu (le pétale n'apparaît pas couché pour retomber ensuite) ; l'écran de veille ouvert,
+   la chute attend que le tube s'allume. */
+@media (prefers-reduced-motion:no-preference){
+  html.js:not(.mode-lite) .lost-divider:not(.is-seen) :is(.lost-petal,.lost-halo,.lost-burn){opacity:0}
+}
+html.power-hold:not(.mode-lite) .lost-divider.is-seen :is(.lost-petal,.lost-core,.lost-halo,.lost-burn){animation-play-state:paused}
+/* Les mêmes fonctions à chaque étape (translate3d, rotate, scale) : l'interpolation ne passe jamais par une matrice.
+   Le pétale se balance, ralentit à chaque bout de balancier, et touche la ligne à 90 % (4,06 s). */
+@keyframes lostFall{
+  0%{opacity:0;transform:translate3d(-40px,-66px,0) rotate(24deg) scale(1,1);animation-timing-function:var(--ease-fall)}
+  14%{opacity:.9}
+  36%{transform:translate3d(-6px,-48px,0) rotate(-16deg) scale(.96,1);animation-timing-function:var(--ease-fall)}
+  64%{transform:translate3d(-26px,-24px,0) rotate(12deg) scale(.9,1);animation-timing-function:var(--ease-fall)}
+  90%,100%{opacity:.9;transform:translate3d(0,0,0) rotate(-84deg) scale(.62,1)}
+}
+@keyframes lostCore{0%{opacity:0;animation-timing-function:ease-out}20%{opacity:1;animation-timing-function:var(--ease-decay)}100%{opacity:0}}
+@keyframes lostHalo{0%{opacity:0;animation-timing-function:ease-out}5%{opacity:1;animation-timing-function:var(--ease-decay)}100%{opacity:.22}}
+@keyframes lostBurn{0%{opacity:0;animation-timing-function:ease-out}5%{opacity:1;animation-timing-function:var(--ease-decay)}100%{opacity:var(--glow-floor)}}
+/* Les pages du site, comme les lignes du menu : le nom en Instrument Serif, une flèche dessinée ; la ligne lue
+   s'allume dans la teinte de sa page (A1), une seule à la fois, et sa trace finit rose. */
+.lost-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(18px,4vw,44px);margin-top:20px}
+.lost-nav a:first-child{grid-column:1/-1}
+.legal-page .lost-nav a{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;min-height:52px;padding:0 4px 0 16px;border-bottom:1px solid var(--line-2);font:400 clamp(21px,2.1vw,27px)/1.1 var(--serif);color:var(--paper);text-decoration:none}
+.lost-nav .ico-arrow{width:14px;height:14px;color:var(--dim);transition:color var(--t-off) var(--ease-decay)}
+.lost-nav a:is(:hover,:focus-visible) .ico-arrow{color:var(--rose);transition-duration:var(--t-on);transition-timing-function:ease-out}
+.lost-nav [data-accent="dev"]{--acc:var(--acc-dev);--tint:var(--rgb-cyan)}
+.lost-nav [data-accent="photo"]{--acc:var(--acc-photo);--tint:var(--rgb-photo)}
+.lost-nav [data-accent="writing"]{--acc:var(--acc-writing);--tint:var(--rgb-magenta)}
+.lost-nav [data-accent="worlds"]{--acc:var(--acc-worlds);--tint:var(--rgb-violet)}
+.lost-nav [data-accent="aether"]{--acc:var(--acc-aether);--tint:var(--rgb-gold)}
+.lost-page .legal-date{margin-top:36px}
+
+/* 05 · TACTILE + PETITS ÉCRANS */
+@media (pointer:coarse){
+  .legal-nav a{min-width:44px;justify-content:center}
+}
+@media(max-width:700px){
+  /* Les deux libellés passent l'un sous l'autre plutôt que de se couper chacun en deux. */
+  .legal-meta{flex-wrap:wrap;gap:4px 20px;font-size:var(--label)}
+  .legal-facts>div{grid-template-columns:minmax(0,1fr);gap:0}
+  .contact-handle code{font-size:13px}
+  .legal-page .lost-nav a{gap:8px;padding-left:12px}
+}
+
+/* 06 · MOUVEMENT RÉDUIT — le pétale est couché, la lumière à son plancher. */
+@media (prefers-reduced-motion:reduce){
+  .lost-divider *{animation:none!important}
+}
+/* #7 the legal pages' back link: muted at rest, rose when lit (fast on, slow off), and it never slides. */
+.legal-page .legal-back{color:var(--muted);transition:color var(--t-off) var(--ease-decay)}
+.legal-page .legal-back:is(:hover,:focus-visible){color:var(--rose);transform:none;transition-duration:var(--t-on);transition-timing-function:ease-out}

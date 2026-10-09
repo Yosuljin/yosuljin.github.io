@@ -1,0 +1,51 @@
+/* =====================================================================
+   MOTIFS — direction RÉMANENCE, shared by the content pages.
+   The phosphor law: light comes on fast (--t-on), goes out slowly (--t-off), rests at --glow-floor.
+   Every element's base state is its resting state: without animation (reduced motion, LITE) the
+   composition stays right. Only transform and opacity move; nothing loops inside an SVG.
+   Symbols come from /motifs.svg (currentColor). Decorative parts are aria-hidden.
+   ===================================================================== */
+
+/* ---------- divider: a colour burst (the salve), then the line in the page tint; one sweep when it enters ---------- */
+.divider{position:relative;display:flex;align-items:center;gap:0;color:rgb(var(--tint))}
+.divider .salve{width:96px;height:24px;flex:none;color:rgba(var(--tint),.85)}   /* never smaller: below that its cycles fold into a blot */
+.divider .rule{position:relative;flex:1;height:3px;overflow:hidden;background:linear-gradient(90deg,rgba(var(--tint),.42),rgba(var(--tint),.12) 62%,rgba(var(--tint),0)) center/100% 1px no-repeat}
+.divider .sweep{position:absolute;inset:0;opacity:0;background:linear-gradient(90deg,transparent 0 78%,rgba(var(--rgb-phosphor),.9) 95%,transparent 100%) center/100% 1px no-repeat}
+@keyframes sweep{0%{opacity:1;transform:translateX(-100%)}86%{opacity:1}100%{opacity:0;transform:translateX(100%)}}
+/* One sweep, once, when the divider first enters the view (js/motifs.js sets .is-seen); then the line rests.
+   The salve belongs to the first divider of a page and to the footer only; elsewhere a plain 1 px line (.divider.plain). */
+html:not(.mode-lite) .divider.is-seen .sweep{animation:sweep 1.8s var(--ease) .1s both}
+.divider.plain .salve{display:none}
+
+/* ---------- the beam writes (raster reveal, top to bottom), then the phosphor rests ---------- */
+.write{position:relative;display:inline-block;--h-win:-100%;--h-ink:100%}
+.write-win{display:block;overflow:hidden}
+.write-ink{display:block}
+.write-beam{position:absolute;left:-10px;right:-10px;top:0;bottom:0;pointer-events:none;opacity:0}
+.write-beam::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:var(--phosphor);box-shadow:0 0 6px 1px rgba(var(--rgb-sakura),.85),0 0 16px 4px rgba(var(--rgb-accent),.35)}
+@keyframes winOpen{from{transform:translateY(var(--h-win))}to{transform:none}}
+@keyframes inkHold{from{transform:translateY(var(--h-ink))}to{transform:none}}
+@keyframes beamDown{0%{opacity:0;transform:none}3%{opacity:1}90%{opacity:1}100%{opacity:0;transform:translateY(100%)}}
+@keyframes restDown{from{opacity:1}to{opacity:var(--glow-floor)}}
+
+/* ---------- colophon: the one Chinese word of the screen, vertical in the margin, written once, resting at the floor ---------- */
+.colophon{writing-mode:vertical-rl;font:400 20px/1 var(--zh);font-synthesis:none;letter-spacing:.34em;color:var(--sakura);opacity:var(--glow-floor)}
+html:not(.mode-lite) .colophon .write-win{animation:winOpen .8s var(--ease-scan) .9s both}
+html:not(.mode-lite) .colophon .write-ink{animation:inkHold .8s var(--ease-scan) .9s both}
+html:not(.mode-lite) .colophon .write-beam{animation:beamDown .8s var(--ease-scan) .9s both}
+html:not(.mode-lite) .colophon{animation:restDown 1.6s var(--ease-decay) 1.7s both}
+.colophon .write-beam{left:-.4em;right:-.4em}
+
+/* ---------- the lit layer (A1), in two layers: the tint dies first (300 ms), the rose outlives it (900 ms) ----------
+   Both come on in 120 ms; only their opacity moves. The trace ends rose: the phosphor law, visible at every hover. */
+.a1{position:relative}
+.a1::before,.a1::after{content:"";position:absolute;left:0;top:22%;bottom:22%;width:2px;opacity:0;pointer-events:none}
+.a1::before{background:var(--rose);box-shadow:0 0 8px rgba(var(--rgb-rose),.6);transition:opacity var(--t-off) var(--ease-decay)}
+.a1::after{background:var(--acc,rgb(var(--tint)));box-shadow:0 0 8px rgba(var(--tint),.8),0 0 18px rgba(var(--tint),.35);transition:opacity 300ms ease-out}
+.a1:is(:hover,:focus-visible)::before,.a1:is(:hover,:focus-visible)::after{opacity:1;transition-duration:var(--t-on);transition-timing-function:ease-out}
+.a1:focus-visible{outline:2px solid var(--rose);outline-offset:5px}
+
+@media (prefers-reduced-motion:reduce){
+  .divider .sweep,.colophon,.colophon *{animation:none!important}
+  .colophon{opacity:var(--glow-floor)}
+}

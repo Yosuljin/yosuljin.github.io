@@ -1,0 +1,3 @@
+# Jekyll (GitHub Pages) ignore tout nom qui commence par un point : on publie /.well-known/ (TDMRep).
+# Rien d'autre ici sans comparer la liste des fichiers publiés avant et après.
+include: [".well-known"]

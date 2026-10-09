@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="fr" data-cinema>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests; frame-src 'self'; child-src 'self'; worker-src 'self'; media-src 'self'; manifest-src 'self'">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+  <meta name="description" content="Yosuljin — développement, photographie, écriture, mondes et Aether.">
+  <meta name="theme-color" content="#070407">
+  <meta name="color-scheme" content="dark">
+  <title>Yosuljin — Entre les mondes</title>
+  <link rel="canonical" href="https://yosuljin.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Yosuljin — Entre les mondes">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Yosuljin — Entre les mondes">
+  <meta property="og:description" content="Yosuljin — développement, photographie, écriture, mondes et Aether.">
+  <meta property="og:url" content="https://yosuljin.github.io/">
+  <meta property="og:image" content="https://yosuljin.github.io/og/yosuljin.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Yosuljin&nbsp;: développement, photographie, écriture, mondes.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/instrument-serif-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/jetbrains-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=20261009-r2">
+  <script src="js/boot.js?v=20261009-r2"></script>
+  <script src="js/ui/immersive-nav.js?v=20261009-r2" defer></script>
+  <script src="js/ui/fullscreen.js?v=20261009-r2" defer></script>
+  <script type="module" src="main.js?v=20261009-r2"></script>
+</head>
+<body class="page-index">
+  <a class="skip-link" href="#home">Aller au contenu</a>
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand-cluster">
+      <a class="brand" href="index.html" aria-label="Yosuljin — retour à l'entrée">
+        <span class="brand-mark">Y</span>
+        <span class="brand-copy"><b>YOSULJIN</b><small>ENTRE LES MONDES</small></span>
+      </a>
+      <button class="mode-toggle" type="button" data-mode-toggle>FULL 3D</button>
+      <button class="sound-toggle" type="button" data-sound-toggle aria-pressed="true" aria-label="Son"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-word">SON</span></button>
+    </div>
+    <div class="top-meta" aria-hidden="true"><span>ESPACE</span><span>2026</span></div>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu">
+      <span class="menu-word">MENU</span><span class="menu-icon" aria-hidden="true"><i></i><i></i></span>
+    </button>
+  </header>
+
+  <div class="progress" aria-hidden="true">
+    <span class="progress-line"><i></i></span>
+    <div class="progress-label"><b data-progress-index>00</b><span data-progress-name>ENTRÉE</span></div>
+  </div>
+
+  <nav id="site-menu" class="site-menu" aria-label="Index du site" aria-hidden="true" inert>
+    <div class="menu-inner">
+      <div class="menu-top"><span>INDEX</span><span class="menu-top-mid">CANAL 00 · ENTRÉE</span><span>Y / 2026</span></div>
+      <div class="menu-structure">
+        <div class="menu-block menu-domains">
+          <div class="menu-block-head"><span>DOMAINES</span><span>04 ANGLES</span></div>
+          <a href="developpement.html" data-accent="dev"><small>01</small><b>Développement</b><em>systèmes · Rust · <span lang="en">from scratch</span></em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="photographie.html" data-accent="photo"><small>02</small><b>Photographie</b><em>lumière · lieux · fragments</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="ecriture.html" data-accent="writing"><small>03</small><b>Écriture</b><em>corps · regard · existence</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="mondes.html" data-accent="worlds"><small>04</small><b>Mondes</b><em>Constellation · Libera · futurs</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+        </div>
+        <div class="menu-aether">
+          <div class="menu-block-head"><span>DOSSIER CENTRAL</span><span>01</span></div>
+          <a class="menu-project-main" href="aether.html">
+            <span class="menu-aether-sigil" aria-hidden="true"><i></i><i></i><i></i><b></b></span>
+            <small>DOSSIER 01</small>
+            <b>AETHER</b>
+            <span>documentation · Lumina · TheHive · furu</span>
+            <i>OUVRIR LE DOSSIER<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i>
+          </a>
+          <p class="menu-note">Le seul dossier présenté comme tel. Les domaines sont des angles&#8239;; Aether est un dossier.</p>
+        </div>
+      </div>
+      <div class="menu-bottom">
+        <div class="menu-presence">
+          <a href="https://github.com/Yosuljin" target="_blank" rel="noopener noreferrer">GITHUB<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+          <a href="https://www.instagram.com/myli.beral/" target="_blank" rel="noopener noreferrer">INSTAGRAM<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+          <a href="https://matrix.to/#/@yosuljin:matrix.org" target="_blank" rel="noopener noreferrer">ELEMENT X<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+        </div>
+        <span class="menu-legal"><a href="contact.html">CONTACT</a><a href="mentions-legales.html">MENTIONS</a><a href="confidentialite.html">CONFIDENTIALITÉ</a><a href="cgu.html">CGU</a></span>
+        <span class="menu-motto">RIEN NE DISPARAÎT VRAIMENT.</span>
+      </div>
+    </div>
+  </nav>
+  <button class="menu-shade" type="button" aria-label="Fermer le menu" tabindex="-1"></button>
+
+  <main id="site">
+    <canvas class="world-canvas" aria-hidden="true"></canvas>
+    <div class="world-fallback" aria-hidden="true"><i></i></div>
+
+    <div class="marks" aria-hidden="true"></div>
+    <div class="hud" aria-hidden="true">
+      <div class="hud-hint"><span>MOLETTE · FLÈCHES · ESPACE</span></div>
+      <div class="transit"><span data-transit-from>ENTRÉE</span><i><b data-transit-bar></b></i><span data-transit-to>REPÈRES</span></div>
+    </div>
+
+    <div class="scenes">
+      <section id="home" class="panel panel-home" data-name="ENTRÉE" aria-label="Entrée">
+        <div class="panel-inner home-inner">
+          <div class="eyebrow reveal" data-depth="120">DOSSIER PERSONNEL <span>/</span> ESPACE DE CRÉATION</div>
+          <div class="home-copy">
+            <p class="kicker reveal" data-depth="220"><span>DÉVELOPPEMENT&nbsp;·</span> <span>PHOTOGRAPHIE&nbsp;·</span> <span>ÉCRITURE&nbsp;·</span> <span>MONDES</span></p>
+            <h1 class="hero-title write" data-depth="380"><span class="sr-only">Yosuljin</span><span class="write-win" aria-hidden="true"><span class="write-ink hero-word"><span class="hw">YO</span><span class="hw">SUL</span><span class="hw">JIN</span></span></span><i class="write-beam" aria-hidden="true"></i></h1>
+            <p class="hero-lead reveal" data-depth="260">Je construis des systèmes,<br> des images et des mondes.</p>
+          </div>
+          <div class="colophon write" lang="zh-Hant" aria-hidden="true"><span class="write-win"><span class="write-ink">世界之間</span></span><i class="write-beam"></i></div>
+          <div class="home-bottom reveal" data-depth="90">
+            <span>UNE PERSONNE · QUATRE DOMAINES</span>
+            <a class="scroll-cue" href="#about" data-scene-link="about"><i></i><span>ENTRER DANS L’ESPACE</span></a>
+            <span>FR / 2026</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="panel panel-about" data-name="REPÈRES" aria-label="Repères">
+        <div class="panel-inner about-inner">
+          <div class="section-head reveal" data-depth="80">
+            <div class="eyebrow">01 / REPÈRES</div>
+          </div>
+          <div class="about-layout">
+            <div>
+              <div class="project-kicker reveal" data-depth="200">PAS UNE PAGE «&nbsp;MOI&nbsp;»</div>
+              <h2 class="display-title reveal" data-depth="320">Une même<br><em>façon de regarder.</em></h2>
+              <p class="lead reveal" data-depth="220">Le site ne sépare pas une personne en quatre pages. Il sépare quatre angles de création pour que chaque sujet garde son identité.</p>
+            </div>
+            <div class="about-copy reveal" data-depth="140">
+              <p><b>Développement</b> pour comprendre les systèmes et les machines.</p>
+              <p><b>Photographie</b> pour observer le réel, ses lieux, sa lumière et ses fragments.</p>
+              <p><b>Écriture</b> pour travailler la voix, le corps, le regard et l’existence.</p>
+              <p><b>Mondes</b> pour relier recherche, imagination et futurs possibles.</p>
+              <div class="about-signature">LES DOMAINES SONT DES LUNETTES. AETHER EST UN DOSSIER.</div>
+            </div>
+          </div>
+          <div class="about-footer reveal" data-depth="60"><span>LES SUJETS SE CROISENT, MAIS NE SONT PAS MÉLANGÉS.</span><a href="#channels" data-scene-link="channels">DOMAINES<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-s"/></svg></a></div>
+        </div>
+      </section>
+
+      <section id="channels" class="panel panel-channels" data-name="DOMAINES" aria-label="Domaines">
+        <div class="panel-inner channels-inner">
+          <div class="section-head reveal" data-depth="80">
+            <div class="eyebrow">02 / DOMAINES</div>
+          </div>
+          <div class="channels-intro">
+            <div>
+              <div class="project-kicker reveal" data-depth="200">QUATRE ANGLES, PAS QUATRE PROJETS</div>
+              <h2 class="display-title reveal" data-depth="300">Choisir<br><em>un regard.</em></h2>
+            </div>
+            <p class="lead reveal" data-depth="200">Chaque domaine possède sa propre page. On n’y mélange pas les projets&nbsp;: on y rassemble uniquement les sujets qui appartiennent à cet angle.</p>
+          </div>
+          <div class="domain-grid">
+            <a class="domain-card reveal" href="developpement.html" data-domain="dev" data-depth="160">
+              <i class="card-lit" aria-hidden="true"></i>
+              <span class="card-number">01</span>
+              <span class="card-body"><small>SYSTÈMES · IA · CODE</small><b class="card-title">Développement</b><span class="card-text">AlmaS · Linh · la lumina · furu</span><span class="card-link">OUVRIR LE DOMAINE <i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></span></span>
+            </a>
+            <a class="domain-card reveal" href="photographie.html" data-domain="photo" data-depth="170">
+              <i class="card-lit" aria-hidden="true"></i>
+              <span class="card-number">02</span>
+              <span class="card-body"><small>IMAGE · TERRAIN · RÉEL</small><b class="card-title">Photographie</b><span class="card-text">lumière · lieux · fragments · regard</span><span class="card-link">OUVRIR LE DOMAINE <i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></span></span>
+            </a>
+            <a class="domain-card reveal" href="ecriture.html" data-domain="writing" data-depth="180">
+              <i class="card-lit" aria-hidden="true"></i>
+              <span class="card-number">03</span>
+              <span class="card-body"><small>TEXTE · CORPS · EXISTENCE</small><b class="card-title">Écriture</b><span class="card-text">L’Œil de Linh · romans · fragments</span><span class="card-link">OUVRIR LE DOMAINE <i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></span></span>
+            </a>
+            <a class="domain-card reveal" href="mondes.html" data-domain="worlds" data-depth="190">
+              <i class="card-lit" aria-hidden="true"></i>
+              <span class="card-number">04</span>
+              <span class="card-body"><small>RECHERCHE · FUTURS · UNIVERS</small><b class="card-title">Mondes</b><span class="card-text">Constellation · Libera · Réseau</span><span class="card-link">OUVRIR LE DOMAINE <i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></span></span>
+            </a>
+          </div>
+          <div class="channels-footer reveal" data-depth="60"><span>UN DOMAINE = UNE CARTE.</span><a href="#aether" data-scene-link="aether">DOSSIER AETHER<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-s"/></svg></a></div>
+        </div>
+      </section>
+
+      <section id="aether" class="panel panel-aether" data-name="AETHER" aria-label="Dossier Aether">
+        <div class="panel-inner aether-inner">
+          <div class="section-head reveal" data-depth="80">
+            <div class="eyebrow">03 / DOSSIER AETHER</div>
+          </div>
+          <div class="aether-copy">
+            <p class="kicker reveal" data-depth="200">LE SEUL DOSSIER MIS EN AVANT ICI</p>
+            <h2 class="display-title reveal" data-depth="320">Aether,<br><em>le grand chantier.</em></h2>
+            <p class="lead reveal" data-depth="220">Aether est le méta-dépôt qui cartographie le parc&nbsp;: vision, décisions, règles, dossiers de projet et index engendrés. Au centre, Lumina réside dans TheHive&#8239;; autour d’elles se structurent le langage, furu, la mémoire propre future et les projets de support.</p>
+            <div class="aether-module-strip reveal" data-depth="150">
+              <span><b>AETHER</b><small>méta-dépôt · carte</small></span>
+              <span><b>LUMINA</b><small>système cognitif · persona</small></span>
+              <span><b>THEHIVE</b><small>squelette matériel</small></span>
+              <span><b>LA LUMINA</b><small>langage · shell · .lum</small></span>
+              <span><b>FURU</b><small>moteur de sentience</small></span>
+              <span><b>REMINISCENCE</b><small>mémoire propre future</small></span>
+            </div>
+            <div class="aether-actions reveal" data-depth="120">
+              <a class="primary-link" href="aether.html">OUVRIR LE DOSSIER AETHER <span><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></span></a>
+              <a class="return-home" href="#home" data-scene-link="home"><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-w"/></svg>RETOUR À L’ENTRÉE</a>
+            </div>
+          </div>
+          <div class="aether-bottom reveal" data-depth="40">
+            <p>Pour un sujet précis, entrez par son domaine. Pour Aether, ouvrez son dossier.</p>
+            <strong>LE RESTE RESTE À SA PLACE.</strong>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="presence-dock" aria-label="Présence en ligne">
+      <div class="presence-intro">
+        <span>PRÉSENCE / EXTENSIONS</span>
+        <p>Le site est le point d’entrée. Les autres espaces servent à voir le profil et le code de ce site, des images, ou à échanger.</p>
+      </div>
+      <div class="presence-links">
+        <a class="presence-link live" href="https://github.com/Yosuljin" target="_blank" rel="noopener noreferrer"><span class="presence-index">01</span><b>GITHUB</b><small>profil · code de ce site</small><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg></i><span class="sr-only"> (nouvel onglet)</span></a>
+        <a class="presence-link live" href="https://www.instagram.com/myli.beral/" target="_blank" rel="noopener noreferrer"><span class="presence-index">02</span><b>INSTAGRAM</b><small>code · journal de développement</small><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg></i><span class="sr-only"> (nouvel onglet)</span></a>
+        <a class="presence-link live" href="https://matrix.to/#/@yosuljin:matrix.org" target="_blank" rel="noopener noreferrer"><span class="presence-index">03</span><b>ELEMENT X</b><small>profil Matrix · conversation</small><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg></i><span class="sr-only"> (nouvel onglet)</span></a>
+        <div class="presence-link pending"><span class="presence-index">04</span><b>RÉSEAU PRIVÉ</b><small>futur réseau social personnel</small></div>
+      </div>
+      <div class="presence-note"><span>ÉCOSYSTÈME À VENIR</span><b>CV · PROJETS PRIVÉS · MÉDIA UNIQUEMENT SI NÉCESSAIRE</b></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div><b>YOSULJIN</b><span>ENTRE LES MONDES · 2026</span></div>
+    <div class="footer-links"><a href="mentions-legales.html">MENTIONS</a><a href="confidentialite.html">CONFIDENTIALITÉ</a><a href="cgu.html">CGU</a></div>
+  </footer>
+</body>
+</html>

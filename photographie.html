@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests; frame-src 'self'; child-src 'self'; worker-src 'self'; media-src 'self'; manifest-src 'self'">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+  <meta name="description" content="Photographie — Yosuljin&nbsp;: l’espace qui accueillera séries, thèmes et photographies autonomes. Lumière, lieux, détails, atmosphères et fragments.">
+  <meta name="theme-color" content="#070407">
+  <meta name="color-scheme" content="dark">
+  <title>Photographie — Yosuljin</title>
+  <link rel="canonical" href="https://yosuljin.github.io/photographie.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Yosuljin — Entre les mondes">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Photographie — Yosuljin">
+  <meta property="og:description" content="Photographie — Yosuljin&nbsp;: l’espace qui accueillera séries, thèmes et photographies autonomes. Lumière, lieux, détails, atmosphères et fragments.">
+  <meta property="og:url" content="https://yosuljin.github.io/photographie.html">
+  <meta property="og:image" content="https://yosuljin.github.io/og/yosuljin.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Yosuljin&nbsp;: développement, photographie, écriture, mondes.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/instrument-serif-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/contenu.css?v=20261009-r2">
+  <link rel="stylesheet" href="styles.css?v=20261009-r2">
+  <link rel="stylesheet" href="css/photographie.css?v=20261009-r2">
+  <link rel="stylesheet" href="css/motifs.css?v=20261009-r2">
+  <script src="js/boot.js?v=20261009-r2"></script>
+  <script src="js/ui/immersive-nav.js?v=20261009-r2" defer></script>
+  <script src="js/ui/fullscreen.js?v=20261009-r2" defer></script>
+  <script type="module" src="js/page.js?v=20261009-r2"></script>
+  <script type="module" src="js/motifs.js?v=20261009-r2"></script>
+  <script src="photographie.js?v=20261009-r2" defer></script>
+</head>
+<body class="detail-page domain-photo" data-world="photo">
+  <a class="skip-link" href="#content">Aller au contenu</a>
+  <div class="noise" aria-hidden="true"></div>
+  <canvas class="world-canvas" aria-hidden="true"></canvas>
+  <div class="world-fallback" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand-cluster">
+      <a class="brand" href="index.html" aria-label="Yosuljin — retour à l'entrée">
+        <span class="brand-mark">Y</span>
+        <span class="brand-copy"><b>YOSULJIN</b><small>ENTRE LES MONDES</small></span>
+      </a>
+      <button class="mode-toggle" type="button" data-mode-toggle>FULL 3D</button>
+      <button class="sound-toggle" type="button" data-sound-toggle aria-pressed="true" aria-label="Son"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-word">SON</span></button>
+    </div>
+    <div class="top-meta" aria-hidden="true"><span>PHOTOGRAPHIE</span><span>2026</span></div>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu">
+      <span class="menu-word">MENU</span><span class="menu-icon" aria-hidden="true"><i></i><i></i></span>
+    </button>
+  </header>
+
+  <nav id="site-menu" class="site-menu" aria-label="Index du site" aria-hidden="true" inert>
+    <div class="menu-inner">
+      <div class="menu-top"><span>INDEX</span><span class="menu-top-mid">CANAL 02 · PHOTOGRAPHIE</span><span>Y / 2026</span></div>
+      <div class="menu-structure">
+        <div class="menu-block menu-domains">
+          <div class="menu-block-head"><span>DOMAINES</span><span>04 ANGLES</span></div>
+          <a href="developpement.html" data-accent="dev"><small>01</small><b>Développement</b><em>systèmes · Rust · <span lang="en">from scratch</span></em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="photographie.html" data-accent="photo"><small>02</small><b>Photographie</b><em>lumière · lieux · fragments</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="ecriture.html" data-accent="writing"><small>03</small><b>Écriture</b><em>corps · regard · existence</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="mondes.html" data-accent="worlds"><small>04</small><b>Mondes</b><em>Constellation · Libera · futurs</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+        </div>
+        <div class="menu-aether">
+          <div class="menu-block-head"><span>DOSSIER CENTRAL</span><span>01</span></div>
+          <a class="menu-project-main" href="aether.html">
+            <span class="menu-aether-sigil" aria-hidden="true"><i></i><i></i><i></i><b></b></span>
+            <small>DOSSIER 01</small>
+            <b>AETHER</b>
+            <span>documentation · Lumina · TheHive · furu</span>
+            <i>OUVRIR LE DOSSIER<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i>
+          </a>
+          <p class="menu-note">Le seul dossier présenté comme tel. Les domaines sont des angles&#8239;; Aether est un dossier.</p>
+        </div>
+      </div>
+      <div class="menu-bottom">
+        <div class="menu-presence">
+          <a href="https://github.com/Yosuljin" target="_blank" rel="noopener noreferrer">GITHUB<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+          <a href="https://www.instagram.com/myli.beral/" target="_blank" rel="noopener noreferrer">INSTAGRAM<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+          <a href="https://matrix.to/#/@yosuljin:matrix.org" target="_blank" rel="noopener noreferrer">ELEMENT X<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+        </div>
+        <span class="menu-legal"><a href="contact.html">CONTACT</a><a href="mentions-legales.html">MENTIONS</a><a href="confidentialite.html">CONFIDENTIALITÉ</a><a href="cgu.html">CGU</a></span>
+        <span class="menu-motto">RIEN NE DISPARAÎT VRAIMENT.</span>
+      </div>
+    </div>
+  </nav>
+  <button class="menu-shade" type="button" aria-label="Fermer le menu" tabindex="-1"></button>
+
+  <main id="content" class="detail-shell">
+  <div class="detail-top"><a class="detail-back" href="index.html"><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-w"/></svg>RETOUR À L’ESPACE</a></div>
+
+  <section class="detail-hero photo-hero">
+    <div><p class="detail-index">DOMAINE 02 / 04</p><h1 class="detail-title">Photographie</h1><p class="detail-lead">Regarder le réel avant de le classer&nbsp;: lumière, lieux, détails, atmosphères et fragments.</p><p class="domain-state"><span>Photographies publiées ici</span><b data-photo-total>0</b></p></div>
+    <aside class="detail-aside" aria-labelledby="perimetre"><b id="perimetre">PÉRIMÈTRE</b><p>Cette page devient le site photographique. Les séries et les photographies autonomes auront leur propre place ici, sans compte photo parallèle ni mélange avec les autres domaines.</p></aside>
+    <span class="colophon write" lang="zh-Hant" aria-hidden="true"><span class="write-win"><span class="write-ink">攝影</span></span><span class="write-beam"></span></span>
+  </section>
+  <div class="divider" aria-hidden="true"><svg class="salve" viewBox="0 0 48 12"><use href="motifs.svg#salve"/></svg><span class="rule"><i class="sweep"></i></span></div>
+
+  <section class="photo-portfolio" aria-label="Espace photographique">
+    <nav class="photo-index" aria-label="Index photographique">
+      <a class="a1" href="#series"><span>01</span><b>Séries</b><i>séquences</i></a>
+      <a class="a1" href="#themes"><span>02</span><b>Thèmes</b><i>entrées visuelles</i></a>
+      <a class="a1" href="#photos-seules"><span>03</span><b>Photos seules</b><i>images autonomes</i></a>
+    </nav>
+
+    <section id="series" class="photo-section">
+      <div class="photo-section-head"><p class="detail-index">01 / SÉQUENCES</p><h2>Séries</h2><p class="photo-count"><b>0</b> SÉRIE PUBLIÉE</p><div class="divider plain" aria-hidden="true"><span class="rule"></span></div></div>
+      <article class="photo-empty-series">
+        <div class="photo-empty-frame" aria-hidden="true"><span></span></div>
+        <div class="photo-empty-copy">
+          <small>ESPACE RÉSERVÉ</small>
+          <h3>La première série viendra ici.</h3>
+          <p>Cette zone est déjà pensée pour accueillir une série complète&nbsp;: image d’ouverture, séquence, ordre de lecture, texte et détails. On ne publie que ce qui existe réellement.</p>
+        </div>
+      </article>
+    </section>
+
+    <section id="themes" class="photo-section">
+      <div class="photo-section-head"><p class="detail-index">02 / ENTRÉES VISUELLES</p><h2>Thèmes</h2><p class="photo-count">AXES OUVERTS</p><div class="divider plain" aria-hidden="true"><span class="rule"></span></div></div>
+      <div class="photo-theme-grid">
+        <div class="photo-theme"><span>01</span><b>Ville</b><i>rues · rythme · traces</i></div>
+        <div class="photo-theme"><span>02</span><b>Nuit</b><i>ombres · lumière · silence</i></div>
+        <div class="photo-theme"><span>03</span><b>Architecture</b><i>formes · matières · structures</i></div>
+        <div class="photo-theme"><span>04</span><b>Nature</b><i>terrain · végétal · respiration</i></div>
+        <div class="photo-theme"><span>05</span><b>Présences</b><i>gestes · silhouettes · fragments</i></div>
+        <div class="photo-theme"><span>06</span><b>Autres</b><i>ce qui ne rentre pas encore</i></div>
+      </div>
+    </section>
+
+    <section id="photos-seules" class="photo-section">
+      <div class="photo-section-head"><p class="detail-index">03 / IMAGES AUTONOMES</p><h2>Photos seules</h2><p class="photo-count"><b>0</b> PHOTO PUBLIÉE</p><div class="divider plain" aria-hidden="true"><span class="rule"></span></div></div>
+      <p class="photo-filter-status" data-filter-status aria-live="polite"></p>
+      <div class="photo-single-stage" id="photos-seules-galerie">
+        <p>Les photographies autonomes auront leur propre rythme ici, séparées des séries mais toujours indexables par thème.</p>
+        <strong>AUCUNE PHOTOGRAPHIE PUBLIÉE POUR L’INSTANT</strong>
+      </div>
+    </section>
+  </section>
+
+  <nav class="domain-route" aria-label="Parcours des domaines">
+    <a class="a1" href="developpement.html" data-accent="dev"><small><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-w"/></svg>01 · précédent</small><b>Développement</b><em>systèmes · Rust · <span lang="en">from scratch</span></em></a>
+    <a class="a1 domain-route-next" href="ecriture.html" data-accent="writing"><small>03 · suivant<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></small><b>Écriture</b><em>corps · regard · existence</em></a>
+  </nav>
+  <div class="detail-foot">
+    <div class="divider" aria-hidden="true"><svg class="salve" viewBox="0 0 48 12"><use href="motifs.svg#salve"/></svg><span class="rule"><i class="sweep"></i></span></div>
+    <p class="detail-motto">RIEN NE DISPARAÎT VRAIMENT.</p>
+    <a class="a1" href="index.html#channels">TOUS LES DOMAINES<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></a>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,1417 @@
+/* =====================================================================
+   YOSULJIN — ENTRE LES MONDES
+   One stylesheet, read top to bottom:
+   01 fonts · 02 tokens · 03 base · 04 chrome · 05 menu · 06 signal (glitch, dropout, portal)
+   07 world (canvas, fallback, HUD) · 08 index scenes · 09 cinema · 10 presence + footer
+   11 domain pages · 12 aether dossier · 13 photographie · 14 legal · 15 responsive · 16 reduced motion
+   ===================================================================== */
+
+/* 01 · FONTS — self-hosted, SIL OFL (see fonts/LICENSE-OFL.txt) */
+@font-face{font-family:"Instrument Serif";src:url("fonts/instrument-serif-400.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Instrument Serif";src:url("fonts/instrument-serif-400-italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/jetbrains-mono-400.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/jetbrains-mono-500.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
+
+/* 02 · TOKENS */
+:root{
+  --bg:#070407;--bg-2:#0c070b;--ink:#020102;
+  --glass:#0d0811;--plate:rgba(8,4,10,.82);       /* glass under any text laid on the world */
+  --paper:#f4ecef;--muted:#b09ba4;--dim:#9a8590;--faint:#4a3c43;   /* --dim: 6:1 on --bg, 4.9:1 on a plate over a bright world; --faint is never text */
+  --phosphor:#fff4f8;--sakura:#ffc8dc;--led:#ff2f62;   /* the beam's core and the lit title; petals and Chinese words; the standby LED only */
+  /* Signature colours: one vivid hue per domain, a hot pink accent for the space itself. */
+  --accent:#ff5fa2;--acc-dev:#36e2ff;--acc-photo:#ffb23e;--acc-writing:#ff5fd1;--acc-worlds:#8c6bff;--acc-aether:#ffd36b;
+  --acc-worlds-text:#a58cff;   /* the violet of Mondes for small text (7.6:1) */
+  --rgb-phosphor:255,244,248;--rgb-sakura:255,200,220;--rgb-rose:255,140,192;
+  --rgb-accent:255,95,162;--rgb-cyan:54,226,255;--rgb-photo:255,178,62;--rgb-magenta:255,95,209;--rgb-violet:140,107,255;--rgb-gold:255,211,107;
+  --rose:#ff8cc0;--rose-2:#e0569a;--plum:#5a1734;--ice:#7ce9ff;
+  /* --tint: RGB triplet of the page's hue; lines, glows and the phosphor take it. Domain pages override it (11). */
+  --tint:255,122,182;
+  --line:rgba(var(--tint),.17);--line-2:rgba(var(--tint),.08);--line-3:rgba(var(--tint),.045);
+  --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+  --zh:"Yosuljin Hanzi","Songti TC","PMingLiU","Noto Serif CJK TC",serif;   /* Traditional Chinese, fixed lexicon */
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+  --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  /* The phosphor law: light comes on fast, goes out slowly, and never quite back to black. */
+  --ease-decay:cubic-bezier(.05,.7,.1,1);--ease-wing:cubic-bezier(.45,.05,.55,.95);--ease-fall:cubic-bezier(.37,0,.63,1);--ease-scan:cubic-bezier(.4,0,.6,1);
+  --t-on:120ms;--t-off:900ms;--t-ui:320ms;--t-scene:1200ms;--glow-floor:.55;
+  --gutter:clamp(22px,4vw,64px);
+  --label:10px;          /* smallest readable mono label */
+  --label-ls:.18em;
+}
+
+/* 03 · BASE */
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--bg);color:var(--paper);scroll-padding-top:96px;overscroll-behavior-y:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* Lines are re-derived on body, where the domain pages set their own --tint. */
+body{--line:rgba(var(--tint),.17);--line-2:rgba(var(--tint),.08);--line-3:rgba(var(--tint),.045)}
+body{margin:0;min-height:100svh;background:var(--bg);font-family:var(--sans);line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+img{max-width:100%;display:block}
+/* Text is part of the picture: it cannot be selected or dragged, and looks exactly the same. */
+html{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+img,a{-webkit-user-drag:none}
+input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
+:focus-visible{outline:2px solid var(--rose);outline-offset:5px}
+.skip-link{position:fixed;left:var(--gutter);top:-80px;z-index:20000;padding:10px 14px;background:var(--paper);color:var(--ink);font:500 var(--label) var(--mono);letter-spacing:var(--label-ls)}
+.skip-link:focus{top:14px}
+.panel:focus{outline:none} /* focus target of the skip link and of a scene change: a whole scene needs no ring */
+/* Film grain, painted right under the tube (.crt, z-index 26): the two share one composited layer. */
+.noise{position:fixed;inset:0;z-index:25;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E")}
+html.mode-lite .noise{opacity:.035}
+
+/* Labels share one voice: monospace, spaced, uppercase. */
+.eyebrow,.kicker,.project-kicker,.section-count,.top-meta,.progress-label,.home-bottom,.about-footer,.channels-footer,.about-signature,.card-number,.domain-card small,.card-link,.aether-bottom strong,.aether-module-strip b,.aether-module-strip small,.presence-intro>span,.presence-note,.presence-index,.presence-link small,.site-footer,.menu-top,.menu-block-head,.menu-note,.menu-bottom,.menu-presence a,.detail-index,.detail-back,.detail-top-meta,.detail-aside b,.detail-foot a,.legal-kicker,.legal-back,.hud{font-family:var(--mono);font-weight:400;letter-spacing:var(--label-ls);text-transform:uppercase}
+
+
+/* Reveal (document-flow pages and LITE). */
+.reveal{opacity:0;transform:translate3d(0,24px,0);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.reveal.visible{opacity:1;transform:none}
+html:not(.js) .reveal{opacity:1;transform:none}
+
+/* 04 · CHROME */
+/* Drawn arrows (motifs.svg#arrow-e, -w, -ne, -s): none of the site's fonts has ← → ↗ ↓, and a typed arrow is read as part of the link name. */
+svg.arrow{display:inline-block;flex:none;width:12px;height:12px;vertical-align:-1px;overflow:visible}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:9000;height:88px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--gutter);pointer-events:none}
+.topbar>*{pointer-events:auto}
+/* Every control of the bar takes a finger-sized band (44 px high) without changing its look. */
+:is(.mode-toggle,.sound-toggle,.fullscreen-toggle,.menu-toggle,.brand){position:relative}
+:is(.mode-toggle,.sound-toggle,.fullscreen-toggle,.menu-toggle,.brand)::before{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%)}
+/* Scrolling documents slide under a solid band so the chrome never sits on text. */
+html:not(.cinema) .topbar{background:linear-gradient(rgba(7,4,7,.97) 74%,rgba(7,4,7,0))}
+.brand-cluster{display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{display:grid;place-items:center;width:32px;height:32px;border:1px solid var(--line);font:18px/1 var(--serif);color:var(--rose);transition:background var(--t-off) var(--ease-decay),color var(--t-off) var(--ease-decay)}
+/* The mark lights on hover and focus (fast on, slow off); it never turns. */
+.brand:hover .brand-mark,.brand:focus-visible .brand-mark{background:var(--rose);color:var(--ink);transition-duration:var(--t-on);transition-timing-function:ease-out}
+.brand-copy{display:flex;flex-direction:column;gap:3px}
+.brand-copy b{font:500 11px var(--mono);letter-spacing:.2em}
+.brand-copy small{font:400 10px var(--mono);letter-spacing:.16em;color:var(--muted)}
+.mode-toggle{min-width:66px;padding:7px 9px;border:1px solid var(--line);background:rgba(7,4,7,.5);color:var(--rose);font:500 10px var(--mono);letter-spacing:.16em;cursor:pointer;transition:border-color .3s,background .3s,color .3s}
+.mode-toggle:hover,.mode-toggle:focus-visible{border-color:var(--rose);background:rgba(var(--tint),.07)}
+html.mode-lite .mode-toggle{color:var(--muted)}
+.sound-toggle{display:flex;align-items:center;gap:7px;height:29px;padding:0 9px;border:1px solid var(--line);background:rgba(7,4,7,.5);color:var(--muted);font:500 10px var(--mono);letter-spacing:.16em;cursor:pointer;transition:border-color .3s,color .3s,background .3s}
+.sound-toggle:hover,.sound-toggle:focus-visible{border-color:var(--rose);color:var(--rose)}
+.sound-toggle.is-on{color:var(--rose)}
+.sound-bars{position:relative;display:flex;align-items:flex-end;gap:2px;height:11px;overflow:hidden}
+.sound-bars i{display:block;width:2px;height:2px;background:currentColor}
+/* Sound on: one strip of twelve equaliser frames (the four bars drawn in a mask, in currentColor) steps
+   through the window. One composited animation where four bars each needed a restyle at every frame. It steps
+   only while the sound really plays (sound.js: .is-playing) and never in LITE, which is a pause: on but silent,
+   it holds its first frame. */
+.sound-toggle.is-on .sound-bars i{visibility:hidden}
+.sound-toggle.is-on .sound-bars::before{content:"";position:absolute;left:0;top:0;width:14px;height:132px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='132'%3E%3Cpath d='M0 8.25h2v2.75h-2zM4 3h2v8h-2zM8 6h2v5h-2zM12 4h2v7h-2zM0 17.25h2v4.75h-2zM4 17h2v5h-2zM8 16h2v6h-2zM12 13h2v9h-2zM0 26h2v7h-2zM4 26h2v7h-2zM8 25.25h2v7.75h-2zM12 23.5h2v9.5h-2zM0 33h2v11h-2zM4 35.25h2v8.75h-2zM8 35.25h2v8.75h-2zM12 36h2v8h-2zM0 45.5h2v9.5h-2zM4 49.25h2v5.75h-2zM8 47.75h2v7.25h-2zM12 50h2v5h-2zM0 59.5h2v6.5h-2zM4 63.25h2v2.75h-2zM8 60.25h2v5.75h-2zM12 59h2v7h-2zM0 72h2v5h-2zM4 72.25h2v4.75h-2zM8 72.75h2v4.25h-2zM12 69.25h2v7.75h-2zM0 82h2v6h-2zM4 79h2v9h-2zM8 85.25h2v2.75h-2zM12 80.75h2v7.25h-2zM0 91.25h2v7.75h-2zM4 89.5h2v9.5h-2zM8 92h2v7h-2zM12 93.25h2v5.75h-2zM0 101.25h2v8.75h-2zM4 103.5h2v6.5h-2zM8 101h2v9h-2zM12 107.25h2v2.75h-2zM0 115.25h2v5.75h-2zM4 115h2v6h-2zM8 110h2v11h-2zM12 116.25h2v4.75h-2zM0 127.75h2v4.25h-2zM4 125h2v7h-2zM8 122.5h2v9.5h-2zM12 123h2v9h-2z'/%3E%3C/svg%3E") 0 0/14px 132px no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='132'%3E%3Cpath d='M0 8.25h2v2.75h-2zM4 3h2v8h-2zM8 6h2v5h-2zM12 4h2v7h-2zM0 17.25h2v4.75h-2zM4 17h2v5h-2zM8 16h2v6h-2zM12 13h2v9h-2zM0 26h2v7h-2zM4 26h2v7h-2zM8 25.25h2v7.75h-2zM12 23.5h2v9.5h-2zM0 33h2v11h-2zM4 35.25h2v8.75h-2zM8 35.25h2v8.75h-2zM12 36h2v8h-2zM0 45.5h2v9.5h-2zM4 49.25h2v5.75h-2zM8 47.75h2v7.25h-2zM12 50h2v5h-2zM0 59.5h2v6.5h-2zM4 63.25h2v2.75h-2zM8 60.25h2v5.75h-2zM12 59h2v7h-2zM0 72h2v5h-2zM4 72.25h2v4.75h-2zM8 72.75h2v4.25h-2zM12 69.25h2v7.75h-2zM0 82h2v6h-2zM4 79h2v9h-2zM8 85.25h2v2.75h-2zM12 80.75h2v7.25h-2zM0 91.25h2v7.75h-2zM4 89.5h2v9.5h-2zM8 92h2v7h-2zM12 93.25h2v5.75h-2zM0 101.25h2v8.75h-2zM4 103.5h2v6.5h-2zM8 101h2v9h-2zM12 107.25h2v2.75h-2zM0 115.25h2v5.75h-2zM4 115h2v6h-2zM8 110h2v11h-2zM12 116.25h2v4.75h-2zM0 127.75h2v4.25h-2zM4 125h2v7h-2zM8 122.5h2v9.5h-2zM12 123h2v9h-2z'/%3E%3C/svg%3E") 0 0/14px 132px no-repeat}
+html:not(.mode-lite) .sound-toggle.is-on.is-playing .sound-bars::before{animation:soundEq .96s steps(12) infinite}
+@keyframes soundEq{to{transform:translateY(-132px)}}
+.top-meta{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:22px;font-size:var(--label);color:var(--dim);pointer-events:none}
+/* Centred on the page, the label needs the whole bar: below 1280 px it would slide under the controls or touch
+   them (the longest label, AETHER / CARTOGRAPHIE, keeps a clear gap from 1280 px). */
+@media(max-width:1279px){.top-meta{display:none}}
+.menu-toggle{position:relative;display:flex;align-items:center;gap:14px;padding:12px 16px;border:1px solid var(--line);background:rgba(7,4,7,.72);cursor:pointer;font:500 10px var(--mono);letter-spacing:.18em;transition:border-color .35s,color .35s,transform .45s var(--ease)}
+.menu-toggle:hover,.menu-toggle:focus-visible{border-color:var(--rose);color:var(--rose)}
+.menu-icon{position:relative;display:flex;flex-direction:column;gap:5px;width:18px}
+.menu-icon i{height:1px;background:currentColor;transition:transform .4s var(--ease)}
+.menu-toggle[aria-expanded="true"] .menu-icon i:first-child{transform:translateY(3px) rotate(45deg)}
+.menu-toggle[aria-expanded="true"] .menu-icon i:last-child{transform:translateY(-3px) rotate(-45deg)}
+.progress{position:fixed;z-index:60;left:var(--gutter);top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:14px;pointer-events:none}
+.progress-line{position:relative;width:1px;height:132px;background:var(--line)}
+.progress-line i{position:absolute;inset:0;background:var(--rose);transform-origin:top;transform:scaleY(0);box-shadow:0 0 12px rgba(var(--tint),.6)}
+.progress-label{writing-mode:vertical-rl;display:flex;gap:10px;font-size:var(--label);color:var(--muted)}
+.progress-label b{color:var(--rose);font-weight:500}
+
+/* 05 · MENU — the index, a CRT overlay: one lit line, the guide, the dossier */
+.site-menu{position:fixed;inset:0;z-index:8000;visibility:hidden;pointer-events:none}
+.site-menu.open{visibility:visible;pointer-events:auto}
+.menu-shade{display:none}
+.menu-inner{position:absolute;inset:0;display:flex;flex-direction:column;padding:118px clamp(28px,7vw,110px) 30px;overflow:auto;overscroll-behavior:contain;
+  background:
+    linear-gradient(rgba(var(--tint),.026) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(var(--tint),.022) 1px,transparent 1px),
+    radial-gradient(circle at 78% 46%,rgba(109,25,58,.32),transparent 36%),
+    radial-gradient(circle at 12% 82%,rgba(70,14,37,.24),transparent 30%),
+    #080309;
+  background-size:58px 58px,58px 58px,100% 100%,100% 100%;
+  opacity:0;transition:opacity .35s}
+/* The menu fades in where it stands: its links never move under a finger (the ignition below is a cover). */
+.site-menu.open .menu-inner{opacity:1}
+.menu-top{display:flex;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid var(--line);font-size:var(--label);color:var(--muted)}
+.menu-top span:last-child{color:var(--dim)}
+.menu-structure{flex:1 0 auto;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:clamp(56px,9vw,150px);align-items:center;padding:clamp(28px,6vh,72px) 0}
+.menu-block{min-width:0}
+.menu-block-head{display:flex;justify-content:space-between;margin-bottom:clamp(10px,2vh,20px);padding-bottom:12px;border-bottom:1px solid var(--line-2);font-size:var(--label);color:var(--muted)}
+.menu-block-head span:last-child{color:var(--dim)}
+.menu-domains{position:relative}
+/* A domain line: number · name · what it covers · arrow. Air between lines, never cramped. */
+/* At rest the names are paper, without halo. One line is lit at a time (RÉMANENCE A1): the current page's, or
+   the one under the pointer or the keyboard focus. Its light is painted once, in two layers (a 2 px tube on the
+   left, a faint wash) whose opacity alone moves: on in 120 ms, out in 900 ms, never back to black at once. */
+.menu-domains a{--acc:var(--rose);--acc-rgb:var(--rgb-rose);position:relative;display:grid;grid-template-columns:56px minmax(0,1fr) auto 32px;align-items:baseline;column-gap:18px;min-height:clamp(72px,12.5vh,112px);padding:clamp(10px,1.8vh,18px) 0;border-bottom:1px solid var(--line-3)}
+.menu-domains a[data-accent="dev"]{--acc:var(--acc-dev);--acc-rgb:var(--rgb-cyan)}.menu-domains a[data-accent="photo"]{--acc:var(--acc-photo);--acc-rgb:var(--rgb-photo)}.menu-domains a[data-accent="writing"]{--acc:var(--acc-writing);--acc-rgb:var(--rgb-magenta)}.menu-domains a[data-accent="worlds"]{--acc:var(--acc-worlds-text);--acc-rgb:var(--rgb-violet)}
+.menu-domains a small{font:400 var(--label) var(--mono);letter-spacing:.14em;color:var(--dim)}
+.menu-domains a b{font:400 clamp(38px,min(4.4vw,7.6vh),78px)/.95 var(--serif);letter-spacing:-.015em;color:var(--paper);transition:color var(--t-off) var(--ease-decay)}
+/* Chinese (Traditional) labels beside the numbers: decoration, hidden from assistive technology (empty
+   alternative text). A self-hosted subset of Noto Serif TC (fonts/LICENSE-OFL.txt) holds only the site's lexicon;
+   with its own family name it never meets a system font, and coming first it keeps the traditional forms (a
+   pseudo-element cannot carry a lang attribute). */
+@font-face{font-family:"Yosuljin Hanzi";src:url("fonts/noto-serif-tc-400-subset.woff2") format("woff2");font-weight:400;font-style:normal;font-display:block;unicode-range:U+4E16,U+4E4B,U+4EE5,U+4F5C,U+592A,U+5BEB,U+5F71,U+651D,U+6AFB,U+754C,U+767C,U+865F,U+8776,U+8A0A,U+9053,U+958B,U+9593,U+983B}
+/* The labels hang under the numbers without taking room: the lines keep their height. */
+.menu-num{position:relative}
+/* A line's Chinese word shows only while the line is lit, in its hue (on in 120 ms, out in 900 ms). It hangs
+   under the number without taking room: the lines keep their height. */
+.menu-domains .menu-zh{position:absolute;left:0;top:calc(100% + 9px);writing-mode:vertical-rl;white-space:nowrap;font:400 12px/1 var(--zh);font-synthesis:none;letter-spacing:.32em;color:var(--acc);opacity:0;transition:opacity var(--t-off) var(--ease-decay)}
+.menu-project-main .menu-num{grid-area:num;display:flex;align-items:baseline;gap:14px}
+.menu-project-main .menu-zh{font:400 12px/1 var(--zh);font-synthesis:none;letter-spacing:.24em;color:var(--acc-aether);opacity:0;transition:opacity var(--t-off) var(--ease-decay)}
+.menu-domains a em{font:400 var(--label) var(--mono);font-style:normal;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);transition:color var(--t-off) var(--ease-decay)}
+.menu-domains a i{justify-self:end;font:400 12px var(--mono);font-style:normal;color:var(--dim);transition:color var(--t-off) var(--ease-decay)}
+/* Two layers of the same 2 px tube: underneath, the rose that outlives the hue (out in 900 ms); on top, the
+   channel's hue (out in 300 ms). Both come on in 120 ms, so the trace of a line ends rose. */
+.menu-domains a::before,.menu-domains a::after{content:"";position:absolute;left:0;top:22%;bottom:22%;width:2px;pointer-events:none;opacity:0}
+.menu-domains a::before{background:var(--rose);box-shadow:0 0 8px rgba(var(--rgb-rose),.6);transition:opacity var(--t-off) var(--ease-decay)}
+.menu-domains a::after{background:var(--acc);box-shadow:0 0 8px rgba(var(--acc-rgb),.8),0 0 18px rgba(var(--acc-rgb),.35);transition:opacity .3s ease-out}
+.menu-domains a:is(:hover,:focus-visible,.is-lit)::before,.menu-domains a:is(:hover,:focus-visible,.is-lit)::after{opacity:1;transition-duration:var(--t-on);transition-timing-function:ease-out}
+.menu-domains a:is(:hover,:focus-visible,.is-lit) b{color:color-mix(in srgb,var(--acc) 55%,var(--phosphor));text-shadow:0 0 .2em rgba(var(--acc-rgb),.3);transition-duration:var(--t-on);transition-timing-function:ease-out}
+.menu-domains a:is(:hover,:focus-visible,.is-lit) :is(em,i){color:var(--acc);transition-duration:var(--t-on);transition-timing-function:ease-out}
+:is(.menu-domains a,.menu-project-main):is(:hover,:focus-visible,.is-lit) .menu-zh{opacity:1;transition-duration:var(--t-on);transition-timing-function:ease-out}
+/* Aether lives apart: its own column, its own frame, its own signal. */
+.menu-aether{position:relative;padding-left:clamp(28px,4vw,64px)}
+.menu-aether::before{content:"";position:absolute;left:0;top:-8%;bottom:-8%;width:1px;background:linear-gradient(transparent,rgba(var(--tint),.28) 30%,rgba(var(--rgb-cyan),.18) 70%,transparent)}
+.menu-project-main{--acc:var(--acc-aether);--acc-rgb:var(--rgb-gold);position:relative;display:grid;grid-template-columns:1fr auto;grid-template-areas:"sigil sigil" "num num" "name name" "desc desc" "go go";justify-items:start;gap:10px;padding:clamp(26px,4.5vh,44px) clamp(24px,2.6vw,38px);border:1px solid rgba(var(--tint),.22);background:radial-gradient(circle at 78% 18%,rgba(var(--tint),.13),transparent 46%),linear-gradient(140deg,rgba(66,14,40,.55),rgba(8,3,9,.72));box-shadow:0 0 0 1px rgba(var(--tint),.05),0 30px 90px rgba(90,23,52,.35),inset 0 0 60px rgba(var(--tint),.04)}
+.menu-project-main::before,.menu-project-main::after{content:"";position:absolute;inset:-1px;pointer-events:none;opacity:0}
+.menu-project-main::before{border:1px solid rgba(var(--rgb-rose),.5);box-shadow:0 0 20px rgba(var(--rgb-rose),.12);transition:opacity var(--t-off) var(--ease-decay)}
+.menu-project-main::after{border:1px solid rgba(var(--acc-rgb),.55);box-shadow:0 0 24px rgba(var(--acc-rgb),.16),inset 0 0 50px rgba(var(--acc-rgb),.06);transition:opacity .3s ease-out}
+/* The dossier's mark: a project node, golden and still (motifs.svg, built by menu.js). */
+.menu-aether-sigil{grid-area:sigil;display:block;width:clamp(30px,4.4vh,40px);aspect-ratio:1;margin-bottom:6px;color:var(--acc-aether)}
+.menu-aether-sigil .menu-node{display:block;width:100%;height:100%;overflow:visible}
+.menu-project-main small{font:400 var(--label) var(--mono);letter-spacing:.22em;color:var(--dim)}
+.menu-project-main b{grid-area:name;font:400 clamp(52px,min(5.4vw,9vh),96px)/.86 var(--serif);letter-spacing:.02em;color:var(--paper);transition:color var(--t-off) var(--ease-decay)}
+.menu-project-main>span:not(.menu-aether-sigil,.menu-num){grid-area:desc;font:400 var(--label) var(--mono);letter-spacing:.14em;color:var(--muted)}
+.menu-project-main i{grid-area:go;margin-top:10px;font:500 10px var(--mono);font-style:normal;letter-spacing:.2em;color:var(--rose);transition:color var(--t-off) var(--ease-decay)}
+.menu-project-main:is(:hover,:focus-visible,.is-lit)::before,.menu-project-main:is(:hover,:focus-visible,.is-lit)::after{opacity:1;transition-duration:var(--t-on);transition-timing-function:ease-out}
+.menu-project-main:is(:hover,:focus-visible,.is-lit) b{color:color-mix(in srgb,var(--acc) 55%,var(--phosphor));text-shadow:0 0 .2em rgba(var(--acc-rgb),.3);transition-duration:var(--t-on);transition-timing-function:ease-out}
+.menu-project-main:is(:hover,:focus-visible,.is-lit) i{color:var(--acc);transition-duration:var(--t-on);transition-timing-function:ease-out}
+/* One lit line at a time, across the whole menu: the current page's goes out while another one is read. */
+.menu-structure:has(:is(.menu-domains a,.menu-project-main):is(:hover,:focus-visible):not(.is-lit)) .is-lit::before,.menu-structure:has(:is(.menu-domains a,.menu-project-main):is(:hover,:focus-visible):not(.is-lit)) .is-lit::after{opacity:0;transition-duration:var(--t-off);transition-timing-function:var(--ease-decay)}
+.menu-structure:has(:is(.menu-domains a,.menu-project-main):is(:hover,:focus-visible):not(.is-lit)) .is-lit::after{transition-duration:.3s;transition-timing-function:ease-out}
+.menu-structure:has(:is(.menu-domains a,.menu-project-main):is(:hover,:focus-visible):not(.is-lit)) .is-lit b{color:var(--paper);text-shadow:none;transition-duration:var(--t-off);transition-timing-function:var(--ease-decay)}
+.menu-structure:has(:is(.menu-domains a,.menu-project-main):is(:hover,:focus-visible):not(.is-lit)) .is-lit :is(em,i){color:var(--dim)}
+.menu-structure:has(:is(.menu-domains a,.menu-project-main):is(:hover,:focus-visible):not(.is-lit)) .menu-project-main.is-lit i{color:var(--rose)}
+.menu-structure:has(:is(.menu-domains a,.menu-project-main):is(:hover,:focus-visible):not(.is-lit)) .is-lit .menu-zh{opacity:0;transition-duration:var(--t-off);transition-timing-function:var(--ease-decay)}
+.menu-note{max-width:400px;margin:22px 0 0;font-size:var(--label);line-height:1.8;letter-spacing:.08em;text-transform:none;color:var(--dim)}
+.menu-presence{display:flex;flex-wrap:wrap;gap:8px 22px}
+.menu-presence a{font-size:var(--label);color:var(--rose);transition:color .3s}
+.menu-presence a:hover,.menu-presence a:focus-visible{color:var(--paper)}
+.menu-presence .arrow,.menu-project-main i .arrow{margin-left:.6em}
+.menu-bottom{display:flex;justify-content:space-between;align-items:center;gap:18px 32px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--line-2);font-size:var(--label);line-height:1.6;color:var(--dim)}
+.menu-top-mid{color:var(--dim)}
+.menu-legal{display:flex;flex-wrap:wrap;gap:8px 20px}
+.menu-legal a{color:var(--muted)}
+.menu-legal a:hover,.menu-legal a:focus-visible{color:var(--rose)}
+/* Ignition: the tube warms up. A cover (.menu-tube, built by menu.js) shows a fine line of light, then two dark
+   lids part from it, in half a second. The menu under it never scales or moves, so a tap during the ignition
+   reaches the link under the finger, where it will stay. Transform/opacity only. */
+.menu-tube{position:absolute;inset:0;z-index:8;pointer-events:none;overflow:hidden;visibility:hidden}
+.site-menu.menu-ignition .menu-tube{visibility:visible}
+.menu-tube i{position:absolute;left:0;right:0}
+.menu-tube-lid{height:50.5%;background:var(--bg)}
+.menu-tube-lid.top{top:0}
+.menu-tube-lid.bottom{bottom:0}
+.menu-tube-line{top:50%;height:1px;background:var(--paper);box-shadow:0 0 6px 1px rgba(var(--tint),.55),0 0 22px 4px rgba(var(--tint),.18);opacity:0}
+.site-menu.menu-ignition .menu-tube-lid.top{animation:menuLidTop .5s cubic-bezier(.2,.7,.2,1) both}
+.site-menu.menu-ignition .menu-tube-lid.bottom{animation:menuLidBottom .5s cubic-bezier(.2,.7,.2,1) both}
+.site-menu.menu-ignition .menu-tube-line{animation:menuTubeLine .5s ease-out both}
+.site-menu.menu-ignition .menu-project-main{animation:menuFadeIn .45s var(--ease) .25s both}
+/* The guide: one butterfly in three boxes, two wings hinged on a body (motifs.svg, built by menu.js). It rests on
+   the current page's line (on the dossier elsewhere) and never follows the pointer: it flies only to a line that is
+   chosen, in 400 ms, two wing beats on the way (one animation per wing, on the compositor). */
+.menu-structure{position:relative}
+.menu-guide{position:absolute;left:0;top:0;z-index:2;width:30px;aspect-ratio:120/100;perspective:200px;color:var(--sakura);pointer-events:none;opacity:0;transform:translate(var(--gx,0px),var(--gy,0px)) rotate(14deg);transition:transform .4s var(--ease)}
+.menu-guide.is-placed{opacity:1}
+.menu-guide.no-flight{transition:none}
+.menu-guide :is(.bf-wing,.bf-body){position:absolute;top:0;height:100%;overflow:visible}
+.menu-guide .bf-wing{width:50%}
+.menu-guide .bf-l{left:0;transform-origin:100% 50%;transform:rotateY(12deg)}
+.menu-guide .bf-r{right:0;transform-origin:0 50%;transform:rotateY(-12deg)}
+.menu-guide .bf-body{left:0;width:100%}
+.menu-guide.is-flying .bf-l{animation:menuFlapL .2s var(--ease-wing) 2 alternate}
+.menu-guide.is-flying .bf-r{animation:menuFlapR .2s var(--ease-wing) 2 alternate}
+@keyframes menuFlapL{from{transform:rotateY(8deg)}to{transform:rotateY(74deg)}}
+@keyframes menuFlapR{from{transform:rotateY(-8deg)}to{transform:rotateY(-74deg)}}
+/* A still veil over the open menu, the glass of the tube: faint scanlines, a warm phosphor glow at the centre,
+   a darker rim (painted once). */
+.menu-tube .menu-tube-scan{top:0;bottom:0;background:repeating-linear-gradient(rgba(0,0,0,.05) 0 1px,transparent 1px 3px),radial-gradient(ellipse at 50% 42%,rgba(var(--rgb-gold),.035),transparent 60%),radial-gradient(ellipse at 50% 45%,transparent 58%,rgba(0,0,0,.32) 100%)}
+.site-menu.open .menu-tube-scan{visibility:visible}
+.site-menu.menu-poweroff .menu-tube-scan{visibility:hidden}
+/* Power-off: the picture collapses to a line, then a dot. */
+.site-menu.menu-poweroff .menu-inner{animation:crtPowerOff .38s ease-in-out both}
+.menu-icon::after{content:"";position:absolute;left:-8px;right:-8px;top:50%;height:1px;background:rgba(var(--tint),.3);opacity:0;pointer-events:none;transition:opacity var(--t-off) var(--ease-decay)}
+.menu-toggle:is(:hover,:focus-visible) .menu-icon::after{opacity:1;transition-duration:var(--t-on);transition-timing-function:ease-out}
+@keyframes menuLidTop{0%,14%{transform:translateY(-1%)}100%{transform:translateY(-101%)}}
+@keyframes menuLidBottom{0%,14%{transform:translateY(1%)}100%{transform:translateY(101%)}}
+@keyframes menuTubeLine{0%{opacity:.8;transform:scaleX(.3)}16%{opacity:.9;transform:scaleX(1)}40%{opacity:.25;transform:scaleY(3)}60%,100%{opacity:0;transform:scaleY(4)}}
+@keyframes menuFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes crtPowerOff{0%{opacity:1;transform:none}30%{opacity:1;transform:scaleY(.012) scaleX(1.04)}70%{opacity:.9;transform:scaleY(.006) scaleX(.12)}100%{opacity:0;transform:scaleY(.004) scaleX(0)}}
+
+/* 06 · SIGNAL — a press, and the page threshold. Nothing glitches (RÉMANENCE §11).
+   A press: the control sinks by one pixel for 80 ms, on the individual translate property, which composes with
+   hover transforms instead of replacing them (glitch.js adds the class on release, so the target never moves
+   between press and release). */
+:is(a[href],button).is-pressed{translate:0 1px}
+.hero-title{position:relative}
+/* Changing page: the afterimage. The navigation is the browser's own and never waits. Where cross-document view
+   transitions exist, the title being left (portal.js marks it) turns rose and dies out over the next page in
+   900 ms, while the two pages cross in 120 ms: nothing disappears at once. Elsewhere, and under reduced motion,
+   a plain load. */
+@view-transition{navigation:auto}
+.afterimage{color:var(--rose)!important;view-transition-name:afterimage}
+::view-transition-old(afterimage){animation:afterimageOut var(--t-off) var(--ease-decay) both}
+::view-transition-old(root),::view-transition-new(root){animation-duration:var(--t-on)}
+@keyframes afterimageOut{to{opacity:0}}
+@media (prefers-reduced-motion:reduce){@view-transition{navigation:none}}
+
+/* THE TUBE — a cathode-ray screen over every page (glitch.js builds it): warm scanlines, phosphor stripes, an
+   aperture grille and a glint on the glass (cinema). A still object, warm like a lit phosphor: nothing in it moves,
+   and with no compositing trigger it paints once into one layer (shared with the film grain, .noise, just under
+   it). No blend mode and no opacity on .crt itself: either one makes the compositor redraw the whole tube
+   offscreen at every frame. The tube used to
+   be screen-blended: on these dark pages its light layers give the same pixels with normal blending, and its dark
+   vignettes, which screen blending never let show, are gone. --crt is the strength of the tube. */
+.crt{--crt:.72;position:fixed;inset:0;z-index:26;pointer-events:none;overflow:hidden}
+.crt-lines,.crt-phosphor,.crt-grille,.crt-glass{position:absolute;inset:0}
+.crt-lines{background:repeating-linear-gradient(rgba(var(--rgb-gold),.045) 0 1px,transparent 1px 4px);opacity:calc(.42 * var(--crt))}
+.crt-lines::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 12px,rgba(var(--rgb-gold),.018) 12px 13px);opacity:.7}
+.crt-phosphor{background:repeating-linear-gradient(to right,rgba(var(--rgb-photo),.016) 0 1px,transparent 1px 3px);opacity:calc(.75 * var(--crt))}
+.crt-grille{box-shadow:inset 0 0 0 1px rgba(var(--tint),.04);opacity:calc(.8 * var(--crt))}
+.crt-glass{display:none}
+/* Cinema: a lighter scan, a colour grille, a glint on the glass. */
+html.cinema .crt-lines{opacity:calc(.28 * var(--crt))}
+html.cinema .crt-grille{background:repeating-linear-gradient(90deg,rgba(255,70,120,.018) 0 1px,rgba(80,255,170,.014) 1px 2px,rgba(80,140,255,.022) 2px 3px);opacity:calc(.28 * var(--crt))}
+html.cinema .crt-glass{display:block;background:radial-gradient(ellipse at 50% 42%,rgba(var(--rgb-gold),.03),transparent 61%),linear-gradient(rgba(var(--rgb-gold),.01),transparent 18%);opacity:var(--crt)}
+/* LITE: the scanlines a touch stronger. */
+html.mode-lite .crt-lines{opacity:calc(.45 * var(--crt))}
+/* Rest (js/core/idle.js). Level 1, 12 s without input: the decorative motion pauses. Level 2, 90 s (45 s on touch
+   screens) or the window out of focus: every animation pauses. A paused animation resumes where it stopped,
+   so the first input brings everything back without a jump; text, focus and navigation are untouched. */
+html.is-idle .sound-toggle.is-on .sound-bars::before{animation-play-state:paused}
+html.is-deep-idle *,html.is-deep-idle *::before,html.is-deep-idle *::after{animation-play-state:paused!important}
+@media(max-width:700px){
+  .crt{--crt:.5}
+  .crt-lines{opacity:calc(.28 * var(--crt))}
+  html.cinema .crt-lines{opacity:calc(.22 * var(--crt))}
+  .crt-grille,html.cinema .crt-grille{opacity:calc(.2 * var(--crt))}
+}
+/* One lit title per screen (RÉMANENCE §4.3): a white core and a static phosphor bloom, no RGB fringe anywhere.
+   The index name glows in the space's rose; a domain page title glows in its channel's tint. */
+.hero-title{color:var(--phosphor);text-shadow:0 0 .02em rgba(var(--rgb-phosphor),.6),0 0 .1em rgba(var(--rgb-rose),.22),0 0 .42em rgba(var(--rgb-accent),.08)}
+.detail-title{text-shadow:0 0 .02em rgba(var(--rgb-phosphor),.6),0 0 .1em rgba(var(--tint),.24),0 0 .42em rgba(var(--tint),.09)}
+
+/* 07 · WORLD — WebGL canvas, CSS fallback, instrument HUD */
+.world-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;pointer-events:none;opacity:0;transition:opacity 1.2s ease}
+html.world-ready.mode-full .world-canvas{opacity:1}
+/* Without WebGL (and in LITE): the same night, flat. A dark planet, its rim lit by a sun just behind it. */
+.world-fallback{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse 60% 46% at 20% 16%,rgba(var(--tint),.07),transparent 70%),var(--bg)}
+/* Flat, the Entrée's composition: the planet's centre is off the screen at the bottom right, only its crescent shows,
+   lit from the top left; its ring one thin line; one tint (the page's), no orange, nothing behind the titles. */
+.world-fallback i{position:absolute;right:calc(-1 * min(26vw,330px));bottom:calc(-1 * min(26vw,330px));width:min(52vw,660px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 50%,#120819 0,#0a0512 62%,#060309 100%);box-shadow:inset 12px 12px 22px -6px rgba(var(--tint),.5),inset 3px 3px 6px -2px rgba(255,226,240,.45),0 0 90px rgba(var(--tint),.08)}
+.world-fallback::after{content:"";position:absolute;right:calc(-1 * min(44vw,560px));bottom:calc(-1 * min(13vw,165px));width:min(88vw,1120px);height:min(26vw,330px);border:1px solid rgba(var(--tint),.22);border-radius:50%;transform:rotate(-14deg)}
+html.world-ready.mode-full .world-fallback{opacity:0;transition:opacity 1.2s ease}
+.detail-page .world-fallback::after{display:none}   /* on a reading page the ring would cross the right margin as a stray line */
+html.mode-lite .world-fallback i{opacity:.55}
+.hud{display:none}
+html.cinema .hud{display:block;position:fixed;inset:0;z-index:50;pointer-events:none;color:var(--dim);font-size:10px}
+.hud-hint{position:absolute;left:50%;bottom:calc(var(--gutter) * .55);transform:translateX(-50%);color:var(--dim);transition:opacity .6s}
+.transit{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:18px;opacity:0;font-size:var(--label);letter-spacing:.32em;color:var(--rose);text-shadow:0 0 18px rgba(var(--tint),.45)}
+.transit i{position:relative;display:block;width:clamp(120px,14vw,220px);height:1px;background:rgba(var(--tint),.22)}
+.transit i b{position:absolute;inset:0;background:var(--rose);transform-origin:left;transform:scaleX(0);box-shadow:0 0 10px var(--rose)}
+.transit span:first-child{color:var(--muted)}
+
+/* Annotations pinned to the world: survey labels with a leader line. */
+.marks{display:none}
+html.cinema.world-ready .marks{display:block;position:fixed;inset:0;z-index:5;pointer-events:none}
+.mark{position:absolute;left:0;top:0;opacity:0;will-change:transform,opacity;--tone:var(--dim)}
+.mark.tone-rose{--tone:var(--rose)}.mark.tone-ice{--tone:var(--ice)}
+.mark.tone-dev{--tone:var(--acc-dev)}.mark.tone-photo{--tone:var(--acc-photo)}.mark.tone-writing{--tone:var(--acc-writing)}.mark.tone-worlds{--tone:var(--acc-worlds)}
+.mark.tone-accent{--tone:var(--accent)}.mark.tone-aether{--tone:var(--acc-aether)}
+/* Landscape phones: the worlds are too small for their labels, which pile up. */
+@media (max-height:520px) and (orientation:landscape){html.cinema.world-ready .marks{display:none}}
+.mark-dot{position:absolute;left:-3px;top:-3px;width:6px;height:6px;border:1px solid var(--tone);border-radius:50%;box-shadow:0 0 10px var(--tone)}
+.mark-line{position:absolute;left:3px;top:0;width:34px;height:1px;background:linear-gradient(90deg,var(--tone),transparent 140%);transform-origin:0 0;transform:rotate(-38deg)}
+.mark-text{position:absolute;left:30px;top:-34px;display:flex;flex-direction:column;gap:3px;white-space:nowrap;font:400 10px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-shadow:0 0 8px rgba(0,0,0,.9)}
+.mark-text b{font-weight:500;color:var(--tone);text-shadow:0 0 1px rgba(0,0,0,.9),0 0 10px color-mix(in srgb,var(--tone) 55%,transparent)}
+.mark-text small{font-size:10px;letter-spacing:.1em;text-transform:none;color:var(--dim)}
+.mark.flip .mark-line{transform:rotate(-142deg)}
+.mark.flip .mark-text{left:auto;right:30px;align-items:flex-end}
+
+/* 08 · INDEX — scenes in document flow (LITE, touch, no-JS) */
+#site{position:relative;z-index:1}
+.panel{position:relative;min-height:100svh;display:flex;isolation:isolate}
+.panel-inner{position:relative;z-index:2;width:min(1220px,calc(100% - 2 * var(--gutter) - 70px));min-height:100svh;margin:0 auto;padding:118px 0 54px;display:flex;flex-direction:column}
+html.mode-lite .panel{border-bottom:1px solid var(--line-2)}
+html.mode-lite .panel-home{background:radial-gradient(circle at 50% 48%,rgba(30,10,20,.7),transparent 60%)}
+.section-head{display:flex;justify-content:space-between;align-items:center}
+.eyebrow{font-size:var(--label);color:var(--dim)}
+.eyebrow span{padding:0 8px}
+.kicker,.project-kicker{margin:0 0 14px;font-size:var(--label);color:var(--muted)}
+.display-title{margin:0;font:400 clamp(46px,min(6.3vw,10.5vh),108px)/.92 var(--serif);letter-spacing:-.015em;text-wrap:balance}
+.display-title em{font-style:italic;color:var(--rose)}
+.lead{max-width:600px;margin:0;color:var(--muted);font:400 clamp(16px,min(1.3vw,2.3vh),20px)/1.6 var(--sans);text-wrap:pretty}
+/* Entrée */
+.home-inner{justify-content:space-between}
+.home-copy{margin:auto 0;text-align:center}
+.home-copy .kicker{margin-bottom:clamp(14px,2.6vh,26px);letter-spacing:.28em;text-wrap:balance}
+.home-copy .kicker span{white-space:nowrap}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.hero-title{display:flex;justify-content:center;gap:.02em;margin:0;font:400 clamp(76px,min(15vw,25vh),250px)/.8 var(--serif);letter-spacing:-.02em}
+.hero-word{display:inline-flex;gap:.02em}
+.hero-title .hw{display:inline-block}
+/* The beam writes YOSULJIN once the tube is on (1 000 to 1 720 ms after it switches on), and once Instrument Serif
+   is there (main.js adds .booted, 1.5 s at most); until then .js hides the word. LITE and reduced motion: written. */
+.hero-title.write{--h-win:-1.62em;--h-ink:1.62em}
+.hero-title .write-win{padding:.4em .6em;margin:-.4em -.6em}
+.hero-title .write-beam{top:-.2em;bottom:-.2em;left:-.12em;right:-.12em}
+html.js:not(.booted) .hero-title .write-win{visibility:hidden}
+html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .hero-title .write-win{animation:winOpen .72s var(--ease-scan) 1s both}
+html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .hero-title .write-ink{animation:inkHold .72s var(--ease-scan) 1s both}
+html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .hero-title .write-beam{animation:beamDown .72s var(--ease-scan) 1s both}
+/* The beam writes (A2): window and ink move in opposite directions, so the text stays still while a window
+   opens from top to bottom under a line of light; then the written word rests at the glow floor. */
+.write{position:relative;--h-win:-100%;--h-ink:100%}
+.write-win{display:block;overflow:hidden}
+.write-ink{display:block}
+.write-beam{position:absolute;left:-10px;right:-10px;top:0;bottom:0;pointer-events:none;opacity:0}
+.write-beam::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:var(--phosphor);box-shadow:0 0 6px 1px rgba(var(--rgb-sakura),.85),0 0 16px 4px rgba(var(--rgb-accent),.35)}
+@keyframes winOpen{from{transform:translateY(var(--h-win))}to{transform:none}}
+@keyframes inkHold{from{transform:translateY(var(--h-ink))}to{transform:none}}
+@keyframes beamDown{0%{opacity:0;transform:none}3%{opacity:1}90%{opacity:1}100%{opacity:0;transform:translateY(100%)}}
+@keyframes restDown{from{opacity:1}to{opacity:var(--glow-floor)}}
+/* 世界之間, "between the worlds": a vertical colophon in the right margin, written once, then at rest (in FULL only:
+   LITE and reduced motion show it at rest at once). */
+.colophon{position:absolute;z-index:3;right:0;top:50%;margin-top:-48px;writing-mode:vertical-rl;font:400 15px/1 var(--zh);font-synthesis:none;letter-spacing:.36em;color:var(--sakura);opacity:var(--glow-floor);pointer-events:none}
+html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .colophon{animation:restDown 1.6s var(--ease-decay) 2.65s both}
+html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .colophon .write-win{animation:winOpen .8s var(--ease-scan) 1.85s both}
+html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .colophon .write-ink{animation:inkHold .8s var(--ease-scan) 1.85s both}
+html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .colophon .write-beam{animation:beamDown .8s var(--ease-scan) 1.85s both}
+/* Reduced motion: written at once (section 16 shortens durations but keeps the delays, which would hide them). */
+@media (prefers-reduced-motion:reduce){.hero-title .write-win,.hero-title .write-ink,.hero-title .write-beam,.colophon,.colophon *{animation:none!important}}
+@media (max-width:899px){.colophon{display:none}}
+.hero-lead{margin:clamp(18px,3.6vh,36px) 0 0;font:400 clamp(17px,min(1.5vw,2.6vh),24px)/1.45 var(--sans);color:var(--muted)}
+.home-bottom{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;font-size:var(--label);color:var(--dim)}
+.home-bottom>span:last-child{text-align:right}
+.scroll-cue{display:flex;align-items:center;gap:12px;color:var(--muted);transition:color .3s}
+.scroll-cue i{position:relative;width:34px;height:1px;background:var(--rose)}
+.scroll-cue i::after{content:"";position:absolute;right:0;top:-3px;width:6px;height:6px;border-right:1px solid var(--rose);border-bottom:1px solid var(--rose);transform:rotate(-45deg)}
+.scroll-cue:hover,.scroll-cue:focus-visible{color:var(--rose)}
+/* Repères */
+.about-inner{justify-content:space-between}
+.about-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(260px,.7fr);gap:clamp(36px,8vw,120px);align-items:center;margin:auto 0}
+.about-layout .lead{margin-top:clamp(20px,4vh,40px)}
+.about-copy{max-width:430px;color:var(--muted);font-size:15px;line-height:1.75}
+.about-copy p{margin:0 0 clamp(12px,2.4vh,24px)}
+.about-copy b{color:var(--paper);font-weight:500}
+.about-signature{padding-top:20px;border-top:1px solid var(--line);font-size:var(--label);color:var(--muted)}
+.about-footer,.channels-footer{display:flex;justify-content:space-between;align-items:baseline;gap:20px;font-size:var(--label);color:var(--dim)}
+.about-footer span:first-child{color:var(--muted)}
+.about-footer a,.channels-footer a{display:inline-flex;align-items:center;gap:8px;color:var(--rose)}
+/* Domaines */
+.channels-inner{justify-content:space-between}
+.channels-intro{display:flex;justify-content:space-between;align-items:end;gap:40px;margin:clamp(18px,4vh,44px) 0 clamp(16px,3vh,28px)}
+.channels-intro .lead{max-width:360px}
+.domain-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line)}
+/* Domaines: four plates of glass, dark at rest (no neon, no sweeping reflection, no tilt). Pointed at or focused,
+   one lights up in its channel's tint (A1: on in 120 ms, off in 900 ms) and rises 4 px; keyboard focus adds four
+   neon corners. One plate lit at a time, so one bright Chinese word. */
+.domain-card{--acc:var(--rose);--acc-rgb:var(--rgb-rose);position:relative;display:grid;grid-template-columns:42px 1fr;gap:14px;align-items:start;min-height:clamp(112px,16vh,150px);padding:clamp(16px,2.6vh,26px) 22px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--plate);overflow:hidden;transition:transform var(--t-ui) var(--ease)}
+.domain-card:nth-child(2n){border-right:0}
+.domain-card[data-domain="dev"]{--acc:var(--acc-dev);--acc-rgb:var(--rgb-cyan)}.domain-card[data-domain="photo"]{--acc:var(--acc-photo);--acc-rgb:var(--rgb-photo)}.domain-card[data-domain="writing"]{--acc:var(--acc-writing);--acc-rgb:var(--rgb-magenta)}.domain-card[data-domain="worlds"]{--acc:var(--acc-worlds-text);--acc-rgb:var(--rgb-violet)}
+.card-lit{position:absolute;inset:0;pointer-events:none;opacity:0}
+/* The trace: the tint dies first (300 ms), the rose under it last (900 ms), so whatever fades ends pink. */
+.card-lit::before,.card-lit::after{content:"";position:absolute;left:0;top:18%;bottom:18%;width:2px}
+.card-lit::before{background:var(--rose);box-shadow:0 0 8px rgba(var(--rgb-rose),.6)}
+.card-lit::after{background:var(--acc);box-shadow:0 0 8px rgba(var(--acc-rgb),.8),0 0 18px rgba(var(--acc-rgb),.35);transition:opacity 300ms ease-out}
+.domain-card .card-lit{transition:opacity var(--t-off) var(--ease-decay)}
+.domain-card .card-lit::after{opacity:0}
+.domain-card:is(:hover,:focus-visible){transform:translateY(-4px)}
+.domain-card:is(:hover,:focus-visible) .card-lit,.domain-card:is(:hover,:focus-visible) .card-lit::after{opacity:1;transition-duration:var(--t-on);transition-timing-function:ease-out}
+.domain-card:focus-visible{outline:2px solid var(--rose);outline-offset:5px}
+/* While one plate is pointed at, any other (the focused one) goes dark. */
+.domain-grid:has(.domain-card:hover) .domain-card:not(:hover) .card-lit,.domain-grid:has(.domain-card:hover) .domain-card:not(:hover) .card-lit::after{opacity:0}
+.card-number{font-size:var(--label);color:var(--dim);transition:color var(--t-off) var(--ease-decay)}
+.domain-card:is(:hover,:focus-visible) .card-number{color:var(--acc);transition-duration:var(--t-on)}
+.card-body{display:flex;flex-direction:column;min-width:0}
+.domain-card small{font-size:var(--label);color:var(--dim)}
+.card-title{margin:8px 0 6px;font:400 clamp(26px,min(2.5vw,4.4vh),40px)/1 var(--serif);color:var(--paper)}
+.card-text{color:var(--muted);font-size:13px}
+.card-link{margin-top:10px;font-size:var(--label);color:var(--dim);transition:color .3s}
+.card-link i{font-style:normal;display:inline-block;transition:transform .35s var(--ease)}
+.domain-card:hover .card-link{color:var(--acc)}
+.domain-card:hover .card-link i{transform:translate(4px,0)}
+.channels-footer{padding-top:10px}
+/* Aether */
+.aether-inner{justify-content:space-between}
+.aether-copy{max-width:660px;margin:auto 0}
+.aether-copy .lead{margin-top:clamp(16px,3vh,30px)}
+.aether-module-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;max-width:640px;margin-top:clamp(18px,3.2vh,30px);background:rgba(var(--tint),.1)}
+.aether-module-strip span{display:flex;flex-direction:column;justify-content:center;min-height:clamp(48px,7vh,62px);padding:10px 14px;background:rgba(8,3,9,.62);transition:background .3s}
+.aether-module-strip span:hover{background:rgba(44,10,28,.6)}
+.aether-module-strip b{font-size:var(--label);font-weight:500;color:var(--rose)}
+.aether-module-strip small{margin-top:4px;font-size:var(--label);letter-spacing:.06em;text-transform:none;color:var(--muted)}
+.aether-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px 26px;margin-top:clamp(18px,3.4vh,32px)}
+.primary-link{display:inline-flex;align-items:center;gap:12px;padding:14px 18px;border:1px solid rgba(var(--tint),.4);background:rgba(var(--tint),.06);font:500 11px var(--mono);letter-spacing:.18em;color:var(--paper);transition:background .3s,border-color .3s,transform .45s var(--ease)}
+.primary-link span{color:var(--rose);transition:transform .35s var(--ease)}
+.primary-link:hover,.primary-link:focus-visible{background:rgba(var(--tint),.14);border-color:var(--rose);transform:translateY(-2px)}
+.primary-link:hover span{transform:translate(4px,0)}
+.return-home{display:inline-flex;align-items:center;gap:8px;font:400 var(--label) var(--mono);letter-spacing:var(--label-ls);color:var(--muted)}
+.return-home .arrow{color:var(--rose)}
+.return-home:hover,.return-home:focus-visible{color:var(--rose)}
+.aether-bottom{display:flex;justify-content:space-between;align-items:end;gap:20px;padding-top:16px;border-top:1px solid var(--line)}
+.aether-bottom p{margin:0;color:var(--muted);font-size:13px}
+.aether-bottom strong{font-size:var(--label);font-weight:400;color:var(--rose)}
+/* The Aether scene is in gold, the source (§9.3): its italic, its labels, its one call to action; no vivid rose. */
+.panel-aether .display-title em{color:var(--acc-aether)}
+.panel-aether .aether-module-strip{background:rgba(var(--rgb-gold),.12)}
+.panel-aether .aether-module-strip span:hover{background:rgba(8,3,9,.62)}
+.panel-aether .aether-module-strip b,.panel-aether .aether-bottom strong{color:var(--acc-aether)}
+.panel-aether .primary-link{border-color:rgba(var(--rgb-gold),.4);background:rgba(var(--rgb-gold),.05)}
+.panel-aether .primary-link span{color:var(--acc-aether)}
+.panel-aether .primary-link:hover,.panel-aether .primary-link:focus-visible{background:rgba(var(--rgb-gold),.12);border-color:var(--acc-aether)}
+.panel-aether .return-home .arrow{color:var(--acc-aether)}
+.panel-aether .return-home:hover,.panel-aether .return-home:focus-visible{color:var(--acc-aether)}
+
+/* 09 · CINEMA — FULL 3D with a precise pointer: one fixed viewport traversed by the camera */
+html.cinema,html.cinema body{height:100%;overflow:hidden;overscroll-behavior:none}
+html.cinema .scenes{position:fixed;inset:0;z-index:10;perspective:1100px;perspective-origin:50% 46%;transform:rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg));transform-style:preserve-3d}
+html.cinema .panel{position:absolute;inset:0;min-height:0;visibility:hidden;will-change:transform,opacity;transform-origin:50% 50%}
+html.cinema .panel-inner{height:100%;min-height:0;padding:clamp(86px,13vh,118px) 0 clamp(54px,9vh,82px);perspective:900px;transform-style:preserve-3d}
+html.cinema .reveal{opacity:1;transform:none;transition:none}
+html.cinema:not(.booted) .panel-home{visibility:visible}
+html.cinema .site-footer{display:none}
+html.cinema .home-copy{text-shadow:0 2px 30px rgba(0,0,0,.55)}
+html.cinema .lead,html.cinema .about-copy,html.cinema .card-text{text-shadow:0 1px 14px rgba(0,0,0,.7)}
+/* Repères keeps its world on the right; Domaines and Aether leave room for theirs. */
+html.cinema .about-layout{grid-template-columns:minmax(0,1fr) minmax(220px,.62fr);margin-right:34%}
+html.cinema .channels-intro{max-width:880px}
+html.cinema .domain-grid{background:rgba(5,2,6,.42)}
+html.cinema .aether-copy{max-width:600px}
+/* The presence column surfaces at the end of the journey. */
+html.cinema .presence-dock{position:fixed;z-index:30;right:calc(var(--gutter) + 12px);top:50%;width:clamp(200px,17vw,240px);margin:0;padding:0;border:0;display:block;opacity:var(--reveal,0);transform:translate3d(calc((1 - var(--reveal,0)) * 46px),-50%,0);visibility:hidden}
+html.cinema.presence-live .presence-dock{visibility:visible}
+html.cinema .presence-intro p,html.cinema .presence-note{display:none}
+html.cinema .presence-intro>span{display:inline-block;margin:0 0 12px;padding:4px 8px;background:var(--plate)}
+html.cinema .presence-links{display:flex;flex-direction:column;gap:1px;background:none}
+html.cinema .presence-link{min-height:0;padding:11px 14px;grid-template-columns:auto 1fr auto;background:rgba(8,3,9,.9)}
+html.cinema .presence-link b{font-size:17px}
+html.cinema .presence-link small{display:none}
+/* The pending card keeps its state in the narrow dock: « À VENIR » under its name, not over it. */
+html.cinema .presence-link.pending::after{position:static;grid-column:2/-1}
+/* Phones: two cards per row left ~95 px beside the number and the symbol, and "Développement" was cut.
+   Number and symbol share the top line, the title gets the card's full width (beats the later 700px blocks). */
+@media(max-width:700px){
+  html.cinema .domain-grid .domain-card{grid-template-columns:auto 1fr;grid-template-rows:auto 1fr;align-items:center;row-gap:6px}
+  html.cinema .domain-grid .card-body{grid-column:1/-1;align-self:start}
+  html.cinema .domain-grid .card-title{font-size:clamp(18px,5.2vw,24px);overflow-wrap:anywhere}
+}
+/* Between phone and desktop the presence column (240 px on the right) used to cover the Aether copy. */
+@media (min-width:701px) and (max-width:1100px){html.cinema .aether-copy{max-width:calc(100% - 270px)}}
+/* A filter makes the compositor render its element offscreen at every frame (measured on phones: 5 → 3 passes
+   without these three); the shadows they cast were barely visible (≤ 7/255, on 0.16 % of the pixels). */
+html.cinema .scenes .panel-inner,html.cinema .scenes .panel-inner::after,html.cinema .panel .display-title,html.cinema .panel .hero-title{filter:none}
+/* Phones: the world dims itself behind the text (safe zones), so the canvas no longer needs a global veil. */
+@media(max-width:700px){html.cinema.world-ready .world-canvas{opacity:.84!important}}
+
+/* 10 · PRESENCE + FOOTER */
+.presence-dock{position:relative;z-index:2;width:min(1220px,calc(100% - 2 * var(--gutter)));margin:0 auto;padding:72px 0 48px;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(240px,.7fr) minmax(0,1.3fr);gap:clamp(30px,6vw,90px)}
+.presence-intro>span{color:var(--muted);font-size:var(--label)}
+.presence-note>span{color:var(--dim);font-size:var(--label)}
+.presence-intro p{max-width:360px;margin:16px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+.presence-links{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--line-2)}
+.presence-link{position:relative;grid-column:span 2;display:grid;grid-template-columns:auto 1fr auto;align-content:start;gap:7px 12px;min-height:118px;padding:20px 18px;background:rgba(8,3,9,.72);transition:background .35s,transform .45s var(--ease)}
+@media(min-width:901px){.presence-link{grid-column:span 3}}
+.presence-link b{grid-column:2;font:400 clamp(20px,1.7vw,28px)/1 var(--serif);letter-spacing:.01em}
+.presence-link small{grid-column:2/-1;font-size:var(--label);letter-spacing:.08em;text-transform:none;color:var(--muted)}
+.presence-link i{grid-column:3;grid-row:1;font:400 11px var(--mono);font-style:normal;color:var(--dim)}
+.presence-index{font-size:var(--label);color:var(--dim)}
+.presence-link.live:hover,.presence-link.live:focus-visible{background:rgba(30,8,20,.86);transform:translateY(-4px)}
+.presence-link.live:hover b,.presence-link.live:hover i,.presence-link.live:focus-visible b{color:var(--rose)}
+.presence-link.pending b{color:var(--muted)}
+.presence-link.pending::after{content:"À VENIR";position:absolute;right:12px;top:10px;font:400 10px var(--mono);letter-spacing:.16em;color:var(--dim)}
+.presence-note{grid-column:1/-1;display:flex;justify-content:space-between;gap:20px;padding-top:16px;border-top:1px solid var(--line-2);font-size:var(--label);color:var(--dim)}
+.presence-note b{font-weight:400}
+.site-footer{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:20px;min-height:110px;padding:30px var(--gutter);border-top:1px solid var(--line-2);background:rgba(2,1,2,.86);font-size:var(--label);color:var(--dim)}
+.site-footer div:first-child{display:flex;gap:22px}
+.site-footer b{color:var(--paper);font-weight:500}
+.footer-links{display:flex;gap:24px}
+.footer-links a:hover,.footer-links a:focus-visible{color:var(--rose)}
+
+/* 11 · DOMAIN PAGES — one tint per page (RÉMANENCE §9.4 and its arbitrations): the lit title glows in it, the first
+   divider carries its salve, the blocks are glass plates. Labels stay --dim, overlines --muted; the tint marks the
+   second-line italic, links, focus and lit states. --acc-text is that tint where it must read as small text. */
+.detail-page{--acc:var(--rose);--acc-text:var(--acc);min-height:100svh}
+.domain-dev{--acc:var(--acc-dev);--tint:var(--rgb-cyan)}.domain-photo{--acc:var(--acc-photo);--tint:var(--rgb-photo)}.domain-write{--acc:var(--acc-writing);--tint:var(--rgb-magenta)}.domain-worlds{--acc:var(--acc-worlds);--acc-text:var(--acc-worlds-text);--tint:var(--rgb-violet)}.domain-aether{--acc:var(--acc-aether);--tint:var(--rgb-gold)}
+.detail-page .world-canvas{z-index:0}
+.detail-shell{position:relative;z-index:2;width:min(1240px,calc(100% - 2 * var(--gutter)));margin:0 auto;padding:124px 0 70px}
+.detail-top{display:flex;justify-content:space-between;align-items:center;gap:20px;border-bottom:1px solid var(--line)}
+/* The way back: a 44 px target that lights in the tint (on in 120 ms, out in 900 ms) and never moves under the pointer. */
+.detail-back{display:inline-flex;align-items:center;gap:10px;min-height:44px;font-size:var(--label);color:var(--muted);transition:color var(--t-off) var(--ease-decay)}
+.detail-back:hover,.detail-back:focus-visible{color:var(--acc-text);transition-duration:var(--t-on);transition-timing-function:ease-out}
+.detail-top-meta{font-size:var(--label);color:var(--dim)}
+.detail-hero{--hero-top:clamp(56px,10vh,96px);position:relative;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);gap:clamp(40px,8vw,130px);padding:var(--hero-top) 0 clamp(44px,7vh,64px);border-bottom:1px solid var(--line-2)}
+.detail-index{margin:0 0 16px;font-size:var(--label);color:var(--muted)}
+/* The page's one lit title: phosphor white, its bloom in the page tint painted once (06); no other shadow here. */
+.detail-title{margin:0;font:400 clamp(60px,9vw,156px)/.84 var(--serif);letter-spacing:-.02em;color:var(--phosphor)}
+.detail-title em{font-style:italic;color:var(--acc)}
+.detail-lead{max-width:min(740px,36em);margin:28px 0 0;color:var(--muted);font-size:clamp(17px,1.45vw,21px);line-height:1.65}
+.detail-aside{align-self:end;padding-left:26px;border-left:1px solid var(--line)}
+.detail-aside b{display:block;margin-bottom:12px;font-size:var(--label);color:var(--dim)}
+.detail-aside p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}
+/* 開發 · 攝影 · 寫作 · 世界 — the domain's one word: vertical, in the right margin of the hero (centred in it, at most
+   48 px from the text), level with the overline, from 900 px only (nothing below). The beam writes it once the page has
+   arrived (the index's schedule, 08), then it rests at the phosphor floor (css/motifs.css). Not there before; LITE
+   and reduced motion show it at rest. */
+.detail-hero .colophon{position:absolute;top:var(--hero-top);left:calc(100% + min(48px,(max(var(--gutter),(100vw - 1240px) / 2) - 1em) / 2));right:auto;width:1em;margin:0;font-size:20px;letter-spacing:.34em}
+/* Over the world (a planet's rim may pass behind it) the word keeps a soft dark ground. It lives on the hero, not
+   inside the word (which rests at .55 and would dim it): a breath of glass, never a frame; it comes with the writing. */
+html:not(.mode-lite) .detail-hero::after{content:"";position:absolute;top:calc(var(--hero-top) - 42px);left:calc(100% + min(48px,(max(var(--gutter),(100vw - 1240px) / 2) - 1em) / 2) - 46px);width:112px;height:190px;z-index:0;border-radius:50%;background:radial-gradient(closest-side,rgba(7,4,7,.9),rgba(7,4,7,.7) 60%,transparent);pointer-events:none}
+.detail-hero .colophon{z-index:1}
+@media (prefers-reduced-motion:no-preference){html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .detail-hero::after{animation:mistIn .8s var(--ease-scan) 1.85s both}}
+@media (max-width:899px),(prefers-contrast:more),(forced-colors:active){.detail-hero::after{display:none}}
+@keyframes mistIn{from{opacity:0}to{opacity:1}}
+@media (max-width:899px){.detail-hero .colophon{display:none}}
+html.js:is(:not(.booted),.power-hold,.power-pending) .detail-hero .colophon{visibility:hidden}
+html:is(:not(.booted),.power-hold,.power-pending) .detail-hero .colophon.write,html:is(:not(.booted),.power-hold,.power-pending) .detail-hero .colophon.write :is(.write-win,.write-ink,.write-beam),
+html.mode-lite .detail-hero .colophon.write,html.mode-lite .detail-hero .colophon.write :is(.write-win,.write-ink,.write-beam){animation:none}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:48px;background:var(--line-2)}
+/* Blocks: glass plates over the world, still under the pointer: nothing moves in a reading column. Their transition
+   is the reveal's (.reveal, 03): a block's own transition used to replace it, and the blocks popped in. */
+.detail-block{position:relative;min-height:220px;padding:28px 30px;background:linear-gradient(120deg,rgba(var(--tint),.075),transparent 46%),var(--plate);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.detail-block.wide{grid-column:1/-1}
+.detail-block h2{margin:0 0 16px;font:400 clamp(30px,3vw,48px)/1 var(--serif)}
+.detail-block h2 em{font-style:italic;color:var(--acc)}
+.detail-block p{max-width:62ch;margin:0 0 12px;color:var(--muted);font-size:15px;line-height:1.75}
+.detail-block ul{margin:0;padding:0;list-style:none}
+.detail-block li{display:grid;grid-template-columns:44px 1fr auto;gap:16px;padding:14px 0;border-top:1px solid var(--line-2);font-size:14px;line-height:1.55}
+.detail-block li b{font:400 var(--label) var(--mono);letter-spacing:.14em;color:var(--dim)}
+.detail-block li span{color:var(--muted)}
+.detail-block li strong{color:var(--paper);font-weight:500}
+.detail-block li i{font:400 var(--label) var(--mono);font-style:normal;letter-spacing:.12em;color:var(--dim)}
+/* No pictogram and no sigil on a page (arbitrations §2): a stray one stays hidden. */
+.detail-foot{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-top:52px;padding-top:20px;border-top:1px solid var(--line)}
+.detail-foot p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+.detail-foot a{font-size:var(--label);color:var(--acc-text);white-space:nowrap}
+/* Arrival, once: the hero fades in, nothing rises (nothing moves in a reading column). LITE (the page's pause) and
+   reduced motion show it at rest, and there the reading blocks are at rest at once, without a fade. */
+@media (prefers-reduced-motion:no-preference){
+  html.booted:not(.mode-lite) .detail-hero>div,html.booted:not(.mode-lite) .detail-aside{animation:detailIn 1s var(--ease) both}
+  html.booted:not(.mode-lite) .detail-aside{animation-delay:.12s}
+  html.booted:not(.mode-lite) .domain-write .detail-hero>div,html.booted:not(.mode-lite) .domain-write .detail-aside{animation-name:detailFade}
+}
+@keyframes detailIn{from{opacity:0}to{opacity:1}}
+@keyframes detailFade{from{opacity:0}to{opacity:1}}
+html.mode-lite :is(.detail-grid .detail-block,.detail-foot).reveal{opacity:1;transform:none;transition:none}
+:is(.domain-dev,.domain-photo,.domain-write,.domain-worlds) :is(.detail-block,.detail-foot,.photo-section).reveal{transform:none}
+/* More contrast asked, or forced colours: no bloom on the title, no decorative word. */
+@media (prefers-contrast:more),(forced-colors:active){.detail-title{text-shadow:none}.detail-hero .colophon{display:none}}
+
+/* 12 · AETHER DOSSIER: its rules are in the AETHER block near the end of this file and in css/aether.css. */
+
+/* 13 · PHOTOGRAPHIE */
+.photo-portfolio{position:relative;z-index:2;margin-top:clamp(40px,7vw,90px)}
+.photo-index{display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:clamp(64px,10vw,130px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.photo-index a{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:12px;min-height:116px;padding:22px;border-right:1px solid var(--line);background:rgba(8,3,9,.5);transition:background .4s,transform .45s var(--ease)}
+.photo-index a:last-child{border-right:0}
+.photo-index a::before{content:"";position:absolute;left:0;top:0;width:1px;height:0;background:var(--acc);transition:height .5s var(--ease)}
+.photo-index a:hover,.photo-index a:focus-visible{background:rgba(var(--rgb-photo),.05);transform:translateY(-3px)}
+.photo-index a:hover::before,.photo-index a:focus-visible::before{height:100%}
+.photo-index span,.photo-section-head span{font:400 var(--label) var(--mono);letter-spacing:var(--label-ls);color:var(--acc)}
+.photo-index b{font:400 clamp(26px,3vw,42px)/1 var(--serif)}
+.photo-index i{font:400 var(--label) var(--mono);font-style:normal;letter-spacing:.12em;color:var(--dim)}
+.photo-section{scroll-margin-top:90px;margin-bottom:clamp(80px,12vw,170px)}
+.photo-section-head{display:grid;grid-template-columns:minmax(160px,max-content) 1fr auto;align-items:end;gap:24px;margin-bottom:26px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.photo-section-head .detail-index{margin:0}
+.photo-section-head h2{margin:0;font:400 clamp(44px,6vw,84px)/.9 var(--serif)}
+.photo-empty-series{display:grid;grid-template-columns:minmax(240px,.85fr) minmax(280px,1.15fr);min-height:420px;border:1px solid var(--line);background:rgba(8,3,9,.6);overflow:hidden}
+.photo-empty-frame{position:relative;min-height:420px;border-right:1px solid var(--line);background:linear-gradient(90deg,transparent 49.8%,rgba(var(--rgb-photo),.1) 50%,transparent 50.2%),linear-gradient(0deg,transparent 49.8%,rgba(var(--rgb-photo),.1) 50%,transparent 50.2%)}
+.photo-empty-frame::before{content:"";position:absolute;inset:12%;border:1px solid rgba(var(--rgb-photo),.16);transform:rotate(-4deg)}
+.photo-empty-frame span{position:absolute;left:27%;top:21%;width:46%;height:58%;border:1px dashed rgba(var(--rgb-photo),.22);transform:rotate(5deg)}
+.photo-empty-frame i{position:absolute;left:18%;right:18%;top:50%;height:1px;background:linear-gradient(90deg,transparent,var(--acc),transparent);opacity:.45}
+.photo-empty-frame b{position:absolute;left:50%;top:50%;width:9px;height:9px;border:1px solid var(--acc);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 28px rgba(var(--rgb-photo),.4)}
+.photo-empty-copy{display:flex;flex-direction:column;justify-content:center;padding:clamp(28px,5vw,72px)}
+.photo-empty-copy small{font:400 var(--label) var(--mono);letter-spacing:.2em;color:var(--acc)}
+.photo-empty-copy h3{max-width:520px;margin:20px 0 16px;font:400 clamp(34px,4vw,58px)/.98 var(--serif)}
+.photo-empty-copy p{max-width:520px;margin:0;color:var(--muted);font-size:15px;line-height:1.75}
+.photo-empty-copy em{margin-top:34px;font:400 var(--label) var(--mono);font-style:normal;letter-spacing:.18em;color:var(--dim)}
+.photo-theme-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.photo-theme{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-height:164px;padding:22px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(8,3,9,.55);overflow:hidden;transition:background .4s,transform .45s var(--ease)}
+.photo-theme::after{content:"";position:absolute;right:-45px;bottom:-60px;width:150px;height:150px;border:1px solid rgba(var(--rgb-photo),.12);border-radius:50%;transition:transform .6s var(--ease)}
+.photo-theme:hover,.photo-theme:focus-visible{background:rgba(var(--rgb-photo),.05);transform:translateY(-4px)}
+.photo-theme:hover::after{transform:scale(1.25) rotate(18deg)}
+.photo-theme span{font:400 var(--label) var(--mono);letter-spacing:.16em;color:var(--acc)}
+.photo-theme b{font:400 clamp(28px,3vw,44px)/1 var(--serif)}
+.photo-theme i{font:400 var(--label) var(--mono);font-style:normal;letter-spacing:.1em;color:var(--dim)}
+.photo-single-stage{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:350px;padding:40px clamp(24px,5vw,70px);border:1px solid var(--line);background:rgba(8,3,9,.6);overflow:hidden}
+.photo-single-stage p{position:relative;z-index:2;max-width:580px;margin:0 0 16px;color:var(--muted);font:400 clamp(20px,2vw,28px)/1.35 var(--serif)}
+.photo-single-stage strong{position:relative;z-index:2;font:400 var(--label) var(--mono);font-weight:400;letter-spacing:.18em;color:var(--acc)}
+.photo-series-cover{position:relative;min-height:360px;overflow:hidden}
+.photo-series-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1s var(--ease)}
+.photo-series-copy{display:flex;flex-direction:column;justify-content:flex-end;padding:30px;border-left:1px solid var(--line)}
+.photo-series-copy small,.photo-series-copy i{font:400 var(--label) var(--mono);font-style:normal;letter-spacing:.14em;color:var(--acc)}
+.photo-series-copy h3{margin:16px 0 12px;font:400 clamp(30px,3vw,46px)/1 var(--serif)}
+.photo-series-copy p{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.7}
+.photo-single-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;width:100%}
+.photo-single-item{margin:0}
+.photo-single-item img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.photo-single-item figcaption{display:flex;justify-content:space-between;margin-top:8px;font:400 var(--label) var(--mono);color:var(--muted)}
+
+/* 14 · LEGAL */
+.legal-page{position:relative;z-index:2;width:min(780px,calc(100% - 2 * var(--gutter)));margin:0 auto;padding:120px 0 90px;color:var(--muted);font-size:15px;line-height:1.75}
+.legal-back{display:inline-block;margin-bottom:46px;font-size:var(--label);color:var(--muted);transition:color .3s,transform .4s var(--ease)}
+.legal-back:hover,.legal-back:focus-visible{color:var(--rose);transform:translateX(-4px)}
+.legal-kicker{margin:0 0 14px;font-size:var(--label);color:var(--rose)}
+.legal-page h1{margin:0 0 22px;font:400 clamp(44px,7vw,84px)/.95 var(--serif);color:var(--paper)}
+.legal-intro{font-size:17px;color:var(--paper)}
+.legal-page section{padding:26px 0;border-top:1px solid var(--line-2)}
+.legal-page h2{margin:0 0 10px;font:400 clamp(24px,2.4vw,32px)/1.1 var(--serif);color:var(--paper)}
+.legal-page p,.legal-page li{margin:0 0 10px}
+.legal-page ul{padding-left:20px}
+.legal-page a{color:var(--rose);text-decoration:underline;text-decoration-color:rgba(var(--tint),.4);text-underline-offset:3px}
+.legal-page .legal-back{text-decoration:none}
+.legal-page .legal-warning{margin:10px 0;padding:22px 20px;border:1px solid var(--line);background:rgba(var(--tint),.04)}
+.legal-date{margin-top:30px;font:400 var(--label) var(--mono);letter-spacing:var(--label-ls);color:var(--dim)}
+.legal-meta{display:flex;justify-content:space-between;gap:20px;margin:8px 0 28px;padding:10px 0;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);font:400 var(--label) var(--mono);letter-spacing:.12em;color:var(--dim)}
+.legal-sources{margin-top:18px;padding:18px 18px;border:1px solid var(--line-2);background:rgba(var(--tint),.025)}
+.legal-sources p:last-child{margin-bottom:0}
+.legal-nav{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:34px;padding-top:18px;border-top:1px solid var(--line)}
+.legal-nav a{font-size:var(--label);text-decoration:none}
+@media(max-width:700px){
+  .hud-hint{display:none!important}
+  .legal-page{width:calc(100% - 36px);padding:104px 0 66px;font-size:15px;line-height:1.72}
+  .legal-page h1{font-size:clamp(42px,12vw,58px)}
+  .legal-intro{font-size:16px;line-height:1.6}
+  .legal-page section{padding:22px 0}
+  .legal-page h2{font-size:26px}
+  .legal-meta{font-size:10px;line-height:1.5}
+  .legal-sources{padding:15px}
+  .legal-nav{gap:8px 14px}
+}
+
+/* 15 · RESPONSIVE */
+@media(max-width:1180px){
+  .menu-domains a{grid-template-columns:44px minmax(0,1fr) 24px;row-gap:4px}
+  .menu-domains a em{grid-column:2;grid-row:2}
+  .menu-domains a i{grid-column:3;grid-row:1}
+}
+@media(max-width:1100px){
+  html.cinema .about-layout{margin-right:12%}
+  /* Half-width blocks: number and tag share the first line, the text gets the whole width below. */
+  .detail-block:not(.wide) li{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"num tag" "text text";gap:6px 16px}
+  .detail-block:not(.wide) li b{grid-area:num}
+  .detail-block:not(.wide) li i{grid-area:tag}
+  .detail-block:not(.wide) li span{grid-area:text;min-width:0}
+}
+@media(max-width:900px){
+  .about-layout{grid-template-columns:1fr;gap:30px}
+  .channels-intro{display:block}
+  .channels-intro .lead{margin-top:18px;max-width:560px}
+  .menu-structure{grid-template-columns:1fr;align-items:start}
+  .menu-domains{padding-right:0}
+  .menu-aether{padding-left:0;margin-top:10px}
+  .menu-aether::before{display:none}
+  .detail-hero{grid-template-columns:1fr;gap:34px}
+  .detail-aside{padding:18px 0 0;border-left:0;border-top:1px solid var(--line)}
+  .detail-aside p{max-width:60ch}
+  .photo-index{grid-template-columns:1fr}
+  .photo-index a{border-right:0;border-bottom:1px solid var(--line);min-height:92px}
+  .photo-index a:last-child{border-bottom:0}
+  .photo-section-head{grid-template-columns:1fr auto}
+  .photo-section-head .detail-index{grid-column:1/-1}
+  .photo-empty-series{grid-template-columns:1fr}
+  .photo-empty-frame{min-height:280px;border-right:0;border-bottom:1px solid var(--line)}
+  .photo-theme-grid{grid-template-columns:1fr 1fr}
+  .presence-dock{grid-template-columns:1fr}
+  .presence-links{grid-template-columns:1fr}
+  .presence-link{grid-column:auto;min-height:84px}
+  .photo-single-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  :root{--gutter:18px}
+  .topbar{height:74px}
+  html:not(.cinema) .topbar{height:84px}
+  .progress{display:none}
+  html.world-ready:not(.cinema) .world-canvas{opacity:.62}
+  html:not(.cinema) .panel-inner{text-shadow:0 1px 16px rgba(0,0,0,.75)}
+  .top-meta,.brand-copy small{display:none}
+  .brand-copy b{font-size:10px}
+  .mode-toggle{min-width:0;padding:6px 7px}
+  .sound-word{display:none}
+  .sound-toggle{padding:0 8px}
+  .progress{top:auto;bottom:20px;transform:none;align-items:end}
+  .progress-line{height:52px}
+  .progress-label{writing-mode:horizontal-tb;flex-direction:row}
+  .panel-inner{width:calc(100% - 2 * var(--gutter));padding:96px 0 40px}
+  .home-copy .kicker{letter-spacing:.14em}
+  .hero-title{font-size:clamp(56px,19vw,96px)}
+  .home-bottom{grid-template-columns:1fr auto;gap:12px}
+  .home-bottom>span:last-child{display:none}
+  .display-title{font-size:clamp(44px,13vw,64px)}
+  .lead{font-size:16px}
+  .about-copy{font-size:14px}
+  .about-footer,.channels-footer{flex-direction:column;gap:10px}
+  .domain-grid{grid-template-columns:1fr}
+  .domain-card{grid-template-columns:30px 1fr;gap:10px;padding:18px 14px;border-right:0}
+  .card-title{font-size:28px}
+  .aether-module-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .aether-bottom{display:block}
+  .aether-bottom p{margin-bottom:12px}
+  .menu-inner{padding:96px 22px 22px}
+  .menu-domains a{grid-template-columns:34px minmax(0,1fr) 20px;row-gap:4px;min-height:64px}
+  .menu-domains a b{font-size:34px}
+  .menu-domains a em{grid-column:2/3;grid-row:2}
+  .menu-domains a i{grid-column:3;grid-row:1}
+  .menu-project-main{padding:24px 20px}
+  .menu-project-main b{font-size:52px}
+  .menu-bottom{display:grid;gap:10px}
+  .site-footer{display:block;padding:28px var(--gutter)}
+  .site-footer div:first-child{display:block}
+  .site-footer div:first-child span{display:block;margin-top:8px}
+  .footer-links{flex-wrap:wrap;gap:12px 18px;margin-top:22px}
+  .footer-links a{padding:6px 0}
+  .presence-dock{width:calc(100% - 2 * var(--gutter));padding-top:52px}
+  .presence-note{display:block}
+  .presence-note b{display:block;margin-top:10px}
+  .detail-shell{padding:98px 0 48px}
+  .detail-grid{grid-template-columns:1fr;margin-top:30px}
+  .detail-block{min-height:0;padding:24px 20px}
+  .detail-block li{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"num tag" "text text";gap:6px 16px}
+  .detail-block li b{grid-area:num}
+  .detail-block li i{grid-area:tag}
+  .detail-block li span{grid-area:text;min-width:0}
+  .detail-foot{display:block}
+  .detail-foot>a{display:inline-block;margin-top:16px;white-space:normal}
+  .photo-theme-grid{grid-template-columns:1fr}
+  .photo-empty-copy{padding:28px 20px 32px}
+  .legal-page{padding-top:100px}
+}
+
+/* LANDSCAPE PHONES — wide but very short: compact chrome, two columns, type sized on height. */
+@media (max-height:520px) and (orientation:landscape){
+  :root{--gutter:clamp(16px,3vw,28px)}
+  .topbar,html:not(.cinema) .topbar{height:56px}
+  .brand-mark{width:28px;height:28px;font-size:16px}
+  .brand-copy small,.top-meta{display:none}
+  .menu-toggle{padding:8px 12px}
+  .progress,.hud{display:none!important}
+  html.world-ready:not(.cinema) .world-canvas{opacity:.45}
+  .panel-inner,html.cinema .panel-inner{width:calc(100% - 2 * var(--gutter));padding:66px 0 22px}
+  .eyebrow,.section-head{margin-bottom:6px}
+  .home-copy .kicker{margin-bottom:8px;letter-spacing:.16em}
+  .hero-title{font-size:min(17vw,30vh)}
+  .hero-lead{margin-top:10px;font-size:15px}
+  .home-bottom{grid-template-columns:1fr auto;gap:10px}
+  .home-bottom>span:last-child{display:none}
+  .display-title{font-size:min(7.2vw,15vh)}
+  .lead{font-size:14px;line-height:1.5}
+  .about-layout{grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:28px}
+  .about-copy{font-size:13px;line-height:1.55}
+  .about-copy p{margin-bottom:8px}
+  .channels-intro{display:flex;margin:10px 0 12px;gap:24px}
+  .channels-intro .lead{max-width:46%;margin:0}
+  .domain-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .domain-card{min-height:0;grid-template-columns:28px 1fr;gap:10px;padding:12px 14px;border-right:1px solid var(--line)}
+  .domain-card:nth-child(2n){border-right:0}
+  .domain-card small,.card-link{display:none}
+  .card-title{font-size:24px;margin:2px 0}
+  .card-text{font-size:12px}
+  .aether-copy{max-width:none}
+  .aether-copy .lead{margin-top:10px}
+  .aether-module-strip{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px;max-width:none}
+  .aether-module-strip span{min-height:0;padding:7px 10px}
+  .aether-actions{margin-top:12px}
+  .aether-bottom{display:none}
+  /* Menu: two columns again, compact lines. */
+  .menu-inner{padding:66px var(--gutter) 14px}
+  .menu-top{padding-bottom:8px}
+  .menu-structure{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:28px;padding:10px 0;align-items:start}
+  .menu-domains a{grid-template-columns:30px minmax(0,1fr) 18px;min-height:44px;padding:4px 0}
+  .menu-domains a b{font-size:26px}
+  .menu-domains a em{display:none}
+  .menu-aether{padding-left:22px;margin-top:0}
+  .menu-aether::before{display:block}
+  .menu-project-main{padding:16px 18px;gap:6px}
+  .menu-aether-sigil{width:30px}
+  .menu-project-main b{font-size:40px}
+  .menu-note{display:none}
+  .menu-bottom{gap:6px 18px}
+  .detail-shell{padding-top:76px}
+  .detail-hero{--hero-top:30px;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);padding:30px 0}
+  .detail-title{font-size:min(10vw,20vh)}
+  .legal-page{padding-top:76px}
+}
+
+/* Touch: small text links get a finger-sized hit area without changing their look. */
+@media (pointer:coarse){
+  .menu-presence a,.menu-legal a,.footer-links a,.return-home,.about-footer a,.channels-footer a,.scroll-cue,.detail-back,.legal-back,.detail-foot>a{display:inline-flex;align-items:center;min-height:44px}
+  .menu-legal a,.footer-links a{min-width:44px;justify-content:flex-start}
+  .menu-presence{gap:0 20px}
+  .menu-legal{gap:0 20px}
+}
+@media(max-width:700px){
+  .menu-top span:last-child{display:none}
+  .menu-domains a{min-height:60px}
+  .menu-domains a b{font-size:31px}
+  .menu-structure{padding:10px 0}
+}
+
+/* 16 · REDUCED MOTION — content first, motion off */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+}
+
+/* FULL cinema keeps the desktop composition on narrow screens too: mobile changes the
+   viewport size and input method, not the scene architecture. */
+@media(max-width:700px){
+  html.cinema .panel-inner{width:calc(100% - 2 * var(--gutter));padding:118px 0 82px}
+  /* On phones the cinema stays one continuous scene, but text gets real reading width. */
+  html.cinema .about-layout{grid-template-columns:1fr;gap:18px;margin:auto 0}
+  html.cinema .about-layout .lead{max-width:34ch}
+  html.cinema .about-copy{font-size:14px;line-height:1.55;max-width:42ch}
+  html.cinema .about-copy p{margin:0 0 9px}
+  html.cinema .domain-grid{grid-template-columns:1fr}
+  html.cinema .domain-card{grid-template-columns:26px minmax(0,1fr);gap:9px;min-height:0;padding:12px 12px;border-right:0}
+  html.cinema .domain-card:nth-child(2n){border-right:0}
+  html.cinema .domain-card small{display:block}
+  html.cinema .card-link{display:inline-block}
+  html.cinema .card-title{font-size:clamp(22px,6.5vw,34px)}
+  html.cinema .card-text{font-size:12px;line-height:1.35}
+  html.cinema .aether-module-strip{grid-template-columns:repeat(2,minmax(0,1fr));max-width:520px}
+  html.cinema .aether-module-strip span{padding:10px 12px;min-height:64px}
+  html.cinema .aether-bottom{display:flex}
+  html.cinema .presence-dock{width:clamp(200px,56vw,240px);padding:0;display:block;grid-template-columns:none}
+  html.cinema .presence-links{display:flex;flex-direction:column}
+  html.cinema .presence-link{grid-column:auto;min-height:0;padding:11px 14px}
+  html.cinema .site-footer{display:none}
+  html.cinema .menu-structure{grid-template-columns:minmax(0,1.25fr) minmax(130px,.75fr);gap:28px}
+  html.cinema .menu-domains a{grid-template-columns:40px minmax(0,1fr) auto 24px;min-height:72px;padding:10px 0}
+  html.cinema .menu-domains a b{font-size:clamp(30px,8vw,58px)}
+  html.cinema .menu-domains a em{display:block;grid-column:auto;grid-row:auto}
+}
+
+
+/* Mobile cinema cleanup — keep the camera route, but never let world chrome cover the copy. */
+@media(max-width:700px){
+  html.cinema .marks{display:none}
+  html.cinema .aether-bottom{display:none}
+  /* The scene links stay for the keyboard and screen readers (the other scenes are inert): hidden at rest, shown when focused. */
+  html.cinema :is(.about-footer,.channels-footer):not(:focus-within){position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  html.cinema :is(.about-footer,.channels-footer)>span{display:none}
+  html.cinema .domain-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html.cinema .domain-card{grid-template-columns:22px minmax(0,1fr);gap:7px;min-height:0;padding:11px 10px;border-right:1px solid var(--line)}
+  html.cinema .domain-card:nth-child(2n){border-right:0}
+  html.cinema .domain-card small{display:block;font-size:10px;line-height:1.25}
+  html.cinema .card-link{display:none}
+  html.cinema .card-title{font-size:clamp(22px,5.8vw,28px);margin:5px 0 4px}
+  html.cinema .card-text{font-size:11px;line-height:1.3}
+  html.cinema .aether-copy{max-width:none}
+  html.cinema .aether-module-strip{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none;margin-top:16px}
+  html.cinema .aether-module-strip span{padding:8px 10px;min-height:52px}
+  html.cinema .aether-module-strip small{font-size:10px}
+  html.cinema .aether-actions{margin-top:14px;gap:10px 18px}
+  html.cinema .presence-dock{width:calc(100% - 2 * var(--gutter));left:var(--gutter);right:auto;top:auto;bottom:16px;padding:0;display:block;grid-template-columns:none}
+  html.cinema .presence-intro{display:none}
+  html.cinema .presence-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px}
+  html.cinema .presence-link{grid-column:auto;min-height:0;padding:8px 9px}
+  html.cinema .presence-link b{font-size:13px}
+}
+
+
+/* FINAL MOBILE COMPOSITION — resize the whole scene instead of squeezing the desktop grid. */
+@media(max-width:700px){
+  html.cinema .panel-inner{box-sizing:border-box;padding:92px 0 46px}
+  html.cinema .world-canvas{opacity:.55!important}
+  html.cinema .marks{display:none!important}
+  html.cinema .presence-dock{display:none!important}
+  html.cinema .eyebrow{font-size:10px;letter-spacing:.17em}
+  html.cinema .display-title{font-size:clamp(42px,12vw,58px);line-height:.9}
+  html.cinema .lead{font-size:15px;line-height:1.45}
+
+  /* Entry */
+  html.cinema .home-copy{padding:0 4px}
+  html.cinema .hero-title{font-size:clamp(56px,19vw,94px)}
+  html.cinema .hero-lead{font-size:15px;line-height:1.4}
+  html.cinema .home-bottom{gap:10px;font-size:10px}
+  html.cinema .scroll-cue{gap:8px}
+  html.cinema .scroll-cue i{width:26px}
+
+  /* Repères — one readable column, no world labels over the prose. */
+  html.cinema .about-inner{justify-content:flex-start}
+  html.cinema .about-layout{margin:5vh 0 0;gap:14px}
+  html.cinema .about-layout .lead{max-width:38ch;margin-top:14px}
+  html.cinema .about-copy{max-width:40ch;font-size:14px;line-height:1.48}
+  html.cinema .about-copy p{margin-bottom:8px}
+  html.cinema .about-signature{padding-top:12px;font-size:10px;line-height:1.5}
+
+  /* Domaines — two generous cards per row rather than four compressed columns. */
+  html.cinema .channels-inner{justify-content:flex-start}
+  html.cinema .channels-intro{display:block;margin:4vh 0 14px}
+  html.cinema .channels-intro .lead{max-width:38ch;margin-top:14px}
+  html.cinema .domain-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html.cinema .domain-card{grid-template-columns:20px minmax(0,1fr);gap:8px;padding:12px 10px}
+  html.cinema .card-number{font-size:10px}
+  html.cinema .domain-card small{font-size:10px;line-height:1.25}
+  html.cinema .card-title{font-size:clamp(22px,5.7vw,27px);margin:6px 0 4px}
+  html.cinema .card-text{font-size:11px;line-height:1.3}
+
+  /* Aether — everything stays inside the scene; the social tray is menu-only on phones. */
+  html.cinema .aether-inner{justify-content:flex-start}
+  html.cinema .aether-copy{max-width:none;margin:4vh 0 0}
+  html.cinema .aether-copy .lead{max-width:38ch;margin-top:14px;font-size:14px;line-height:1.42}
+  html.cinema .aether-module-strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;margin-top:14px}
+  html.cinema .aether-module-strip span{padding:8px 9px;min-height:48px}
+  html.cinema .aether-module-strip b{font-size:10px}
+  html.cinema .aether-module-strip small{font-size:10px;line-height:1.2}
+  html.cinema .aether-actions{margin-top:14px;gap:8px 16px}
+  html.cinema .primary-link{padding:12px 13px;font-size:10px;min-height:44px}
+  html.cinema .return-home{font-size:10px}
+}
+
+
+/* Mobile camera: keep each world readable and flat; only the world itself stays 3D. */
+@media(max-width:700px){
+  html.cinema .panel [data-depth]{transform:none!important}
+  html.cinema .panel-inner{justify-content:flex-start!important;gap:0}
+  html.cinema .section-head{margin-bottom:10px}
+  html.cinema .display-title{letter-spacing:-.02em;margin-top:6px}
+  html.cinema .lead{margin-top:18px!important;max-width:36ch}
+  html.cinema .about-layout{margin-top:9vh;gap:22px}
+  html.cinema .about-copy{margin-top:4px;max-width:38ch;line-height:1.6}
+  html.cinema .channels-intro{margin-top:9vh;margin-bottom:22px}
+  html.cinema .domain-grid{margin-top:8px}
+  html.cinema .aether-copy{margin-top:9vh}
+  html.cinema .aether-copy .lead{max-width:36ch}
+  html.cinema .aether-module-strip{margin-top:22px;gap:2px}
+  html.cinema .aether-module-strip span{min-height:58px;padding:10px}
+  html.cinema .aether-actions{margin-top:22px}
+}
+
+
+/* MOBILE FINAL PASS — the mobile viewport is an editorial screen, not a shrunken desktop. */
+@media(max-width:700px){
+  html.cinema .scenes{perspective:none!important;transform:none!important}
+  html.cinema .panel{overflow:hidden}
+  html.cinema .panel-inner{width:calc(100% - 36px);padding:96px 0 48px;box-sizing:border-box}
+  html.cinema .section-head{margin-bottom:8px}
+  html.cinema .eyebrow{font-size:10px;line-height:1.4;letter-spacing:.18em}
+  html.cinema .display-title{font-size:clamp(44px,12vw,58px);line-height:.9}
+  html.cinema .lead{font-size:15px;line-height:1.5}
+  html.cinema .home-inner{padding-top:104px;padding-bottom:54px}
+  html.cinema .home-copy{margin:0;text-align:center;padding-top:15vh}
+  html.cinema .home-copy .kicker{font-size:10px;letter-spacing:.19em;margin-bottom:22px}
+  html.cinema .hero-title{font-size:clamp(56px,18.5vw,92px);line-height:.82}
+  html.cinema .hero-lead{font-size:15px;line-height:1.45;margin-top:26px}
+  html.cinema .home-bottom{margin-top:auto;padding-top:18vh;font-size:10px;letter-spacing:.16em}
+
+  html.cinema .about-layout{margin-top:8vh;gap:24px}
+  html.cinema .about-layout .lead{margin-top:18px;max-width:36ch}
+  html.cinema .about-copy{max-width:38ch;font-size:14px;line-height:1.65}
+  html.cinema .about-copy p{margin:0 0 11px}
+  html.cinema .about-signature{margin-top:14px;padding-top:13px;font-size:10px;line-height:1.55}
+
+  html.cinema .channels-intro{margin-top:7vh;margin-bottom:24px}
+  html.cinema .channels-intro .lead{max-width:36ch}
+  html.cinema .domain-grid{grid-template-columns:1fr 1fr;gap:1px;margin-top:8px}
+  html.cinema .domain-card{grid-template-columns:18px minmax(0,1fr);gap:7px;min-height:132px;padding:14px 10px}
+  html.cinema .card-number{font-size:10px}
+  html.cinema .domain-card small{font-size:10px;line-height:1.35}
+  html.cinema .card-title{font-size:clamp(22px,5.5vw,27px);line-height:.98;margin:9px 0 7px}
+  html.cinema .card-text{font-size:11px;line-height:1.35}
+  html.cinema .card-link{display:none}
+
+  html.cinema .aether-copy{margin-top:7vh;max-width:38ch}
+  html.cinema .aether-copy .lead{font-size:14px;line-height:1.5;max-width:36ch;margin-top:18px}
+  html.cinema .aether-module-strip{grid-template-columns:1fr 1fr;gap:1px;margin-top:22px;max-width:380px}
+  html.cinema .aether-module-strip span{min-height:62px;padding:10px}
+  html.cinema .aether-module-strip b{font-size:10px}
+  html.cinema .aether-module-strip small{font-size:10px;line-height:1.25}
+  html.cinema .aether-actions{margin-top:22px}
+
+  /* During a phone transition only the active scene exists visually. */
+  html.cinema .transit{display:none!important}
+
+  /* Menu becomes a real mobile navigation sheet. */
+  html.cinema .menu-inner{padding:88px 22px 26px;overflow:auto}
+  html.cinema .menu-top{padding-bottom:14px}
+  html.cinema .menu-top span:last-child{display:none}
+  html.cinema .menu-structure{display:block;padding:20px 0 24px}
+  html.cinema .menu-block-head{margin-bottom:4px;padding-bottom:9px}
+  html.cinema .menu-domains a{grid-template-columns:28px minmax(0,1fr) 18px;min-height:67px;padding:11px 0;column-gap:9px}
+  html.cinema .menu-domains a b{font-size:clamp(29px,8.6vw,38px);line-height:.94}
+  html.cinema .menu-domains a em{display:block;grid-column:2;grid-row:2;font-size:10px;line-height:1.25;margin-top:5px}
+  html.cinema .menu-domains a i{grid-column:3;grid-row:1}
+  html.cinema .menu-aether{margin-top:22px;padding:0;border-top:1px solid var(--line-2);padding-top:20px}
+  html.cinema .menu-aether::before{display:none}
+  html.cinema .menu-project-main{padding:20px 17px;gap:8px}
+  html.cinema .menu-aether-sigil{width:30px}
+  html.cinema .menu-project-main b{font-size:clamp(42px,12vw,56px)}
+  html.cinema .menu-project-main>span:not(.menu-aether-sigil,.menu-num){line-height:1.45}
+  html.cinema .menu-note{font-size:10px;line-height:1.55;margin:13px 0 0;max-width:34ch}
+  html.cinema .menu-bottom{display:grid;grid-template-columns:1fr;gap:14px;padding-top:16px}
+  html.cinema .menu-presence{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+  html.cinema .menu-presence a{min-height:44px;display:flex;align-items:center}
+  html.cinema .menu-legal{display:flex;gap:8px 14px;flex-wrap:wrap}
+}
+
+
+/* =========================================================
+   AETHER — GRAND MAP / VECTOR + 3D LAYER
+   ========================================================= */
+.aether-grand{--aether-pink:#efb7cf;--aether-pale:#f7e8ee;--aether-violet:#a988ff;--aether-cyan:#9ed6e9;--aether-line:rgba(var(--tint),.26)}
+.aether-shell{width:min(1500px,calc(100% - 2 * var(--gutter)));margin:auto;padding:112px 0 82px}
+.aether-hero{display:grid;grid-template-columns:minmax(0,.86fr) minmax(520px,1.14fr);gap:36px;align-items:stretch;min-height:720px}
+.aether-hero-copy{display:flex;flex-direction:column;justify-content:center;padding:32px 0}
+.aether-big-title{font:400 clamp(72px,8.6vw,142px)/.82 var(--serif);letter-spacing:-.045em;margin:18px 0 30px}
+.aether-big-title em{color:var(--aether-pink);font-style:italic}
+.aether-hero-lead{font-size:18px;line-height:1.62;max-width:58ch;color:var(--paper)}
+.aether-live-readout{display:flex;gap:22px;flex-wrap:wrap;margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font:400 10px/1.4 var(--mono);letter-spacing:.16em;color:var(--dim)}
+.aether-live-readout b{color:var(--paper);font-weight:400}
+.aether-orbit-stage{position:relative;min-height:700px;overflow:hidden;border:1px solid var(--line);background:radial-gradient(circle at 50% 48%,rgba(192,102,148,.14),transparent 28%),linear-gradient(180deg,rgba(255,255,255,.018),transparent)}
+.aether-orbit-stage:before,.aether-orbit-stage:after{content:"";position:absolute;inset:18px;border:1px solid rgba(var(--tint),.1);pointer-events:none}
+.aether-orbit-stage:after{inset:38px;border-color:rgba(var(--rgb-cyan),.05)}
+.aether-orbit-ring{position:absolute;border:1px solid rgba(var(--tint),.13);border-radius:50%;left:50%;top:50%;transform-style:preserve-3d;pointer-events:none}
+.ring-1{width:280px;height:720px;transform:translate(-50%,-50%) rotateX(71deg) rotateZ(-16deg)}
+.ring-2{width:430px;height:760px;transform:translate(-50%,-50%) rotateX(64deg) rotateZ(64deg);border-color:rgba(var(--rgb-violet),.16)}
+.ring-3{width:610px;height:720px;transform:translate(-50%,-50%) rotateX(78deg) rotateZ(5deg);border-color:rgba(var(--rgb-cyan),.09)}
+.aether-core-glow{position:absolute;width:250px;height:250px;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(247,232,238,.34),rgba(211,92,154,.15) 32%,transparent 68%);filter:blur(10px)}
+.aether-graph{position:absolute;inset:0;width:100%;height:100%;overflow:visible;transform:rotate(var(--graph-drift,0deg)) scale(1.01);transition:transform 600ms ease}
+.aether-links path{stroke:rgba(var(--tint),.24);stroke-width:1;stroke-dasharray:3 9}
+.aether-links path:nth-child(2n){stroke:rgba(var(--rgb-cyan),.2)}
+.aether-links path:nth-child(3n){stroke:rgba(var(--rgb-violet),.18)}
+.aether-pulses .pulse{stroke:rgba(var(--tint),.18);stroke-width:1;stroke-dasharray:5 16;transform-origin:500px 330px}
+.aether-pulses .pulse-b{stroke:rgba(var(--rgb-cyan),.12)}
+.a-node{cursor:default;transform-origin:center;opacity:.86;transition:opacity .3s ease,filter .3s ease}
+.a-node circle{fill:rgba(10,8,14,.88);stroke:rgba(var(--tint),.62);stroke-width:1.4;filter:drop-shadow(0 0 8px rgba(var(--tint),.22));transform-box:fill-box;transform-origin:center;transform:scale(var(--pulse,1));transition:all .3s ease}
+.a-node text{font:500 16px var(--mono);letter-spacing:.16em;text-anchor:middle;fill:var(--aether-pale)}
+.a-node .node-sub{font-size:10px;letter-spacing:.2em;fill:rgba(var(--tint),.62)}
+.a-node-future circle{stroke:rgba(var(--rgb-violet),.55);stroke-dasharray:2 3}
+.a-node-core circle:nth-child(2){fill:rgba(18,10,18,.96);stroke:rgba(247,232,238,.9);stroke-width:2}
+.a-node-core text{font-size:20px;font-weight:600;letter-spacing:.2em}
+.a-node.is-focus circle{stroke:var(--aether-pink);filter:drop-shadow(0 0 18px rgba(var(--tint),.65));transform:scale(1.14)}
+.a-node.is-focus text{fill:white}
+.aether-section{padding:92px 0;border-top:1px solid var(--line);opacity:.2;transform:translateY(32px);transition:opacity 700ms ease,transform 900ms cubic-bezier(.16,1,.3,1)}
+.aether-section.is-visible{opacity:1;transform:none}
+.aether-section-head{display:grid;grid-template-columns:1fr auto;gap:10px 24px;align-items:end;margin-bottom:34px}
+.aether-section-head .detail-index{grid-column:1}
+.aether-section-head h2{grid-column:1;margin:0;font:400 clamp(46px,5.2vw,84px)/.9 var(--serif);letter-spacing:-.03em}
+.aether-section-head h2 em{color:var(--aether-pink)}
+.aether-section-head>span{grid-column:2;grid-row:2;font:400 10px var(--mono);letter-spacing:.18em;color:var(--dim)}
+.aether-architecture-grid{display:grid;grid-template-columns:1.25fr .875fr .875fr;gap:1px;background:var(--line)}
+.aether-arch-card{min-height:330px;padding:24px;background:rgba(10,7,13,.94);position:relative;overflow:hidden}
+.aether-arch-card-main{min-height:470px}
+.arch-top{display:flex;justify-content:space-between;font:400 10px var(--mono);letter-spacing:.18em;color:var(--dim)}
+.arch-top span:first-child{color:var(--aether-pink)}
+.arch-3d{position:relative;width:220px;height:220px;margin:28px auto 22px;transform-style:preserve-3d;perspective:900px}
+.arch-3d:before,.arch-3d:after,.arch-3d i{content:"";position:absolute;inset:28px;border:1px solid rgba(var(--tint),.35);border-radius:50%;transform-style:preserve-3d}
+.arch-3d:before{transform:rotateX(62deg) rotateY(22deg)}
+.arch-3d:after{transform:rotateY(62deg) rotateZ(-18deg);border-color:rgba(var(--rgb-cyan),.3)}
+.arch-3d i:nth-child(1){transform:rotateX(62deg) rotateZ(55deg) scale(.82);border-color:rgba(var(--rgb-violet),.28)}
+.arch-3d i:nth-child(2){transform:rotateY(70deg) rotateX(25deg) scale(.62);border-color:rgba(var(--tint),.22)}
+.arch-3d i:nth-child(3){width:16px;height:16px;inset:auto;left:102px;top:102px;background:rgba(247,232,238,.8);border-radius:50%;box-shadow:0 0 28px rgba(var(--tint),.7)}
+.arch-3d b{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:400 10px var(--mono);letter-spacing:.22em;color:var(--paper)}
+.aether-arch-card h3{font:400 30px/1 var(--serif);margin:0 0 16px}
+.aether-arch-card h3 em{color:var(--aether-pink)}
+.aether-arch-card p{font-size:14px;line-height:1.6;color:var(--dim)}
+.aether-arch-card-main p{font-size:16px;max-width:56ch}
+.arch-status-line{display:flex;align-items:center;gap:10px;margin:28px 0 8px}.arch-status-line span{width:7px;height:7px;border-radius:50%;background:var(--aether-pink);box-shadow:0 0 14px rgba(var(--tint),.65)}.arch-status-line b{font-size:.64rem;letter-spacing:.16em}
+.aether-arch-card small,.arch-tags{font:400 10px var(--mono);letter-spacing:.16em;color:var(--dim)}
+.arch-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:24px}
+.arch-tags span{padding:6px 8px;border:1px solid var(--line-2)}
+.project-state{display:inline-block;font:400 10px var(--mono);letter-spacing:.15em;padding:4px 7px;border:1px solid var(--line);margin-bottom:14px}
+.project-state.live{color:var(--aether-pink)}
+.project-state.research{color:var(--aether-violet)}
+.project-state.tool{color:var(--aether-cyan)}
+.project-state.ref{color:var(--dim)}
+.aether-scale-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.scale-card{position:relative;min-height:360px;padding:30px 28px;border:1px solid var(--line);overflow:hidden;background:linear-gradient(160deg,rgba(var(--tint),.04),rgba(10,7,13,.96))}
+.scale-card:before{content:"";position:absolute;width:240px;height:240px;right:-100px;top:-90px;border:1px solid currentColor;border-radius:50%;opacity:.16}
+.scale-card p:first-of-type{font:400 10px var(--mono);letter-spacing:.18em;color:currentColor}
+.scale-card h3{font:400 42px/.96 var(--serif);margin:44px 0 18px;max-width:10ch}
+.scale-card h3 em{font-style:italic;color:currentColor}
+.scale-card>p:last-of-type{font-size:14px;line-height:1.62;max-width:42ch;color:var(--dim)}
+.scale-card ul{display:flex;gap:6px;flex-wrap:wrap;margin:24px 0 0;padding:0;list-style:none}
+.scale-card li{font:400 10px var(--mono);letter-spacing:.13em;padding:6px 8px;border:1px solid var(--line-2)}
+.aether-timeline{display:grid;grid-template-columns:1.25fr 1fr 1fr 1.15fr;gap:1px;background:var(--line)}
+.aether-timeline article{background:rgba(10,7,13,.94);padding:24px;min-height:230px}
+.aether-timeline article span{font:400 10px var(--mono);letter-spacing:.17em;color:var(--dim)}
+.aether-timeline .timeline-now span{color:var(--aether-pink)}
+.aether-timeline b{display:block;font:400 28px/1.05 var(--serif);margin:28px 0 14px}
+.aether-timeline p{font-size:12px;line-height:1.55;color:var(--dim)}
+.aether-rules{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)}
+.aether-rules div{padding:22px;background:rgba(10,7,13,.94);min-height:210px}
+.aether-rules b{font:400 10px var(--mono);color:var(--aether-pink)}
+.aether-rules span{display:block;font:400 22px/1.05 var(--serif);margin:24px 0 12px}
+.aether-rules p{font-size:12px;line-height:1.55;color:var(--dim)}
+.aether-final{position:relative;overflow:hidden;padding:55px;border:1px solid var(--line);background:radial-gradient(circle at 82% 20%,rgba(var(--rgb-violet),.12),transparent 26%),radial-gradient(circle at 20% 60%,rgba(var(--tint),.08),transparent 34%)}
+.aether-final:before,.aether-final:after{content:"";position:absolute;border:1px solid rgba(var(--tint),.1);border-radius:50%;pointer-events:none}
+.aether-final:before{width:560px;height:560px;right:-220px;top:-250px}
+.aether-final:after{width:300px;height:300px;left:-120px;bottom:-200px}
+.aether-final h2{font:400 clamp(52px,6vw,92px)/.9 var(--serif);max-width:12ch;letter-spacing:-.035em;margin:18px 0 24px}
+.aether-final h2 em{color:var(--aether-pink)}
+.aether-final>p:not(.detail-index){font-size:16px;line-height:1.6;max-width:54ch;color:var(--dim)}
+.aether-final-links{display:grid;grid-template-columns:repeat(3,1fr);margin-top:34px;border-top:1px solid var(--line)}
+.aether-final-links a{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:16px 14px;border-right:1px solid var(--line);font:400 10px var(--mono);letter-spacing:.14em;color:var(--paper);text-decoration:none}
+.aether-final-links a:last-child{border-right:0}
+.aether-final-links a:hover{background:rgba(var(--tint),.04)}
+.aether-final-links span{color:var(--dim)}
+.aether-final-links i{color:var(--aether-pink);font-style:normal}
+
+@media(max-width:900px){
+  .aether-shell{width:calc(100% - 36px);padding-top:96px}
+  .aether-hero{grid-template-columns:1fr;min-height:auto}
+  .aether-hero-copy{padding:20px 0 0}
+  .aether-big-title{font-size:clamp(62px,16vw,94px)}
+  .aether-orbit-stage{min-height:560px}
+  .aether-architecture-grid,.aether-timeline{grid-template-columns:1fr 1fr}
+  .aether-scale-grid{grid-template-columns:1fr}
+  .aether-rules{grid-template-columns:1fr 1fr}
+  .aether-final-links{grid-template-columns:1fr}
+  .aether-final-links a{border-right:0;border-bottom:1px solid var(--line)}
+}
+@media(max-width:700px){
+  .aether-shell{width:calc(100% - 28px);padding:90px 0 48px}
+  .aether-hero{gap:18px}
+  .aether-big-title{font-size:clamp(48px,13.5vw,72px);line-height:.88;margin:16px 0 20px}
+  .aether-hero-lead{font-size:14px;line-height:1.55}
+  .aether-live-readout{font-size:10px;gap:12px;margin-top:20px}
+  .aether-orbit-stage{min-height:430px}
+  .aether-orbit-stage:before{inset:12px}.aether-orbit-stage:after{inset:24px}
+  .ring-1{width:200px;height:440px}.ring-2{width:300px;height:460px}.ring-3{width:420px;height:430px}
+  .aether-section{padding:60px 0}
+  .aether-section-head{grid-template-columns:1fr}
+  .aether-section-head h2{font-size:clamp(42px,12vw,58px)}
+  .aether-section-head>span{grid-column:1;grid-row:auto}
+  .aether-architecture-grid,.aether-timeline,.aether-rules{grid-template-columns:1fr}
+  .aether-arch-card,.aether-arch-card-main{min-height:0}
+  .arch-3d{width:180px;height:180px}
+  .aether-scale-grid{gap:10px}
+  .scale-card{min-height:0;padding:24px 20px}
+  .scale-card h3{font-size:36px}
+  .aether-final{padding:30px 22px}
+  .aether-final h2{font-size:clamp(46px,12vw,62px)}
+}
+
+
+/* Contact / direct presence */
+.contact-shell{width:min(1180px,calc(100% - 72px));margin:auto;padding:112px 0 92px}
+.contact-hero{padding:110px 0 74px;border-bottom:1px solid var(--line)}
+.contact-hero h1{font:400 clamp(72px,9vw,138px)/.84 var(--serif);letter-spacing:-.05em;margin:18px 0 24px}
+.contact-hero h1 em{color:var(--aether-pink)}
+.contact-hero>p:last-child{font-size:18px;color:var(--dim)}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}
+.contact-card{display:block;min-height:360px;padding:28px;text-decoration:none;color:var(--paper);background:rgba(10,7,13,.96);position:relative;overflow:hidden}
+.contact-card:hover{background:rgba(25,14,24,.98)}
+.contact-state,.contact-number{font:400 10px var(--mono);letter-spacing:.17em;color:var(--dim)}
+.contact-live .contact-state{color:var(--dim)}
+.contact-number{position:absolute;right:24px;top:24px}
+.contact-card h2{font:400 clamp(48px,6vw,76px)/.9 var(--serif);margin:72px 0 20px}
+.contact-card p{font-size:15px;line-height:1.55;color:var(--dim);max-width:34ch}
+.contact-card>b{position:absolute;left:28px;bottom:28px;font:400 10px var(--mono);letter-spacing:.17em}
+.contact-card>b i{color:var(--aether-pink);font-style:normal;margin-left:8px}
+.contact-future{background:linear-gradient(140deg,rgba(var(--rgb-violet),.05),rgba(10,7,13,.96))}
+.contact-future h2{color:var(--aether-violet)}
+.contact-signature{padding-top:44px}
+.contact-signature>p{font:400 10px var(--mono);letter-spacing:.18em;color:var(--dim)}
+.contact-links{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:14px}
+.contact-links a{font:400 10px var(--mono);letter-spacing:.16em;color:var(--paper);text-decoration:none}
+.contact-links a:hover{color:var(--aether-pink)}
+@media(max-width:700px){
+  .contact-shell{width:calc(100% - 28px);padding:90px 0 56px}
+  .contact-hero{padding:70px 0 44px}
+  .contact-hero h1{font-size:clamp(54px,15vw,76px)}
+  .contact-hero>p:last-child{font-size:15px}
+  .contact-grid{grid-template-columns:1fr}
+  .contact-card{min-height:300px;padding:22px}
+  .contact-card h2{margin-top:62px;font-size:52px}
+  .contact-card>b{left:22px;bottom:22px}
+}
+
+
+
+/* MOBILE CINEMA — same spatial language as desktop, tuned for touch */
+@media(max-width:700px){
+  html.cinema .scenes{
+    perspective:900px!important;
+    perspective-origin:50% 46%!important;
+    transform:rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg))!important;
+    transform-style:preserve-3d!important;
+  }
+  html.cinema .panel{
+    transform-style:preserve-3d!important;
+    backface-visibility:hidden;
+    overflow:visible;
+    will-change:transform,opacity,filter;
+  }
+  html.cinema .panel-inner{
+    transform:translateZ(18px);
+    transform-style:preserve-3d;
+  }
+  html.cinema .world-canvas{opacity:.68!important}
+  html.cinema .home-copy,
+  html.cinema .display-title,
+  html.cinema .lead,
+  html.cinema .about-copy,
+  html.cinema .domain-grid,
+  html.cinema .aether-copy{
+    transform:translateZ(22px);
+    transform-style:preserve-3d;
+  }
+  html.cinema .domain-card,
+  html.cinema .aether-module-strip span{
+    transform:translateZ(12px);
+    box-shadow:0 10px 28px rgba(0,0,0,.18);
+  }
+}
+
+/* 2026-10-08 — contrast, immersive chrome, realistic phosphor scan, mobile depth */
+.fullscreen-toggle{display:flex;align-items:center;gap:7px;height:29px;padding:0 9px;border:1px solid var(--line);background:rgba(7,4,7,.5);color:var(--dim);font:500 10px var(--mono);letter-spacing:.14em;cursor:pointer;transition:border-color .3s,color .3s,background .3s,transform .3s var(--ease)}
+.fullscreen-toggle:hover,.fullscreen-toggle:focus-visible,.fullscreen-toggle.is-on{border-color:var(--ice);color:var(--ice);background:rgba(var(--rgb-cyan),.055)}
+.fullscreen-frame{width:9px;height:9px;border:1px solid currentColor;position:relative;opacity:.8}
+.fullscreen-frame:before,.fullscreen-frame:after{content:"";position:absolute;width:4px;height:4px;background:var(--bg);border:1px solid currentColor}
+.fullscreen-frame:before{left:-2px;top:-2px;border-right:0;border-bottom:0}.fullscreen-frame:after{right:-2px;bottom:-2px;border-left:0;border-top:0}
+html.cinema .lead,html.cinema .about-copy,html.cinema .card-text,html.cinema .aether-copy,.mark-text{text-shadow:0 1px 16px rgba(0,0,0,.9),0 0 1px rgba(255,255,255,.18)}
+html.cinema .panel-inner{filter:drop-shadow(0 16px 42px rgba(0,0,0,.16))}
+/* Mobile: preserve the desktop composition instead of shrinking it into a flat card stack. */
+@media(max-width:700px){
+  .topbar{height:72px;padding:0 14px}.brand-copy{display:none}.brand-mark{width:30px;height:30px}.top-meta{display:none}.brand-cluster{gap:6px}.mode-toggle,.sound-toggle,.fullscreen-toggle{min-width:0;padding:0 7px;font-size:10px;letter-spacing:.11em}.mode-toggle{padding:7px}.sound-toggle{gap:4px}.menu-toggle{padding:10px 11px;font-size:10px;gap:9px}
+  html.cinema .panel-inner{width:calc(100% - 28px);padding-top:82px;padding-bottom:34px}
+  html.cinema .home-copy{transform:translateZ(34px) rotateX(var(--text-tilt,0deg));}
+  html.cinema .display-title,html.cinema .hero-title{filter:drop-shadow(0 18px 34px rgba(0,0,0,.32));}
+  html.cinema .lead,html.cinema .about-copy,html.cinema .card-text{color:#c7b4bc}
+  html.cinema .domain-grid{gap:8px;background:transparent}
+  html.cinema .domain-card{min-height:146px;padding:15px 12px;border:1px solid rgba(var(--tint),.14)}
+  html.cinema .aether-module-strip{perspective:900px}
+  html.cinema .aether-module-strip span{background:linear-gradient(145deg,rgba(45,18,36,.6),rgba(6,3,8,.82));border:1px solid rgba(var(--tint),.12);box-shadow:0 16px 36px rgba(0,0,0,.28);transform:translateZ(18px)}
+  html.cinema .hero-title{letter-spacing:-.045em}
+  html.cinema .hero-title .hw:nth-child(2){transform:translateY(-2px) translateZ(10px)}
+  html.cinema .hero-title .hw:nth-child(3){transform:translateY(3px) translateZ(20px)}
+  .fullscreen-toggle{display:none}
+}
+@media(max-width:380px){.sound-word{display:none}.sound-toggle{width:28px;justify-content:center}}
+@media(display-mode:standalone){.fullscreen-toggle{display:none}.topbar{padding-top:env(safe-area-inset-top)}}
+
+
+/* =====================================================================
+   FX PACK — quiet frames on the cards
+   ===================================================================== */
+/* Depth only where a perspective exists (the cinema scenes); elsewhere translateZ drew nothing but layers. */
+html.cinema.fx-ready .domain-card{
+  transform-style:preserve-3d;
+}
+.fx-ready .domain-card::before,.fx-ready .detail-block::before{
+  content:"";position:absolute;inset:0;pointer-events:none;border:1px solid rgba(var(--tint),.07);
+  box-shadow:inset 0 0 40px rgba(var(--tint),.025),0 18px 70px rgba(0,0,0,.18);
+  opacity:.5;transition:opacity .25s ease;
+}
+.fx-ready .domain-card:hover::before{opacity:.9}
+html.cinema.fx-ready .domain-card>*{transform:translateZ(7px)}
+
+.fx-ready .panel{transform-style:preserve-3d}
+.fx-ready .photo-section,.fx-ready .legal-page section{position:relative}
+
+/* 2026-10-08 — compact window chrome */
+/* Prevent fixed effect fields from contributing to mobile scrollable overflow. */
+html,body{overflow-x:clip}
+@media (max-width:900px) and (min-width:701px){
+  .topbar{height:76px;padding:0 18px}
+  .top-meta{display:none}
+  .brand-cluster{gap:5px}
+  .brand{gap:8px}
+  .brand-mark{width:30px;height:30px;font-size:17px}
+  .brand-copy small{display:none}
+  .mode-toggle,.sound-toggle,.fullscreen-toggle,.menu-toggle{font-size:10px}
+  .mode-toggle{min-width:58px;padding:6px 7px}
+  .sound-toggle{height:27px;padding:0 7px;gap:5px}
+  .sound-word,.fullscreen-word{display:none}
+  .fullscreen-toggle{padding:6px 7px}
+  .menu-toggle{padding:9px 11px;gap:8px}
+  html.cinema .panel-inner{width:calc(100% - 36px);padding-top:88px;padding-bottom:36px}
+  html.cinema .hero-title{font-size:clamp(68px,13vw,94px)}
+  html.cinema .home-copy{padding-top:10vh}
+}
+
+/* 2026-10-08 — browser-safe display type + visible desktop WebGL layer */
+@media (min-width:701px){
+  html.world-ready.mode-full .world-canvas{opacity:1!important}
+}
+
+/* 2026-10-08 — persistent immersive routing */
+.immersive-frame{
+  position:fixed;inset:0;width:100vw;height:100vh;border:0;margin:0;padding:0;
+  z-index:19990;background:var(--bg);display:block;opacity:1;
+}
+html.immersive-nav{overflow:hidden!important}
+/* 17 · STANDBY — first page of a visit: the tube waits in standby, the whole screen is its switch.
+   A click, a tap or a key turns the picture and the sound on together (sound.js); the power-on (18)
+   then opens the picture from the centre, where the standby dot was. */
+.signal-gate{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;overflow:hidden;color:var(--paper);
+  background:linear-gradient(112deg,transparent 34%,rgba(255,255,255,.022) 44%,transparent 56%),repeating-linear-gradient(0deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px),radial-gradient(ellipse 120% 95% at 50% 50%,#0d0811 0%,#060308 52%,#010001 100%)}
+.signal-gate::backdrop{background:#020102}
+/* The whole glass is the switch. */
+.signal-gate-switch{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:0;background:none;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+/* The bezel: the edge of the glass, brighter when the switch has the keyboard focus. */
+.signal-gate-switch::after{content:"";position:absolute;inset:clamp(10px,2.2vmin,22px);border:1px solid rgba(var(--rgb-accent),.12);border-radius:clamp(14px,3.4vmin,36px);box-shadow:inset 0 0 12vmin rgba(0,0,0,.85);pointer-events:none;transition:border-color .3s}
+.signal-gate-switch:focus{outline:none}
+.signal-gate-switch:focus-visible::after{border-color:rgba(var(--rgb-accent),.45)}
+/* Standby dot: the last glow of the phosphor. Hovering pre-ignites a faint line through it. */
+.signal-gate-dot{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;box-shadow:0 0 6px 2px rgba(255,255,255,.9),0 0 24px 7px rgba(var(--rgb-accent),.7),0 0 70px 22px rgba(var(--rgb-cyan),.22);animation:standbyBreath 3.4s ease-in-out infinite}
+.signal-gate-switch::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;margin-top:-.5px;background:linear-gradient(90deg,transparent,rgba(var(--rgb-cyan),.55) 30%,#fff 50%,rgba(var(--rgb-accent),.55) 70%,transparent);opacity:0;transform:scaleX(.04);transition:transform .7s var(--ease),opacity .5s}
+.signal-gate-switch:hover::before,.signal-gate-switch:focus-visible::before{opacity:.5;transform:scaleX(.42)}
+@keyframes standbyBreath{0%,100%{opacity:.5;transform:scale(.78)}50%{opacity:1;transform:scale(1.12)}}
+.signal-gate-hint,.signal-gate-keys{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font:400 var(--label) var(--mono);text-transform:uppercase;pointer-events:none}
+.signal-gate-hint{top:calc(50% + 40px);letter-spacing:.34em;color:rgba(255,255,255,.72)}
+/* The burned-in imprint: a tube burns what it showed. The name, centred on the standby dot, at 3 %. */
+.signal-gate-name{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);font:400 clamp(72px,17vw,240px)/.82 var(--serif);letter-spacing:-.004em;white-space:nowrap;color:rgba(var(--rgb-sakura),.03);pointer-events:none;user-select:none}
+.signal-gate-keys{top:calc(50% + 66px);letter-spacing:.24em;color:var(--dim)}
+.hint-coarse{display:none}
+@media (pointer:coarse){.hint-fine,.signal-gate-keys{display:none}.hint-coarse{display:inline}}
+.signal-gate-top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;gap:16px;margin:0;padding:clamp(26px,5vmin,48px) clamp(28px,6vmin,64px);font:400 var(--label) var(--mono);letter-spacing:.3em;text-transform:uppercase;color:var(--dim);pointer-events:none}
+.signal-gate-top i{font-style:normal;color:rgb(var(--rgb-accent))}
+.signal-gate-note{position:absolute;left:0;right:0;bottom:calc(clamp(64px,11vmin,96px) + env(safe-area-inset-bottom,0px));margin:0;padding:0 var(--gutter);text-align:center;font-size:13px;color:var(--muted);pointer-events:none}
+.signal-gate-quiet{position:absolute;left:50%;bottom:calc(clamp(22px,5vmin,44px) + env(safe-area-inset-bottom,0px));z-index:1;transform:translateX(-50%);min-height:44px;padding:12px 16px;border:0;background:none;color:var(--dim);font:400 var(--label) var(--mono);letter-spacing:.2em;text-transform:uppercase;text-decoration:underline;text-underline-offset:4px;white-space:nowrap;cursor:pointer}
+.signal-gate-quiet:hover,.signal-gate-quiet:focus-visible{color:var(--paper)}
+.signal-gate-quiet:focus-visible{outline-offset:0}
+/* Standby LED, bottom right of the bezel. */
+.signal-gate-led{position:absolute;right:clamp(28px,6vmin,64px);bottom:calc(clamp(36px,7vmin,58px) + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:10px;font:400 var(--label) var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--dim);pointer-events:none}
+.signal-gate-led::before{content:"";width:6px;height:6px;border-radius:50%;background:#ff2f62;box-shadow:0 0 8px 2px rgba(255,47,98,.75)}
+@media (max-width:520px){.signal-gate-top span:last-child,.signal-gate-led{display:none}}
+/* Switching on: the hints go out at once, the dot stretches into the power-on line underneath. */
+.signal-gate.is-leaving{animation:gateFade .26s linear forwards}
+.signal-gate.is-leaving::backdrop{animation:gateFade .26s linear forwards}
+.signal-gate.is-leaving .signal-gate-dot{animation:standbyIgnite .22s cubic-bezier(.2,.8,.2,1) forwards}
+.signal-gate.is-leaving :is(.signal-gate-hint,.signal-gate-keys,.signal-gate-top,.signal-gate-note,.signal-gate-quiet,.signal-gate-led){visibility:hidden}
+@keyframes standbyIgnite{to{opacity:1;transform:scale(60,.5)}}
+@keyframes gateFade{to{opacity:0}}
+@media (prefers-reduced-motion:reduce){.signal-gate-dot,.signal-gate-led::before{animation:none}.signal-gate-dot{opacity:1}}
+/* 18 · POWER-ON — the tube switches on at launch: dark screen, a bright line, the picture opens from it.
+   Overlay only: the live page is never transformed. boot.js sets .power-pending before the first paint;
+   portal.js replaces it with the animated .crt-power. If no script runs, the cover fades out by itself. */
+html.power-pending::after{content:"";position:fixed;inset:0;z-index:20001;background:#020102;pointer-events:none;animation:powerFailsafe .4s linear 2.6s forwards}
+html.power-pending.power-hold::after{animation:none}
+@keyframes powerFailsafe{to{opacity:0;visibility:hidden}}
+.crt-power{position:fixed;inset:0;z-index:20001;pointer-events:none;overflow:hidden}
+.crt-power-lid{position:absolute;left:0;right:0;height:50.2%;background:#020102}
+.crt-power-lid.top{top:0;animation:crtLidTop .72s cubic-bezier(.7,0,.2,1) .2s both}
+.crt-power-lid.bottom{bottom:0;animation:crtLidBottom .72s cubic-bezier(.7,0,.2,1) .2s both}
+@keyframes crtLidTop{to{transform:translateY(-101%)}}
+@keyframes crtLidBottom{to{transform:translateY(101%)}}
+/* The picture opens between two bright edges riding on the lids; they cool down as they travel. */
+.crt-power-lid::after{content:"";position:absolute;left:0;right:0;height:2px;background:#fff;box-shadow:0 0 10px 2px rgba(255,255,255,.85),0 0 34px 7px rgba(var(--rgb-accent),.65),0 0 80px 16px rgba(var(--rgb-cyan),.28);animation:crtEdge .72s ease-in .2s both}
+.crt-power-lid.top::after{bottom:-1px}
+.crt-power-lid.bottom::after{top:-1px}
+@keyframes crtEdge{0%{opacity:1}100%{opacity:0}}
+/* The line only stretches across: scaling it vertically would stretch its glow into a grey veil. */
+.crt-power-line{position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:#fff;box-shadow:0 0 14px 3px rgba(255,255,255,.95),0 0 48px 10px rgba(var(--rgb-accent),.7),0 0 120px 28px rgba(var(--rgb-cyan),.35);animation:crtPowerLine .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes crtPowerLine{
+  0%{transform:scaleX(0);opacity:1}
+  20%{transform:scaleX(1);opacity:1}
+  30%{transform:scaleX(1) scaleY(1.8);opacity:1}
+  100%{transform:scaleX(1) scaleY(1);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){html.power-pending::after,.crt-power{display:none}}

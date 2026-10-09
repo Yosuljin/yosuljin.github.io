@@ -1,0 +1,158 @@
+/* =====================================================================
+   CONTENU — pages de domaine : développement, écriture, mondes
+   Chargée avant styles.css : elle n'agit que par ses propres classes (.domain-*)
+   ou par des sélecteurs plus précis que ceux de styles.css, jamais par l'ordre.
+   Direction RÉMANENCE (une teinte par page ; la loi du phosphore : allumé en 120 ms, éteint en 900 ms,
+   la trace finit rose ; rien ne bouge dans une colonne de lecture). La route et le pied servent aussi
+   à photographie.html.
+   ===================================================================== */
+
+/* Titre : à 60px, « Développement » dépasse un écran de téléphone et entraîne
+   le chapô et l'encadré hors de la page. Sur grand écran, le titre peut déborder
+   dans la gouttière : c'est voulu, on n'y touche pas. */
+@media(max-width:700px){
+  .detail-page .detail-hero>div{min-width:0}
+  .detail-page .detail-title{overflow-wrap:anywhere}
+  .domain-dev .detail-title{font-size:min(60px,12.4vw)}
+}
+@media (max-height:520px) and (orientation:landscape){.domain-dev .detail-title{font-size:min(8vw,18vh)}}
+/* « Écriture » : l'accent de la capitale monte au-dessus de l'interligne serré du titre (.84) et touchait le
+   sur-titre ; un peu d'air au-dessus du seul titre qui porte une capitale accentuée. */
+.domain-write .detail-title{padding-top:.12em}
+
+/* Le premier séparateur de la page, sous le héros : la salve dans la teinte de la page, balayée une fois
+   (css/motifs.css, js/motifs.js). Il prend la place de la ligne du bas du héros, à la même hauteur. */
+.detail-hero:has(+.divider){border-bottom:0}
+.detail-hero+.divider{margin-top:-12px}
+
+/* Les flèches sont dessinées (motifs.svg#arrow-w, #arrow-e) : aucune police du site ne contient ← ni →. */
+.detail-shell .arrow{flex:none;width:14px;height:14px}
+
+/* Liens dans la prose : styles.css retire le soulignement de tous les liens. Ils s'allument dans la teinte. */
+.detail-block p a,.detail-block li span a,.detail-foot p a,.domain-strip a{color:var(--paper);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--acc) 55%,transparent);text-underline-offset:3px;transition:color var(--t-off) var(--ease-decay),text-decoration-color var(--t-off) var(--ease-decay)}
+.domain-strip dt a{color:inherit}
+.detail-block p a:hover,.detail-block p a:focus-visible,.detail-block li span a:hover,.detail-block li span a:focus-visible,.detail-foot p a:hover,.detail-foot p a:focus-visible,.domain-strip a:hover,.domain-strip a:focus-visible{color:var(--acc-text);text-decoration-color:var(--acc);transition-duration:var(--t-on);transition-timing-function:ease-out}
+
+/* Le code dans une phrase : la chasse fixe ; en Développement, la couleur du pétale. */
+.detail-block code{font-family:var(--mono);font-size:.88em;letter-spacing:0;overflow-wrap:anywhere}
+.domain-dev .detail-block code{color:var(--sakura)}
+
+/* Listes de projets : toute la ligne mène à la fiche. Seul le lien du nom (strong a) est étiré ;
+   un lien glissé dans la phrase (« Ce site, aussi » 04) reste tel quel. */
+.detail-block li{position:relative}
+.detail-block li strong a::after{content:"";position:absolute;inset:0}
+/* La ligne dont on vise le nom s'allume : la teinte s'éteint la première (300 ms), le rose dessous en dernier
+   (900 ms), la trace finit rose. Un fond et une opacité, rien ne se déplace. */
+.detail-block li:has(strong a){transition:background-color .3s ease-out}
+.detail-block li:has(strong a)::before{content:"";position:absolute;inset:0;background:rgba(var(--rgb-rose),.05);opacity:0;pointer-events:none;transition:opacity var(--t-off) var(--ease-decay)}
+.detail-block li:has(strong a:hover,strong a:focus-visible){background-color:rgba(var(--tint),.05);transition-duration:var(--t-on)}
+.detail-block li:has(strong a:hover,strong a:focus-visible)::before{opacity:1;transition-duration:var(--t-on);transition-timing-function:ease-out}
+
+/* Thèse → projets (mondes). Le petit texte violet prend la teinte lisible des Mondes (--acc-text, styles.css 11). */
+.domain-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;max-width:1040px;margin:26px 0 0;background:var(--line-2);border:1px solid var(--line-2)}
+.domain-strip>div{position:relative;display:flex;flex-direction:column;gap:8px;padding:16px 18px;background:rgba(7,3,8,.9)}
+.domain-strip dt a::after{content:"";position:absolute;inset:0}
+.domain-strip dt{font:500 var(--label) var(--mono);letter-spacing:var(--label-ls);text-transform:uppercase;color:var(--dim)}
+.domain-strip dt a{color:var(--acc-text)}
+.domain-strip dd{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
+
+/* État de publication (écriture). */
+.detail-block .domain-state{display:flex;justify-content:space-between;align-items:baseline;gap:16px;max-width:680px;margin:22px 0 0;padding-top:14px;border-top:1px solid var(--line-2);font:400 var(--label) var(--mono);letter-spacing:var(--label-ls);text-transform:uppercase;color:var(--muted)}
+.detail-block .domain-state b{font-weight:400;color:var(--acc-text)}
+
+/* Mondes, une fois : un pétale tombe sur le filet sous « Garde-fou », et sa lumière reste là où il a touché (A5).
+   Un cœur blanc de 120 ms, un halo rose qui lui survit, un segment rose brûlé dans le filet ; le pétale, silhouette
+   pleine (#ffe1ec à .9, sans contour), finit couché sur la ligne. L'état de base est ce repos : LITE, mouvement
+   réduit et absence de script le montrent tel quel. Il tombe quand le filet entre dans la vue (.is-seen,
+   js/motifs.js), à 72 % du filet, dans le vide à droite du titre : jamais à travers un texte. Quatre calques,
+   une animation chacun, transform et opacity seulement. */
+.divider.fall-line{--x:72%;margin:4px 0 24px}
+.fall-line .rule .burn{position:absolute;inset:0;background:radial-gradient(ellipse 12% 100% at calc(var(--x) - 9px) 50%,rgba(var(--rgb-rose),.9),rgba(var(--rgb-rose),.3) 45%,transparent) center/100% 1px no-repeat;opacity:var(--glow-floor)}
+.fall-halo,.fall-core,.fall-petal{position:absolute;pointer-events:none}
+.fall-halo{left:calc(var(--x) - 63px);top:50%;width:108px;height:34px;margin-top:-17px;border-radius:50%;background:radial-gradient(closest-side,rgba(var(--rgb-rose),.45),rgba(var(--rgb-accent),.1) 60%,transparent);opacity:.22}
+.fall-core{left:calc(var(--x) - 18px);top:50%;width:18px;height:18px;margin-top:-9px;border-radius:50%;background:radial-gradient(closest-side,#fff,rgba(var(--rgb-phosphor),.5) 45%,transparent);opacity:0}
+.fall-petal{left:calc(var(--x) - 7px);bottom:50%;width:14px;height:18px;color:#ffe1ec;transform-origin:50% 97%;transform:translate3d(0,-3px,0) rotate(-84deg) scale(.62,1)}
+.fall-petal svg{display:block;width:100%;height:100%;opacity:.9}
+@media (prefers-reduced-motion:no-preference){
+  /* Avant d'être vu, le filet est nu : le pétale n'apparaît pas couché pour retomber ensuite. */
+  html.js:not(.mode-lite) .fall-line:not(.is-seen) :is(.fall-petal,.fall-halo,.burn){opacity:0}
+  html.js:not(.mode-lite) .fall-line.is-seen .fall-petal{animation:fallPetal 2.8s linear .6s both}
+  html.js:not(.mode-lite) .fall-line.is-seen .fall-core{animation:fallCore .6s linear 3.4s both}
+  html.js:not(.mode-lite) .fall-line.is-seen .fall-halo{animation:fallHalo 2.4s linear 3.4s both}
+  html.js:not(.mode-lite) .fall-line.is-seen .burn{animation:fallBurn 2.6s linear 3.4s both}
+}
+/* Les mêmes fonctions à chaque étape (translate3d, rotate, scale) : l'interpolation ne passe jamais par une matrice.
+   Le pétale se balance, ralentit à chaque bout du balancier, se retourne (scale) et se couche en touchant le filet. */
+@keyframes fallPetal{
+  0%{opacity:0;transform:translate3d(-30px,-80px,0) rotate(22deg) scale(1,1);animation-timing-function:var(--ease-fall)}
+  14%{opacity:1}
+  38%{transform:translate3d(-6px,-52px,0) rotate(-14deg) scale(.82,1);animation-timing-function:var(--ease-fall)}
+  68%{transform:translate3d(-22px,-22px,0) rotate(10deg) scale(1,1);animation-timing-function:var(--ease-fall)}
+  100%{opacity:1;transform:translate3d(0,-3px,0) rotate(-84deg) scale(.62,1)}
+}
+@keyframes fallCore{0%{opacity:0;animation-timing-function:ease-out}20%{opacity:1;animation-timing-function:var(--ease-decay)}100%{opacity:0}}
+@keyframes fallHalo{0%{opacity:0;animation-timing-function:ease-out}5%{opacity:1;animation-timing-function:var(--ease-decay)}100%{opacity:.22}}
+@keyframes fallBurn{0%{opacity:0;animation-timing-function:ease-out}5%{opacity:1;animation-timing-function:var(--ease-decay)}100%{opacity:var(--glow-floor)}}
+
+/* Parcours : les quatre domaines dans l'ordre de l'index, qui boucle sur l'index. Des plaques de verre éteintes au
+   repos ; visée ou au focus, une plaque s'allume (A1, css/motifs.css) dans la couleur du canal visé, qui s'éteint la
+   première et laisse une trace rose. --tint suit la cible pour que la lueur du tube la suive aussi. */
+.domain-route{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:52px;background:var(--line-2);border:1px solid var(--line-2)}
+.domain-route a{--acc:var(--accent);--acc-text:var(--accent);--tint:var(--rgb-accent);display:flex;flex-direction:column;gap:10px;min-height:128px;padding:24px 28px;background:var(--plate)}
+.domain-route [data-accent="dev"]{--acc:var(--acc-dev);--acc-text:var(--acc-dev);--tint:var(--rgb-cyan)}
+.domain-route [data-accent="photo"]{--acc:var(--acc-photo);--acc-text:var(--acc-photo);--tint:var(--rgb-photo)}
+.domain-route [data-accent="writing"]{--acc:var(--acc-writing);--acc-text:var(--acc-writing);--tint:var(--rgb-magenta)}
+.domain-route [data-accent="worlds"]{--acc:var(--acc-worlds);--acc-text:var(--acc-worlds-text);--tint:var(--rgb-violet)}
+.domain-route .domain-route-next{align-items:flex-end;text-align:right}
+/* Le tube du suivant est à droite, du côté où il mène. */
+.domain-route .domain-route-next.a1::before,.domain-route .domain-route-next.a1::after{left:auto;right:0}
+.domain-route small{display:inline-flex;align-items:center;gap:8px;font:400 var(--label) var(--mono);letter-spacing:var(--label-ls);text-transform:uppercase;color:var(--dim)}
+.domain-route b{font:400 clamp(30px,3vw,46px)/1 var(--serif);color:var(--paper);transition:color var(--t-off) var(--ease-decay)}
+.domain-route em{font:400 var(--label) var(--mono);font-style:normal;letter-spacing:.12em;color:var(--muted)}
+.domain-route a:is(:hover,:focus-visible) b{color:color-mix(in srgb,var(--acc-text) 55%,var(--phosphor));transition-duration:var(--t-on);transition-timing-function:ease-out}
+
+/* Pied : le séparateur de la page avec sa salve (le pied y a droit), puis à gauche la phrase et la devise, à droite
+   le lien, éteint au repos, qui s'allume (A1) dans la teinte de la page, comme le pied de photographie.html.
+   Un pied sans devise garde la mise en page de styles.css (11). */
+.detail-foot:has(>.detail-motto){display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px 32px;margin-top:clamp(56px,8vw,104px);padding-top:0;border-top:0}
+.detail-foot:has(>.detail-motto)>.divider{grid-column:1/-1;margin-bottom:10px}
+.detail-foot:has(>.detail-motto)>p{grid-column:1}
+.detail-foot:has(>.detail-motto)>a{grid-column:2;grid-row:2;margin:0}
+.detail-foot .a1{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding-left:14px;margin-left:-14px;color:var(--muted);transition:color var(--t-off) var(--ease-decay)}
+.detail-foot .a1:is(:hover,:focus-visible){color:var(--acc-text);transition-duration:var(--t-on);transition-timing-function:ease-out}
+.detail-foot .detail-motto{margin:0;font:400 var(--label)/1.6 var(--mono);letter-spacing:.32em;text-transform:uppercase;color:var(--muted)}
+
+@media(max-width:900px){
+  .domain-strip{grid-template-columns:1fr 1fr}
+}
+@media(max-width:700px){
+  .domain-strip{grid-template-columns:1fr}
+  .domain-strip>div{padding:14px 16px}
+  .domain-route{grid-template-columns:1fr;margin-top:30px}
+  .domain-route a{min-height:0;padding:20px}
+  .domain-route .domain-route-next{align-items:flex-start;text-align:left}
+  .domain-route .domain-route-next.a1::before,.domain-route .domain-route-next.a1::after{left:0;right:auto}
+  .domain-route b{font-size:32px}
+  .detail-foot:has(>.detail-motto){grid-template-columns:minmax(0,1fr);margin-top:48px}
+  .detail-foot:has(>.detail-motto)>a{grid-column:1;grid-row:auto;justify-self:start;margin-left:-14px}
+}
+/* A link inside the footer sentence reads as prose, not as the footer's action label (.detail-foot a in styles.css). */
+.detail-foot p a{font:inherit;letter-spacing:inherit;text-transform:none;white-space:normal}
+/* Un pied réduit à son lien le garde à droite, comme les autres pages. */
+.detail-foot>a:only-child{margin-left:auto;margin-top:0}
+
+/* Gris de lecture : pas de mot seul en dernière ligne, titres équilibrés (amélioration progressive :
+   un navigateur qui ignore text-wrap garde la coupure habituelle). */
+:is(.detail-lead,.detail-aside p,.detail-block p,.detail-block li span,.detail-foot p,.domain-strip dd,.photo-empty-copy p,.photo-single-stage p){text-wrap:pretty}
+:is(.detail-block h2,.photo-empty-copy h3){text-wrap:balance}
+
+/* Au-dessus du monde vivant (FULL 3D), le texte du héros et du pied garde un halo sombre : les pages de contenu n'ont pas
+   de zones protégées (js/page.js n'appelle pas world.setZones). Invisible sur le noir, fixe, sans animation ;
+   le titre, lui, est allumé (styles.css, 06). À retirer quand page.js passera les boîtes de .detail-hero à setZones. */
+html:not(.mode-lite) .detail-hero :is(.detail-index,.detail-lead,.domain-state,.detail-aside b,.detail-aside p),html:not(.mode-lite) .detail-top,html:not(.mode-lite) .detail-foot:has(>.detail-motto)>:is(p,a){text-shadow:0 0 14px rgba(7,4,7,.92),0 0 3px rgba(7,4,7,.85)}
+
+/* Couleurs forcées : le filet dessiné en dégradé disparaîtrait, une vraie bordure le remplace ; plus de halo. */
+@media (forced-colors:active){.detail-shell .divider .rule{height:0;border-top:1px solid CanvasText;background:none}}
+@media (forced-colors:active),(prefers-contrast:more){.fall-halo,.fall-core{display:none}}
+/* The scope aside sits on the same glass plate on every domain page (the world's planet may pass behind it). */
+:is(.domain-dev,.domain-write,.domain-worlds) .detail-aside{padding:22px 24px 24px;border:1px solid var(--line-2);background:linear-gradient(120deg,rgba(var(--tint),.075),transparent 46%),var(--plate)}
