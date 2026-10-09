@@ -1,0 +1,76 @@
+{
+  "testedAt": "2026-10-09T18:23:24.709Z",
+  "targetUrl": "https://yosuljin.github.io/?qa=1791570195417",
+  "browserExecutable": "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
+  "viewport": [
+    2304,
+    1214
+  ],
+  "home": {
+    "url": "https://yosuljin.github.io/?qa=1791570195417",
+    "viewport": [
+      2304,
+      1214
+    ],
+    "rootClasses": "js mode-full cinema power-pending fx-ready power-hold booted world-ready world-live",
+    "stylesheet": "https://yosuljin.github.io/styles.css?v=20261009-r2",
+    "homePanel": {
+      "rect": [
+        0,
+        0,
+        2304,
+        1214.4000244140625
+      ],
+      "opacity": "1",
+      "visibility": "visible",
+      "transform": "matrix(1, 0, 0, 1, 0, 0)",
+      "text": "DOSSIER PERSONNEL / ESPACE DE CRÉATION\n          \n            DÉVELOPPEMENT · PHOTOGRAPHIE · ÉCRITURE · MONDES\n            YosuljinYOSULJIN\n            Je construis des systèmes, des images et des mondes.\n          \n          世界之間\n          \n            UNE PERSONNE · QUATRE DOMAINES\n            ENTRER DANS L’ESPACE\n            FR / 2026"
+    },
+    "heroTitle": {
+      "rect": [
+        542,
+        492.8999938964844,
+        1220,
+        200
+      ],
+      "opacity": "1",
+      "visibility": "visible",
+      "transform": "none",
+      "text": "YosuljinYOSULJIN"
+    },
+    "worldCanvas": {
+      "rect": [
+        0,
+        0,
+        2304,
+        1214.4000244140625
+      ],
+      "opacity": "1",
+      "visibility": "visible",
+      "transform": "none",
+      "text": ""
+    }
+  },
+  "entered": {
+    "url": "https://yosuljin.github.io/?qa=1791570195417",
+    "rootClasses": "js mode-full cinema fx-ready booted world-ready world-live",
+    "gateStillPresent": false,
+    "menuButtonVisible": true
+  },
+  "menu": {
+    "expanded": "true",
+    "rootClasses": "js mode-full cinema fx-ready booted world-ready world-live menu-open",
+    "visibility": "visible"
+  },
+  "detail": {
+    "url": "https://yosuljin.github.io/developpement.html",
+    "pathname": "/developpement.html",
+    "rootClasses": "js mode-full fx-ready booted world-ready world-live",
+    "title": "Développement",
+    "worldReady": true
+  },
+  "pageErrors": [],
+  "failedRequests": [],
+  "failures": [],
+  "screenshots": "C:\\Users\\Sibi\\AppData\\Local\\Temp\\yosuljin-site-qa-output-20261009-3"
+}
