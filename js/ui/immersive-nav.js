@@ -1,14 +1,21 @@
 // Preserve the browser's immersive fullscreen across internal page changes.
-// In top-level fullscreen mode, internal pages are hosted in a same-origin frame so
-// the owning document never navigates and fullscreen survives. In a child frame,
-// internal links are delegated back to the owning document.
+// In top-level fullscreen mode, internal pages are hosted in a same-origin frame so the owning document never
+// navigates and fullscreen survives; inside the frame, page changes are handed back to the owning document.
+// The page change itself — its departure and arrival (js/ui/portal.js) — asks this script where to go:
+// window.__yosuljinImmersive.navigate(url) answers "stay" when the page is framed under this document (which
+// stays), "leave" when this framed document handed the change up to its owner, false when the browser's own
+// navigation is the right one.
 const FRAME_CLASS = "immersive-frame";
-const normalise = p => p.replace(/index\.html$/, "");
+const FLAG = "yosuljin-portal";
+const DEPART = 260;
+const framed = window.parent !== window;
 
 function isInternal(url) {
   return url.origin === location.origin && /^https?:$/.test(url.protocol);
 }
 
+/** Shows `url` in the frame. The frame's own document is replaced, never navigated: the only history entries are
+ *  this document's (pushState), so back and forward move one page at a time, in step with the address bar. */
 function loadFrame(url, replace = false) {
   let frame = document.querySelector("." + FRAME_CLASS);
   if (!frame) {
@@ -20,10 +27,20 @@ function loadFrame(url, replace = false) {
     document.body.appendChild(frame);
   }
   // The page underneath leaves the accessibility tree and the tab order (the menu keeps it out when it closes),
-  // and the focus goes into the frame. Leaving the frame reloads the page (leave), so nothing has to undo this.
+  // its frame loop sleeps (js/core/loop.js), and the focus goes into the frame. Leaving the frame reloads the page
+  // (leave), so nothing has to undo this.
   for (const el of document.body.children) if (el !== frame) el.inert = true;
   frame.addEventListener("load", () => frame.focus(), { once: true });
-  frame.src = url.href;
+  const show = () => {
+    // The framed page arrives as a change of channel (portal.js), never as a power-on.
+    try { sessionStorage.setItem(FLAG, "1"); } catch {}
+    try { frame.contentWindow.location.replace(url.href); } catch { frame.src = url.href; }
+  };
+  // Back or forward: the framed page did not ask for the change, it collapses first (portal.js listens).
+  let shown = false;
+  try { shown = replace && frame.contentWindow.location.href !== "about:blank"; } catch {}
+  if (shown) { frame.contentWindow.postMessage({ type: "yosuljin-depart" }, location.origin); setTimeout(show, DEPART); }
+  else show();
   if (!replace) history.pushState({}, "", url.href);
   document.documentElement.classList.add("immersive-nav");
   return frame;
@@ -31,37 +48,21 @@ function loadFrame(url, replace = false) {
 
 // Leaving the frame loads the address it showed, for real: assigning the same address, when it has a #fragment,
 // would only scroll the page that is still under the frame, inert. That page's scroll offset must not carry over.
+// The frame stays up until the new document paints (it arrives as a change of channel): nothing shows through.
 function leave() {
+  try { sessionStorage.setItem(FLAG, "1"); } catch {}
   history.scrollRestoration = "manual";
   location.reload();
 }
 
-function delegateFromFrame(url) {
-  if (!window.parent || window.parent === window) return false;
-  window.parent.postMessage({ type: "yosuljin-immersive-nav", href: url.href }, location.origin);
-  return true;
-}
-
-function interceptAnchor(e) {
-  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-  const a = e.target.closest?.("a[href]");
-  if (!a || a.getAttribute("target") === "_blank" || a.hasAttribute("download")) return;
-  let url;
-  try { url = new URL(a.getAttribute("href"), location.href); } catch { return; } // SVG <a>: .href is not a string
-  if (!isInternal(url)) return;
-  if (normalise(url.pathname) === normalise(location.pathname)) return;
-  if (window.parent !== window) {
-    e.preventDefault();
-    delegateFromFrame(url);
-    return;
-  }
-  if (!document.fullscreenElement) return;
-  e.preventDefault();
-  loadFrame(url);
-}
-
-if (window.parent === window) {
-  document.addEventListener("click", interceptAnchor, true);
+if (!framed) {
+  window.__yosuljinImmersive = {
+    navigate(url) {
+      if (!document.fullscreenElement || !isInternal(url)) return false;
+      loadFrame(url);
+      return "stay";
+    },
+  };
   addEventListener("message", e => {
     if (e.origin !== location.origin || !e.data) return;
     if (e.data.type === "yosuljin-fullscreen-toggle") {
@@ -69,17 +70,16 @@ if (window.parent === window) {
       else document.documentElement.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
       return;
     }
+    // The framed page has drawn its first picture (js/boot.js): this document's own closing lids, if it was the one
+    // that left, can go — the frame shows the same closed tube, about to open.
+    if (e.data.type === "yosuljin-frame-shown") { document.querySelector(".crt-channel")?.remove(); return; }
     if (e.data.type !== "yosuljin-immersive-nav") return;
     let url;
     try { url = new URL(e.data.href, location.href); } catch { return; }
     if (!isInternal(url)) return;
-    if (normalise(url.pathname) === normalise(location.pathname)) {
-      history.pushState({}, "", url.href);
-      document.querySelector("." + FRAME_CLASS)?.remove();
-      leave();
-      return;
-    }
-    loadFrame(url);
+    // Every page of the site, this one included, is framed while the fullscreen lasts: the owning document never
+    // navigates (a navigation would end the fullscreen).
+    if (document.fullscreenElement) loadFrame(url); else location.href = url.href;
   });
   // Back and forward between framed pages. Without a frame, a #fragment of the page itself (the skip link, a
   // contents list) scrolls as usual.
@@ -88,13 +88,14 @@ if (window.parent === window) {
     loadFrame(new URL(location.href), true);
   });
   document.addEventListener("fullscreenchange", () => {
-    const frame = document.querySelector("." + FRAME_CLASS);
-    if (!document.fullscreenElement && frame) {
-      frame.remove();
-      document.documentElement.classList.remove("immersive-nav");
-      leave();
-    }
+    if (!document.fullscreenElement && document.querySelector("." + FRAME_CLASS)) leave();
   });
 } else {
-  document.addEventListener("click", interceptAnchor, true);
+  window.__yosuljinImmersive = {
+    navigate(url) {
+      if (!isInternal(url)) return false;
+      window.parent.postMessage({ type: "yosuljin-immersive-nav", href: url.href }, location.origin);
+      return "leave";
+    },
+  };
 }

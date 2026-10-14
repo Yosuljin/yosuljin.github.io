@@ -16,6 +16,10 @@ function paint(button) {
 function addButton() {
   const cluster = document.querySelector(".brand-cluster");
   if (!cluster || cluster.querySelector("[data-fullscreen-toggle]")) return;
+  // No control where the browser offers no fullscreen for a page (iPhone): nothing is promised that cannot be kept.
+  // Inside the immersive frame the control acts on the owning page, which is in fullscreen already.
+  const framed = (() => { try { return window.parent !== window && !!window.parent.document; } catch { return false; } })();
+  if (!framed && !(document.fullscreenEnabled && document.documentElement.requestFullscreen)) return;
   const button = document.createElement("button");
   button.type = "button";
   button.className = "fullscreen-toggle";

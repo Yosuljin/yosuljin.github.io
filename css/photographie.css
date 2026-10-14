@@ -10,7 +10,7 @@
    A photograph is a window, not a screen: nothing is laid on it (no grain, no scanline, no glow, no petal: it
    sits above the tube's layers) and it never moves.
    ===================================================================== */
-.domain-photo{--photo-acc:var(--acc,var(--acc-photo,#ffb23e));--ph-glass:linear-gradient(120deg,rgba(var(--tint),.075),transparent 46%),var(--plate);--ph-lit:color-mix(in srgb,var(--acc-text,var(--acc)) 55%,var(--phosphor))}
+.domain-photo{--photo-acc:var(--acc,var(--acc-photo,#ff9d3a));--ph-glass:linear-gradient(120deg,rgba(var(--tint),.11),transparent 46%),var(--plate);--ph-lit:color-mix(in srgb,var(--acc-text,var(--acc)) 55%,var(--phosphor))}
 .photo-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 
 /* ---------- hero ---------- */
@@ -56,7 +56,7 @@ html.mode-lite .photo-section.reveal{opacity:1;transform:none;transition:none}
 .photo-count b{font-weight:400;color:var(--acc-text,var(--acc))}
 /* Small labels laid on the live world (FULL) keep the dark halo of the hero's and the footer's (css/contenu.css):
    the domain pages have no protected reading zones yet. */
-html:not(.mode-lite) .domain-photo :is(.photo-section-head .detail-index,.photo-count,.photo-filter-status,.photo-filter-hint){text-shadow:0 0 14px rgba(7,4,7,.92),0 0 3px rgba(7,4,7,.85)}
+html:not(.mode-lite) .domain-photo :is(.photo-section-head .detail-index,.photo-count,.photo-filter-status,.photo-filter-hint){text-shadow:0 0 14px rgba(6,4,11,.92),0 0 3px rgba(6,4,11,.85)}
 
 /* Empty states, honest: a frame waiting for its picture, and words saying that nothing is published yet. */
 .domain-photo .photo-empty-series{min-height:0;border:1px solid var(--line-2);background:var(--ph-glass)}
@@ -131,7 +131,7 @@ html.photo-lightbox-open{overflow:hidden}
 .photo-lightbox::backdrop{background:rgba(0,0,0,.82)}
 .lb-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px var(--gutter)}
 .lb-counter{margin:0;font:400 11px var(--mono);letter-spacing:.18em;color:var(--photo-acc)}
-.lb-close,.lb-nav{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);background:rgba(7,4,7,.66);color:var(--paper);cursor:pointer;transition:border-color var(--t-off) var(--ease-decay),color var(--t-off) var(--ease-decay)}
+.lb-close,.lb-nav{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);background:rgba(6,4,11,.66);color:var(--paper);cursor:pointer;transition:border-color var(--t-off) var(--ease-decay),color var(--t-off) var(--ease-decay)}
 .lb-close{min-height:44px;padding:0 16px;font:500 11px var(--mono);letter-spacing:.16em}
 .lb-close:is(:hover,:focus-visible),.lb-nav:is(:hover,:focus-visible){border-color:var(--photo-acc);color:var(--photo-acc);transition-duration:var(--t-on);transition-timing-function:ease-out}
 .lb-frame{display:grid;place-items:center;min-height:0;padding:0 clamp(56px,8vw,110px);touch-action:pan-y}

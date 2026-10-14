@@ -1,8 +1,14 @@
 // Sound design, fully synthesised with Web Audio (no files, nothing remote).
-// A cathode-ray room: a restrained space drone and motion wind, plus a few quiet one-shots.
-// No always-on mains hum or hiss: silence means silence, and effects share a controlled loudness envelope.
+// A cathode-ray room: a restrained space drone and motion wind, plus a few one-shots, each a small instrument
+// (a body, a transient, a glint) enveloped from silence to silence and stopped after its envelope: no digital
+// click anywhere. No always-on mains hum or hiss: silence means silence, and everything shares one master, one
+// compressor and one limiter. LITE is a pause: the master goes to zero and comes back with FULL.
 // Browsers only allow audio after a user gesture: the bed fades in on the first click / key / tap.
+import { getMode, onModeChange } from "../core/prefs.js?v=20261014-r1";
+
 const KEY = "yosuljin-sound";
+const LEVEL = 0.68;
+const level = () => getMode() === "lite" ? 0.0001 : LEVEL;
 let ctx = null, master = null, bus = null, limiter = null, enabled = true, unlocked = false, shuttingDown = false;
 let bed = null, scene = 0, lastVel = 0;
 const SCENE_NOTES = [58, 73.42, 92.5, 110];
@@ -53,7 +59,7 @@ export function setEnabled(value) {
     bus.gain.setValueAtTime(0.72, t);
     if (ctx.state === "suspended") ctx.resume();
     master.gain.setValueAtTime(0.0001, t);
-    master.gain.exponentialRampToValueAtTime(0.68, t + 0.45);
+    master.gain.exponentialRampToValueAtTime(level(), t + 0.45);
   } else {
     // Hard mute both gain stages, then suspend the graph. No automation tail can escape.
     shuttingDown = true;
@@ -95,15 +101,28 @@ function createContext() {
   bus.connect(master); master.connect(comp); comp.connect(limiter); limiter.connect(ctx.destination);
 }
 
-function start() {
+// The first page of a visit fades in slowly; a page reached from the site (quick) picks the ambience up where
+// the previous page left it.
+function start(quick = false) {
   if (!enabled) return;
   if (!ctx) createContext();
   if (!ctx) return;
   if (!bed) buildBed();
   if (ctx.state === "suspended") ctx.resume();
-  if (!unlocked) { unlocked = true; shuttingDown = false; fadeMaster(0.68, 1.6); }
+  if (!unlocked) { unlocked = true; shuttingDown = false; fadeMaster(level(), quick ? 0.3 : 1.6); }
   paintPlaying();
 }
+
+/** The page is back after a departure that did not happen, or from the history (portal.js): the master comes
+ *  back up. */
+export function revive() {
+  if (!ctx || !enabled || shuttingDown) return;
+  if (ctx.state === "suspended") ctx.resume().catch(() => {});
+  fadeMaster(level(), 0.3);
+}
+
+// LITE is a pause: the master goes down and everything waits; FULL brings it back (styles.css keeps the bars still).
+onModeChange(() => { if (!ctx || !unlocked || shuttingDown) return; fadeMaster(level(), getMode() === "lite" ? 0.4 : 0.9); paintPlaying(); });
 
 // Arriving from another page of the site: try to start straight away. If the browser still refuses,
 // drop the silent context at once (one console notice, no sources started) and wait for a gesture.
@@ -114,7 +133,7 @@ function tryAutostart() {
   if (!c) return;
   setTimeout(() => {
     if (ctx !== c || unlocked) return;
-    if (c.state === "running") { start(); return; }
+    if (c.state === "running") { start(true); return; }
     c.close().catch(() => {});
     ctx = master = bus = limiter = null;
   }, 140);
@@ -136,10 +155,28 @@ function noise() {
   const src = ctx.createBufferSource(); src.buffer = noiseBuffer; src.loop = true;
   return src;
 }
+/** A gain envelope from silence to silence: a linear attack to `peak`, an exponential decay to a thousandth of
+ *  it, then to zero — no step at either end. Returns the time after which the source can stop. */
 function env(gainNode, t, attack, peak, decay) {
-  gainNode.gain.setValueAtTime(0.0001, t);
-  gainNode.gain.exponentialRampToValueAtTime(peak, t + attack);
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay);
+  const p = gainNode.gain;
+  p.setValueAtTime(0, t);
+  p.linearRampToValueAtTime(peak, t + attack);
+  p.exponentialRampToValueAtTime(peak * 0.001, t + attack + decay);
+  p.linearRampToValueAtTime(0, t + attack + decay + 0.012);
+  return t + attack + decay + 0.03;
+}
+const osc = (type, f, t) => { const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t); return o; };
+const filt = (type, f, q = 0.7) => { const b = ctx.createBiquadFilter(); b.type = type; b.frequency.value = f; b.Q.value = q; return b; };
+/** A voice: `source → shaper → gain → bus`, enveloped from `t`; the shaper is one node or an [input, output]
+ *  pair already connected. The source starts at `t` and stops after its envelope; returns that time. */
+function voice(source, t, attack, peak, decay, shaper = null) {
+  const g = ctx.createGain();
+  if (shaper) { const [sin, sout] = Array.isArray(shaper) ? shaper : [shaper, shaper]; source.connect(sin); sout.connect(g); }
+  else source.connect(g);
+  g.connect(bus);
+  const end = env(g, t, attack, peak, decay);
+  source.start(t); source.stop(end);
+  return end;
 }
 
 // ---------- The bed: scene drone + air + motion wind ----------
@@ -157,25 +194,25 @@ function buildBed() {
   const initialRoot = SCENE_NOTES[scene] || SCENE_NOTES[0];
   const initialAir = SCENE_AIR[scene] || SCENE_AIR[0];
   const drone = ctx.createOscillator(), droneGain = ctx.createGain(), droneFilter = ctx.createBiquadFilter();
-  drone.type = "triangle"; drone.frequency.value = initialRoot; droneGain.gain.value = 0.0048;
+  drone.type = "triangle"; drone.frequency.value = initialRoot; droneGain.gain.value = 0.0096;
   droneFilter.type = "lowpass"; droneFilter.frequency.value = 420; droneFilter.Q.value = 0.5;
   drone.connect(droneFilter); droneFilter.connect(droneGain); droneGain.connect(out); drone.start();
 
   const pad = ctx.createOscillator(), padGain = ctx.createGain(), padFilter = ctx.createBiquadFilter();
-  pad.type = "sine"; pad.frequency.value = initialRoot * 2.006; padGain.gain.value = 0.0024;
+  pad.type = "sine"; pad.frequency.value = initialRoot * 2.006; padGain.gain.value = 0.0048;
   padFilter.type = "lowpass"; padFilter.frequency.value = 760; padFilter.Q.value = 0.45;
   pad.connect(padFilter); padFilter.connect(padGain); padGain.connect(out); pad.start();
 
   const air = noise(), airBp = ctx.createBiquadFilter(), airGain = ctx.createGain();
-  airBp.type = "bandpass"; airBp.frequency.value = initialAir; airBp.Q.value = 0.55; airGain.gain.value = 0.0019;
+  airBp.type = "bandpass"; airBp.frequency.value = initialAir; airBp.Q.value = 0.55; airGain.gain.value = 0.0038;
   air.connect(airBp); airBp.connect(airGain); airGain.connect(out); air.start();
 
   const lfo = ctx.createOscillator(), lfoDepth = ctx.createGain();
-  lfo.type = "sine"; lfo.frequency.value = 0.055; lfoDepth.gain.value = 0.0017;
+  lfo.type = "sine"; lfo.frequency.value = 0.055; lfoDepth.gain.value = 0.0034;
   lfo.connect(lfoDepth); lfoDepth.connect(droneGain.gain); lfo.start();
 
   const lfo2 = ctx.createOscillator(), lfo2Depth = ctx.createGain();
-  lfo2.type = "sine"; lfo2.frequency.value = 0.041; lfo2Depth.gain.value = 0.0009;
+  lfo2.type = "sine"; lfo2.frequency.value = 0.041; lfo2Depth.gain.value = 0.0018;
   lfo2.connect(lfo2Depth); lfo2Depth.connect(padGain.gain); lfo2.start();
 
   bed = { windGain, bp, drone, droneGain, droneFilter, pad, padGain, padFilter, airBp, airGain };
@@ -206,92 +243,100 @@ export function setVelocity(v) {
 }
 
 // ---------- One-shots ----------
+// Levels are set before the bus (0.72) and the master (0.68), under the compressor and the limiter: a press
+// peaks around −14 dBFS at the output, the switch-on and the page change around −10.
 const SFX = {
-  // Press: a dry digital tick on a low thump.
+  // A press: a soft thock (sine 190→75 Hz) under a tap of filtered noise, and a glint.
   press() {
-    const t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain();
-    o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(55, t + 0.09);
-    o.connect(g); g.connect(bus); env(g, t, 0.002, 0.06, 0.11); o.start(t); o.stop(t + 0.14);
-    SFX.tick();
+    const t = ctx.currentTime;
+    const o = osc("sine", 190, t); o.frequency.exponentialRampToValueAtTime(75, t + 0.07);
+    voice(o, t, 0.0015, 0.28, 0.1);
+    voice(noise(), t, 0.001, 0.16, 0.016, filt("bandpass", 1600, 1.2));
+    voice(osc("sine", 5200, t), t, 0.0005, 0.05, 0.008);
   },
-  tick() {
-    const t = ctx.currentTime, n = noise(), g = ctx.createGain(), hp = ctx.createBiquadFilter();
-    hp.type = "highpass"; hp.frequency.value = 2500; n.connect(hp); hp.connect(g); g.connect(bus);
-    env(g, t, 0.001, 0.042, 0.025); n.start(t); n.stop(t + 0.04);
-  },
-  // Menu ignition: degauss thump, rising whine.
+  // Menu ignition: a degauss thump with a flutter that dies with it, a swell of air, a faint rising whine and a
+  // crackle of static as the picture comes.
   ignite() {
     const t = ctx.currentTime;
-    const o = ctx.createOscillator(), g = ctx.createGain(), trem = ctx.createOscillator(), tremAmt = ctx.createGain();
-    o.frequency.setValueAtTime(72, t); o.frequency.exponentialRampToValueAtTime(38, t + 0.6);
-    trem.frequency.value = 14; tremAmt.gain.value = 0.08; trem.connect(tremAmt); tremAmt.connect(g.gain);
-    o.connect(g); g.connect(bus); env(g, t, 0.01, 0.062, 0.7); o.start(t); trem.start(t); o.stop(t + 0.8); trem.stop(t + 0.8);
-    const w = ctx.createOscillator(), wg = ctx.createGain();
-    w.frequency.setValueAtTime(2400, t); w.frequency.exponentialRampToValueAtTime(7800, t + 0.5);
-    w.connect(wg); wg.connect(bus); env(wg, t + 0.05, 0.08, 0.0045, 0.5); w.start(t); w.stop(t + 0.7);
+    const o = osc("sine", 110, t); o.frequency.exponentialRampToValueAtTime(46, t + 0.42);
+    const flutter = ctx.createGain(); flutter.gain.value = 0.82;
+    const lfo = osc("sine", 13, t), depth = ctx.createGain(); depth.gain.value = 0.18; lfo.connect(depth); depth.connect(flutter.gain);
+    const end = voice(o, t, 0.012, 0.36, 0.5, flutter); lfo.start(t); lfo.stop(end);
+    const lp = filt("lowpass", 300, 0.8); lp.frequency.exponentialRampToValueAtTime(1500, t + 0.35);
+    voice(noise(), t, 0.06, 0.12, 0.45, lp);
+    const w = osc("sine", 1800, t); w.frequency.exponentialRampToValueAtTime(6200, t + 0.5);
+    voice(w, t + 0.04, 0.1, 0.012, 0.42);
+    voice(noise(), t + 0.08, 0.004, 0.05, 0.06, filt("highpass", 3200, 0.7));
   },
-  // Menu power-off: the picture collapses to a dot.
+  // Menu power-off: the picture zips down to a line, a thud under it, then the dot.
   poweroff() {
-    const t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain();
-    o.type = "triangle"; o.frequency.setValueAtTime(1600, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.3);
-    o.connect(g); g.connect(bus); env(g, t, 0.004, 0.052, 0.32); o.start(t); o.stop(t + 0.38);
-    SFX.tick();
+    const t = ctx.currentTime;
+    const o = osc("triangle", 1500, t); o.frequency.exponentialRampToValueAtTime(52, t + 0.3);
+    const lp = filt("lowpass", 4000, 0.7); lp.frequency.exponentialRampToValueAtTime(300, t + 0.3);
+    voice(o, t, 0.004, 0.26, 0.33, lp);
+    const s = osc("sine", 68, t); s.frequency.exponentialRampToValueAtTime(40, t + 0.2);
+    voice(s, t + 0.02, 0.006, 0.22, 0.22);
+    voice(osc("sine", 2400, t), t + 0.3, 0.002, 0.06, 0.05);
   },
-  // Page portal: an inhale through the gate.
+  // Changing page, the departure (portal.js): the picture folds to a line in 260 ms — a sweep down, the air
+  // closing, a tick where the lids meet; the master follows the lids out (the next page brings it back).
   portal() {
-    const t = ctx.currentTime, n = noise(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
-    bp.type = "bandpass"; bp.Q.value = 2; bp.frequency.setValueAtTime(200, t); bp.frequency.exponentialRampToValueAtTime(5200, t + 0.45);
-    n.connect(bp); bp.connect(g); g.connect(bus); env(g, t, 0.25, 0.055, 0.25); n.start(t); n.stop(t + 0.55);
-    const o = ctx.createOscillator(), og = ctx.createGain();
-    o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(880, t + 0.45);
-    o.connect(og); og.connect(bus); env(og, t, 0.2, 0.028, 0.28); o.start(t); o.stop(t + 0.5);
+    const t = ctx.currentTime;
+    const o = osc("triangle", 700, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.26);
+    const lp = filt("lowpass", 2600, 0.9); lp.frequency.exponentialRampToValueAtTime(220, t + 0.26);
+    voice(o, t, 0.01, 0.3, 0.3, lp);
+    const bp = filt("bandpass", 2400, 1.1); bp.frequency.exponentialRampToValueAtTime(260, t + 0.26);
+    voice(noise(), t, 0.03, 0.14, 0.28, bp);
+    voice(osc("sine", 1900, t), t + 0.25, 0.002, 0.07, 0.06);
+    master.gain.setValueAtTime(master.gain.value, t + 0.22);
+    master.gain.linearRampToValueAtTime(0.0001, t + 0.3);
+  },
+  // Changing page, the arrival (portal.js): the channel locks — a burst of static, a bloom, the air opening.
+  channel() {
+    const t = ctx.currentTime;
+    voice(noise(), t, 0.006, 0.07, 0.05, filt("highpass", 2800, 0.7));
+    const o = osc("sine", 160, t); o.frequency.exponentialRampToValueAtTime(330, t + 0.2);
+    voice(o, t + 0.02, 0.05, 0.16, 0.34);
+    const lp = filt("lowpass", 400, 0.8); lp.frequency.exponentialRampToValueAtTime(2200, t + 0.4);
+    voice(noise(), t + 0.02, 0.08, 0.08, 0.4, lp);
   },
   // The tube switched on from standby: thump, static, the degauss buzz dying out, the flyback whine settling.
   switchon() {
     const t = ctx.currentTime;
-    const k = ctx.createOscillator(), kg = ctx.createGain();
-    k.frequency.setValueAtTime(72, t); k.frequency.exponentialRampToValueAtTime(36, t + 0.28);
-    k.connect(kg); kg.connect(bus); env(kg, t, 0.004, 0.075, 0.32); k.start(t); k.stop(t + 0.42);
-    const n = noise(), hp = ctx.createBiquadFilter(), ng = ctx.createGain();
-    hp.type = "highpass"; hp.frequency.value = 2400;
-    n.connect(hp); hp.connect(ng); ng.connect(bus); env(ng, t, 0.004, 0.03, 0.36); n.start(t); n.stop(t + 0.46);
-    const d = ctx.createOscillator(), lp = ctx.createBiquadFilter(), dg = ctx.createGain(), wob = ctx.createOscillator(), wobDepth = ctx.createGain();
-    d.type = "sawtooth"; d.frequency.value = 50;
-    lp.type = "lowpass"; lp.frequency.setValueAtTime(900, t); lp.frequency.exponentialRampToValueAtTime(140, t + 1.2);
-    wob.frequency.setValueAtTime(11, t); wob.frequency.linearRampToValueAtTime(4, t + 1.2);
-    d.connect(lp); lp.connect(dg); dg.connect(bus); wob.connect(wobDepth); wobDepth.connect(dg.gain);
-    env(dg, t + 0.03, 0.05, 0.045, 1.15); env(wobDepth, t + 0.03, 0.05, 0.018, 1.15);
-    d.start(t); wob.start(t); d.stop(t + 1.35); wob.stop(t + 1.35);
-    const w = ctx.createOscillator(), wg = ctx.createGain();
-    w.frequency.setValueAtTime(8400, t); w.frequency.exponentialRampToValueAtTime(7600, t + 0.6);
-    w.connect(wg); wg.connect(bus); env(wg, t + 0.05, 0.12, 0.004, 0.9); w.start(t); w.stop(t + 1.1);
+    const k = osc("sine", 80, t); k.frequency.exponentialRampToValueAtTime(34, t + 0.3);
+    voice(k, t, 0.004, 0.4, 0.36);
+    voice(noise(), t, 0.004, 0.12, 0.4, filt("highpass", 2200, 0.7));
+    const d = osc("sawtooth", 50, t), lp = filt("lowpass", 900, 1.1); lp.frequency.exponentialRampToValueAtTime(140, t + 1.2);
+    const wobble = ctx.createGain(); wobble.gain.value = 0.75; lp.connect(wobble);
+    const wob = osc("sine", 11, t), depth = ctx.createGain(); depth.gain.value = 0.25; wob.frequency.linearRampToValueAtTime(4, t + 1.2);
+    wob.connect(depth); depth.connect(wobble.gain);
+    const end = voice(d, t + 0.03, 0.05, 0.2, 1.15, [lp, wobble]); wob.start(t); wob.stop(end);
+    const w = osc("sine", 8400, t); w.frequency.exponentialRampToValueAtTime(7600, t + 0.6);
+    voice(w, t + 0.05, 0.12, 0.014, 0.9);
   },
   // The camera flies through a gate of the world (FULL 3D, "world-gate" event): a breath through the ring,
   // then a soft impact. Quiet when the index's scene change has just played the same crossing.
   gate(detail) {
+    if (detail?.quiet) return;
     const t = ctx.currentTime;
-    if (!detail?.quiet) {
-      const n = noise(), bp = ctx.createBiquadFilter(), ng = ctx.createGain();
-      bp.type = "bandpass"; bp.Q.value = 1.4; bp.frequency.setValueAtTime(300, t); bp.frequency.exponentialRampToValueAtTime(3800, t + 0.45);
-      n.connect(bp); bp.connect(ng); ng.connect(bus); env(ng, t, 0.22, 0.04, 0.3); n.start(t); n.stop(t + 0.6);
-      const k = ctx.createOscillator(), kg = ctx.createGain();
-      k.frequency.setValueAtTime(64, t + 0.2); k.frequency.exponentialRampToValueAtTime(40, t + 0.45);
-      k.connect(kg); kg.connect(bus); env(kg, t + 0.2, 0.006, 0.045, 0.26); k.start(t); k.stop(t + 0.55);
-    }
+    const bp = filt("bandpass", 300, 1.4); bp.frequency.exponentialRampToValueAtTime(3800, t + 0.45);
+    voice(noise(), t, 0.22, 0.12, 0.3, bp);
+    const k = osc("sine", 64, t + 0.2); k.frequency.exponentialRampToValueAtTime(40, t + 0.45);
+    voice(k, t + 0.2, 0.006, 0.2, 0.26);
   },
-  // Crossing into another world: a low swell.
+  // Crossing into another world: a low whoomp and a breath of air.
   cross() {
-    const t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain();
-    o.type = "sawtooth"; o.frequency.setValueAtTime(55, t); o.frequency.exponentialRampToValueAtTime(110, t + 0.4);
-    const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 300;
-    o.connect(lp); lp.connect(g); g.connect(bus); env(g, t, 0.05, 0.052, 0.45); o.start(t); o.stop(t + 0.55);
-  }
+    const t = ctx.currentTime;
+    const o = osc("sine", 72, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.4);
+    voice(o, t, 0.04, 0.2, 0.42);
+    voice(noise(), t, 0.12, 0.07, 0.35, filt("bandpass", 600, 0.7));
+  },
 };
 
 const lastPlayed = {};
 /** Plays a one-shot if audio is running. Rate-limited per sound so repeated presses never machine-gun. */
 export function sfx(name, arg) {
-  if (!enabled || shuttingDown || !SFX[name]) return;
+  if (!enabled || shuttingDown || !SFX[name] || getMode() === "lite") return;
   // A control can call its sound from pointerdown before the global gesture listener runs.
   // Unlock here too, while still inside the user gesture, so the first press is never silent.
   if (!ctx) unlock();
@@ -342,7 +387,7 @@ export function initSound() {
 function switchOn() {
   unlock();
   if (!ctx) return;
-  fadeMaster(0.68, 0.06); // the switch-on sound must not wait for the bed's slow fade-in
+  fadeMaster(level(), 0.06); // the switch-on sound must not wait for the bed's slow fade-in
   if (ctx.state === "running") sfx("switchon");
   else ctx.resume().then(() => sfx("switchon")).catch(() => {});
 }

@@ -3,17 +3,28 @@
 // through the WebGL world and each scene's text flies in and out of depth with it.
 // LITE, touch devices and reduced motion keep a normal scrolling document.
 import { $, $$, clamp, smoothstep, setStyle } from "./js/core/dom.js?v=20261007-r7";
-import { every, wake } from "./js/core/loop.js?v=20261007-r7";
-import { getMode, isCinema, onModeChange, reducedMotion, finePointer } from "./js/core/prefs.js?v=20261008-r9";
+import { every, wake } from "./js/core/loop.js?v=20261014-r1";
+import { getMode, isCinema, onModeChange, reducedMotion, finePointer } from "./js/core/prefs.js?v=20261014-r1";
 import { initGlitch } from "./js/ui/glitch.js?v=20261009-r2";
-import { initSpatialFX } from "./js/ui/fx.js?v=20261009-r2";
-import { initPortal } from "./js/ui/portal.js?v=20261009-r2";
-import { initMenu } from "./js/ui/menu.js?v=20261009-r2";
+import { initSpatialFX } from "./js/ui/fx.js?v=20261014-r1";
+import { initPortal } from "./js/ui/portal.js?v=20261014-r1";
+import { initMenu } from "./js/ui/menu.js?v=20261014-r1";
 import { initModeSwitch, initReveal } from "./js/ui/chrome.js?v=20261009-r2";
-import { initSound, sfx, setScene as soundScene, setVelocity } from "./js/ui/sound.js?v=20261009-r2";
+import { initSound, sfx, setScene as soundScene, setVelocity } from "./js/ui/sound.js?v=20261014-r1";
 import { idleLevel } from "./js/core/idle.js?v=20261009-r2";
 
 const root = document.documentElement;
+// Stable hooks and witness flags exist only on the loopback QA server; production exposes no navigation/debug API.
+const loopback = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+// Local QA only, as in world.js: ?qa=nodiorama,noeye,nodock,nofinger,norelief isolates each effect of the cinema's
+// DOM for a paired measurement (diorama: no depth at rest and no eye; eye: the perspective's origin stays put;
+// dock: the presence column slides in flat; finger: a touch no longer feeds the world's pointer; relief: the
+// title's syllables stay on one plane). Nothing in production.
+const QA = (() => {
+  const flags = new Set();
+  try { if (loopback) (new URLSearchParams(location.search).get("qa") || "").split(",").forEach(f => f && flags.add(f.trim())); } catch {}
+  return { off: name => flags.has("no" + name) };
+})();
 const panels = $$(".panel");
 const SCENES = panels.map(p => p.id);
 const LAST = panels.length - 1;
@@ -24,6 +35,7 @@ const NAMES = panels.map(p => p.dataset.name || p.id.toUpperCase());
 const canvas = $(".world-canvas");
 const scenesEl = $(".scenes");
 const presence = $(".presence-dock");
+const heroTitle = $(".hero-title");
 const progressLine = $(".progress-line i");
 const progressIndex = $("[data-progress-index]");
 const progressName = $("[data-progress-name]");
@@ -58,7 +70,7 @@ let world = null, worldStop = null, lastRoute = -1, lastScene = -1, worldRecover
 // (modulepreload), so the import does not wait for the rest of this module graph.
 let createWorld = null, loadingWorld = null;
 function loadWorld() {
-  loadingWorld ??= import("./js/world/world.js?v=20261009-r2").then(m => { createWorld = m.createWorld; });
+  loadingWorld ??= import("./js/world/world.js?v=20261014-r1").then(m => { createWorld = m.createWorld; });
   return loadingWorld;
 }
 
@@ -207,9 +219,32 @@ function remeasure() { measured.clear(); measureZones(-1); measureFloor(); measu
 
 // ---------- Cinema choreography ----------
 const phoneQuery = matchMedia("(max-width:700px)");
-// Text layers sit at their own depth (data-depth, px) and separate while a scene flies in or out.
-// Written as the `translate` property, which composes with hover transforms; nothing is written at rest.
-const depthLayers = panels.map(p => $$("[data-depth]", p).map(el => [el, +el.dataset.depth || 0]));
+// Text layers sit at their own depth (data-depth, px) and separate while a scene flies in or out. At rest the big
+// layers keep a little of it — a title ~21-27 px in front, a lead ~6-10 px, a kicker ~8-9 px (10 px words, seen at
+// ×1.01: the 10 px floor of RÉMANENCE §4.4 is a minimum and they never go under it), the labels at depth ≤ 120
+// (eyebrows, footers, the bottom row) none, a card none (its `translate` stays free for the press, 06) — so a
+// scene has a thickness the eye reads when the hand moves (the perspective's origin below). The containers between
+// .panel-inner and these layers pass the perspective on (styles.css 09, desktop).
+// Written as the `translate` property, which composes with hover transforms; nothing is written while a scene is
+// at rest: the last frame of a flight leaves the values.
+const depthLayers = panels.map(p => $$("[data-depth]", p).map(el => {
+  const depth = +el.dataset.depth || 0;
+  const rest = QA.off("diorama") || el.matches("a,button") ? 0 : depth >= 300 ? depth * 0.07 : depth > 120 ? depth * 0.04 : 0;
+  return [el, depth, rest];
+}));
+// The eye. On a precise pointer the perspective of the active scene follows the hand (±22 % of the scene's width,
+// ±16 % of its height): the layers at depth slide against the plane — the title by ~8 px, a lead by ~3 px, the
+// labels not at all — as when one looks into a box. The text itself never moves: only the point it is seen from.
+// One CSSOM write per move on one node of the compositor's transform tree (no paint); .panel-inner, not .scenes,
+// whose perspective stops at .panel (isolation:isolate flattens its subtree). The scene reached takes the hand's
+// origin at once and the scene left goes back to its rest origin — both at opacity 0, when the route crosses ±.5.
+const inners = panels.map(p => $(".panel-inner", p));
+const hand = { x: 0, y: 0, seen: false };
+function lookInto(i) {
+  const inner = inners[i];
+  if (!inner || QA.off("eye") || QA.off("diorama")) return;
+  setStyle(inner, "perspectiveOrigin", hand.seen ? `${(50 + hand.x * 22).toFixed(1)}% ${(46 + hand.y * 16).toFixed(1)}%` : "");
+}
 function layoutCinema() {
   // Phones use the same camera language as desktop, with a shorter depth corridor for touch.
   // Adjacent worlds briefly coexist in perspective so a swipe reads as a real spatial transition.
@@ -253,7 +288,7 @@ function layoutCinema() {
     const y = -d * 34, rx = d * 7;
     setStyle(p, "opacity", o.toFixed(3));
     setStyle(p, "transform", `translate3d(0,${y.toFixed(1)}px,${z.toFixed(1)}px) rotateX(${rx.toFixed(2)}deg)`);
-    for (const [el, depth] of depthLayers[i]) { const dz = Math.round(d * depth); setStyle(el, "translate", dz ? `0 0 ${dz}px` : ""); }
+    for (const [el, depth, rest] of depthLayers[i]) { const dz = Math.round(d * depth + rest); setStyle(el, "translate", dz ? `0 0 ${dz}px` : ""); }
     const active = ad < 0.22;
     if (p.inert === active) { p.inert = !active; if (active && i === pendingFocus) { pendingFocus = -1; p.tabIndex = -1; p.focus({ preventScroll: true }); } }
     setStyle(p, "pointerEvents", active ? "auto" : "none");
@@ -279,6 +314,11 @@ function layoutCinema() {
 function clearCinema() {
   panels.forEach(p => { ["visibility", "opacity", "transform", "pointerEvents"].forEach(k => setStyle(p, k, "")); p.inert = false; });
   depthLayers.flat().forEach(([el]) => setStyle(el, "translate", ""));
+  inners.forEach(el => el && setStyle(el, "perspectiveOrigin", ""));
+  hand.seen = false;
+  // The title's plates go back to one plane now, not at the next writing: back in the cinema the beam writes again
+  // after its 1 s delay, and the window must clip the ink from the first frame (styles.css 08).
+  heroTitle?.classList.remove("is-written");
   if (presence) { setStyle(presence, "--reveal", ""); presence.inert = false; }
   root.classList.remove("presence-live");
 }
@@ -323,7 +363,13 @@ function frame(now, dt) {
     if (cinema) layoutCinema();
     const i = Math.round(nav.route);
     // Crossing into another world: its sound (the world's gate gives the light; no extra tear on top).
-    if (i !== lastScene) { if (lastScene >= 0) sfx("cross"); soundScene(i); lastScene = i; }
+    if (i !== lastScene) {
+      if (lastScene >= 0) sfx("cross");
+      soundScene(i);
+      // The eye travels with the camera: the scene left rests its origin, the one reached takes the hand's.
+      if (cinema) { if (lastScene >= 0 && inners[lastScene]) setStyle(inners[lastScene], "perspectiveOrigin", ""); lookInto(i); }
+      lastScene = i;
+    }
     setText(progressIndex, String(i).padStart(2, "0"));
     setText(progressName, NAMES[i]);
     progressLine && setStyle(progressLine, "transform", `scaleY(${(nav.route / LAST).toFixed(4)})`);
@@ -376,13 +422,27 @@ addEventListener("keydown", e => {
 // trembles a few pixels stays a tap (dead zone) instead of moving the scene from under the finger.
 let touch = null;
 const TOUCH_SLOP = 10;
+// The finger feeds the world's pointer as the mouse does (the petals' breath, the eye's parallax; the water of
+// Domaines keeps its trace): its whole x and y, so the world can put something right under the finger, and a
+// weight of .5 as a third argument for the parallax alone — a vertical swipe turns the page and must not read as a
+// look to the side (the world applies the weight once it reads it; until then its parallax follows the whole x).
+// One call per touch event, nothing else: the paging below is untouched.
+const finger = { x: 0, y: 0, k: 0.5, n: 0 };
+function fingerAt(e) {
+  const t = e.touches[0];
+  if (!t || QA.off("finger")) return;
+  finger.x = t.clientX / innerWidth * 2 - 1; finger.y = t.clientY / innerHeight * 2 - 1; finger.n++;
+  world?.setPointer(finger.x, finger.y, finger.k);
+}
 addEventListener("touchstart", e => {
   touch = isCinema() && !menu.isOpen() && e.touches.length === 1
     ? { y0: e.touches[0].clientY, y: e.touches[0].clientY, t0: performance.now(), from: Math.round(nav.target), dragging: false }
     : null;
+  if (touch) fingerAt(e);
 }, { passive: true });
 addEventListener("touchmove", e => {
   if (!touch || !isCinema() || menu.isOpen() || e.touches.length !== 1) return;
+  fingerAt(e);
   const y = e.touches[0].clientY;
   if (!touch.dragging && Math.abs(y - touch.y0) < TOUCH_SLOP) return; // still a tap
   touch.dragging = true; touch.y = y; pendingFocus = -1;
@@ -419,12 +479,16 @@ $$("[data-domain]").forEach((card, i) => {
   card.addEventListener("focus", () => focus(true));
   card.addEventListener("blur", () => focus(false));
 });
-// Pointer parallax for the world and a slight tilt of the scene stack.
+// Pointer parallax for the world and a slight tilt of the scene stack. On a hybrid (a precise pointer and a touch
+// screen) a touch arrives here too: it is the finger's (above), not a second, different reading of the same gesture.
 addEventListener("pointermove", e => {
-  if (!finePointer.matches) return;
+  if (!finePointer.matches || e.pointerType === "touch") return;
   const x = e.clientX / innerWidth * 2 - 1, y = e.clientY / innerHeight * 2 - 1;
   world?.setPointer(x, y);
-  if (scenesEl && isCinema()) { setStyle(scenesEl, "--tilt-x", (-y * 1.6).toFixed(2) + "deg"); setStyle(scenesEl, "--tilt-y", (x * 2.4).toFixed(2) + "deg"); }
+  if (scenesEl && isCinema()) {
+    setStyle(scenesEl, "--tilt-x", (-y * 1.6).toFixed(2) + "deg"); setStyle(scenesEl, "--tilt-y", (x * 2.4).toFixed(2) + "deg");
+    hand.x = x; hand.y = y; hand.seen = true; lookInto(Math.round(nav.route));
+  }
 }, { passive: true });
 
 // ---------- Mode switching ----------
@@ -446,6 +510,8 @@ function applyRuntimeMode() {
     requestAnimationFrame(() => { const p = panels[r]; if (p) scrollTo(0, p.getBoundingClientRect().top + scrollY); });
   }
   if (!stopFrame) stopFrame = every(frame);
+  // Witness (loopback): the dock slides in flat, as before it emerged from the depth (styles.css 09).
+  if (presence && QA.off("dock")) setStyle(presence, "transform", cinema ? "translate3d(calc((1 - var(--reveal,0)) * 46px),-50%,0)" : "");
   // The layout changed (cinema or flow): the text boxes and the Entrée's row are measured again.
   remeasure();
 }
@@ -481,12 +547,23 @@ applyRuntimeMode();
 Promise.race([document.fonts?.load?.('400 1em "Instrument Serif"'), new Promise(done => setTimeout(done, 1500))])
   .catch(() => {})
   .then(() => requestAnimationFrame(() => root.classList.add("booted")));
+// YO · SUL · JIN, three plates of glass (styles.css 08): once the beam has written the title, its syllables take
+// their depth (.is-written). Not `once`: the ink's inkHold ends at the same instant and bubbles through this node.
+// Leaving the cinema takes the class back (clearCinema), and a writing that starts again does too, as a belt: the
+// window must clip the ink while the beam writes. Where the beam never writes (LITE, reduced motion, the tube
+// still off) the title simply stays on one plane.
+{
+  const win = heroTitle && $(".write-win", heroTitle);
+  win?.addEventListener("animationstart", e => { if (e.target === win && e.animationName === "winOpen") heroTitle.classList.remove("is-written"); });
+  win?.addEventListener("animationend", e => { if (e.target === win && e.animationName === "winOpen" && !QA.off("relief")) heroTitle.classList.add("is-written"); });
+}
 
-// Stable hooks exist only on the loopback QA server; production exposes no navigation/debug API.
-if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+if (loopback) {
   window.__YOSULJIN_QA = true;
   window.__navigateToPanel = navigateToPanel;
   window.__qaSetRoute = r => { nav.target = nav.route = clamp(r, 0, LAST); nav.vel = 0; nav.lastInput = performance.now() + 1e9; wake(); };
+  // What the last touch sent to the world's pointer (x, y whole, k the parallax weight) and how many touches did.
+  window.__qaFinger = () => ({ ...finger });
 }
 
 

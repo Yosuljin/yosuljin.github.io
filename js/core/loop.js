@@ -1,7 +1,9 @@
 // One requestAnimationFrame for the whole site.
 // Tasks stay registered until their unsubscribe function is called. A task returns `true` while it
 // still needs frames; when every task returns something falsy the loop sleeps until `wake()`.
-// The loop always sleeps while the tab is hidden.
+// The loop always sleeps while the tab is hidden, while the page sits under the immersive frame
+// (html.immersive-nav, js/ui/immersive-nav.js: nothing of it shows, and leaving the frame reloads the page) and
+// while it leaves under the closed lids (html.is-leaving, js/ui/portal.js: the next page is on its way).
 const tasks = new Set();
 let raf = 0;
 let last = 0;
@@ -23,7 +25,8 @@ function frame(now) {
 }
 
 function request() {
-  if (!raf && document.visibilityState !== "hidden") raf = requestAnimationFrame(frame);
+  const root = document.documentElement.classList;
+  if (!raf && document.visibilityState !== "hidden" && !root.contains("immersive-nav") && !root.contains("is-leaving")) raf = requestAnimationFrame(frame);
 }
 
 /** Registers `task(now, dt)`; returns an unsubscribe function. */

@@ -3,7 +3,7 @@
 // WebGL keep the SVG map. The SVG also stays the accessible layer in FULL: its nodes keep focus,
 // keyboard, pointer, the detail panel and the links to the sheets. Each frame they are moved onto
 // the projected stars, so what is drawn is what is clicked.
-import { every, wake } from "../core/loop.js?v=20261007-r7";
+import { every, wake } from "../core/loop.js?v=20261014-r1";
 
 const TAU = Math.PI * 2;
 // Map units are the SVG viewBox (1000 × 660); TheHive sits at (500, 300). The camera looks at
@@ -12,10 +12,16 @@ const VW = 1000, VH = 660, CX = 500, CY = 300, CAM = 1400;
 
 const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255);
 const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
-// Palette (styles.css 02): dev cyan, photo amber, writing magenta, worlds violet, Aether gold, accent;
-// sakura for the butterfly, --dim for work from other hands.
-const CYAN = hex("#36e2ff"), AMBER = hex("#ffb23e"), MAGENTA = hex("#ff5fd1"), VIOLET = hex("#8c6bff"), GOLD = hex("#ffd36b"), PINK = hex("#ff5fa2");
-const SAKURA = hex("#ffc8dc"), DIM = hex("#9a8590");
+// Palette (styles.css 02, read from the body as world.js does; the hex values are its fallbacks): dev cyan,
+// photo sunset orange, writing orchid, worlds periwinkle, Aether gold, accent; sakura for the butterfly,
+// --dim for work from other hands.
+const token = (name, fallback) => {
+  let v = "";
+  try { v = getComputedStyle(document.body || document.documentElement).getPropertyValue(name).trim(); } catch {}
+  return hex(/^#[0-9a-f]{6}$/i.test(v) ? v : fallback);
+};
+const CYAN = token("--acc-dev", "#2ee8ff"), AMBER = token("--acc-photo", "#ff9d3a"), MAGENTA = token("--acc-writing", "#e86bff"), VIOLET = token("--acc-worlds", "#7a6cff"), GOLD = token("--acc-aether", "#ffd25a"), PINK = token("--accent", "#ff5fa2");
+const SAKURA = token("--sakura", "#ffd1e3"), DIM = token("--dim", "#a48d9e");
 const WHITE = [1, 1, 1];
 
 // Everything is read from the SVG map (RÉMANENCE §8.2): a node's role is its class, work from other
@@ -44,6 +50,19 @@ const rng = seed => {
   let s = seed >>> 0;
   return () => { s = (s + 0x6D2B79F5) >>> 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 };
+const clamp = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
+
+// Loopback QA only (as world.js): ?qa=nozoom,noorbit,noignite isolates a camera movement, ?qa=noimpulse,
+// nodive,noheart a lot G effect; ?qa=prof times the frames.
+const QA = (() => {
+  const flags = new Set();
+  let local = false;
+  try {
+    local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+    if (local) new URLSearchParams(location.search).get("qa")?.split(",").forEach(f => flags.add(f.trim()));
+  } catch {}
+  return { local, off: name => flags.has("no" + name), on: name => flags.has(name) };
+})();
 
 // ---------- Shaders ----------
 // Every vertex shader places points with the same projection as project() below: a slight sway,
@@ -82,13 +101,14 @@ float blob(vec2 p, vec2 c, float r) { vec2 d = (p - c) / r; return exp(-dot(d, d
 void main() {
   vec2 m = vec2(gl_FragCoord.x - uView.y, uRes.y - gl_FragCoord.y - uView.z) / uView.x + uPar;
   float n = noise(m * 0.0065 + 1.5 * vec2(sin(uPh.x), cos(uPh.y))) * 0.62 + noise(m * 0.019 - 1.5 * vec2(cos(uPh.z), sin(uPh.w))) * 0.38;
-  vec3 col = vec3(0.020, 0.011, 0.034);
-  // Palette clouds: worlds violet, writing magenta, dev cyan, photo amber; TheHive's warmth in the middle.
-  col += vec3(0.549, 0.420, 1.0) * 0.30 * blob(m, vec2(150.0 + 40.0 * sin(uPh.x), 110.0), 440.0) * (0.4 + n);
-  col += vec3(1.0, 0.373, 0.820) * 0.22 * blob(m, vec2(880.0, 570.0 + 30.0 * cos(uPh.y)), 410.0) * (0.35 + n);
-  col += vec3(0.212, 0.886, 1.0) * 0.17 * blob(m, vec2(860.0 + 40.0 * sin(uPh.z), 60.0), 350.0) * (0.25 + 1.2 * n);
-  col += vec3(1.0, 0.698, 0.243) * 0.13 * blob(m, vec2(120.0, 630.0), 330.0) * (0.35 + n);
-  col += vec3(1.0, 0.827, 0.420) * 0.12 * blob(m, vec2(500.0, 300.0), 220.0);
+  vec3 col = vec3(0.016, 0.010, 0.042);
+  // Palette clouds (styles.css 02, as vec3 = hex / 255): worlds periwinkle #7a6cff, writing orchid #e86bff,
+  // dev cyan #2ee8ff, photo orange #ff9d3a; TheHive's gold #ffd25a in the middle.
+  col += vec3(0.478, 0.424, 1.0) * 0.36 * blob(m, vec2(150.0 + 40.0 * sin(uPh.x), 110.0), 440.0) * (0.4 + n);
+  col += vec3(0.910, 0.420, 1.0) * 0.30 * blob(m, vec2(880.0, 570.0 + 30.0 * cos(uPh.y)), 410.0) * (0.35 + n);
+  col += vec3(0.180, 0.910, 1.0) * 0.20 * blob(m, vec2(860.0 + 40.0 * sin(uPh.z), 60.0), 350.0) * (0.25 + 1.2 * n);
+  col += vec3(1.0, 0.616, 0.227) * 0.18 * blob(m, vec2(120.0, 630.0), 330.0) * (0.35 + n);
+  col += vec3(1.0, 0.824, 0.353) * 0.16 * blob(m, vec2(500.0, 300.0), 220.0);
   // Faint light shafts fanning out of TheHive through the nebula, turning very slowly.
   vec2 hc = m - vec2(500.0, 300.0);
   float ha = atan(hc.y, hc.x + 0.0001), hd = length(hc);
@@ -99,8 +119,8 @@ void main() {
   w = vec2(w.x * uRoll.x + w.y * uRoll.y, w.y * uRoll.x - w.x * uRoll.y);
   float along = dot(w, vec2(0.814, 0.581)), across = dot(w, vec2(-0.581, 0.814));
   float lane = 1.0 - 0.55 * smoothstep(0.5, 0.78, noise(w * 0.028 + 1.5 * vec2(sin(uPh.y), cos(uPh.x))));
-  vec3 tone = mix(vec3(0.549, 0.420, 1.0), vec3(1.0, 0.373, 0.820), smoothstep(-500.0, 150.0, along));
-  tone = mix(tone, vec3(1.0, 0.698, 0.243), smoothstep(150.0, 700.0, along));
+  vec3 tone = mix(vec3(0.478, 0.424, 1.0), vec3(0.910, 0.420, 1.0), smoothstep(-500.0, 150.0, along));
+  tone = mix(tone, vec3(1.0, 0.616, 0.227), smoothstep(150.0, 700.0, along));
   col += tone * 0.1 * exp(-across * across / 26000.0) * (0.35 + 0.9 * n) * lane;
   col *= 1.0 - 0.3 * uDim;
   vec2 v = gl_FragCoord.xy / uRes - 0.5;
@@ -142,7 +162,6 @@ attribute vec4 aO;
 attribute vec4 aT;
 attribute vec3 aCol;
 uniform vec4 uNode[${slots}];
-uniform float uBand;
 varying vec3 vC;
 void main() {
   vec4 st = uNode[int(aC.w + 0.5)];
@@ -155,8 +174,12 @@ void main() {
   gl_Position = place(aC.xyz + p, k);
   float front = 0.5 + 0.5 * clamp((uRot * p).z / max(length(p), 1.0), -1.0, 1.0);
   float b = st.z * (0.3 + 0.7 * front) * (1.0 + 1.3 * st.x + 0.5 * st.y);
-  float e = aO.y / max(length(aO.xy), 1.0) - uBand;
-  if (aT.w < 0.5) b *= 0.55 + 0.9 * exp(-e * e * 10.0);
+  if (aT.w < 0.5) {
+    // The core's band of light runs on its own clock (quicker when read). Read (G3), waves of light cross
+    // its cells from pole to pole, the lumens at work: at rest (st.x = 0) nothing of them.
+    float lat = aO.y / max(length(aO.xy), 1.0), e = lat - sin(st.w * 0.3), e2 = lat - sin(st.w * 0.9 + 2.0);
+    b *= (0.55 + 0.9 * exp(-e * e * 10.0)) * (1.0 + st.x * 1.1 * exp(-e2 * e2 * 12.0));
+  }
   gl_PointSize = clamp(aT.z * uDpr * k * (1.0 + 0.3 * st.x), 1.0, uMaxPt);
   vC = aCol * b;
 }`;
@@ -236,8 +259,10 @@ void main() {
   c.xy += q * (12.0 + 7.0 * h1(sd + 7.0)) * k * uMap.xy;
   gl_Position = c;
   vUv = aCorner;
-  // Turning edge-on, a petal fades out instead of thinning into a bar.
-  vLook = vec2(uFall.z * away * smoothstep(0.3, 0.65, flip) * clamp(0.3 + 0.7 * k, 0.25, 1.3) * (0.55 + 0.45 * flip), clamp((k - 1.04) * 2.6, 0.07, 0.6));
+  // Turning edge-on, a petal fades out instead of thinning into a bar; near the seam of its wrap (which a
+  // turned map brings into the frame) it goes out and comes back faded in, never in a jump.
+  float seam = (1.0 - smoothstep(0.9, 1.0, abs(x) / Wd)) * (1.0 - smoothstep(0.9, 1.0, abs(y) / H));
+  vLook = vec2(uFall.z * away * seam * smoothstep(0.3, 0.65, flip) * clamp(0.3 + 0.7 * k, 0.25, 1.3) * (0.55 + 0.45 * flip), clamp((k - 1.04) * 2.6, 0.07, 0.6));
 }`;
 // The sprite's petal (motifs.svg #sakura-petal-fill, 60 x 80, notch up): a plain silhouette in pale
 // sakura, no outline; a near, out-of-focus petal reads at most one mip level coarser (more would
@@ -249,7 +274,7 @@ uniform sampler2D uPetal;
 void main() {
   float a = texture2D(uPetal, vec2(0.5 + vUv.x * 0.5, (0.5 - vUv.y * 0.5) * 0.6641), vLook.y * 1.6).a;
   if (a < 0.01) discard;
-  gl_FragColor = vec4(vec3(1.0, 0.882, 0.925) * 0.9 * a * vLook.x, 1.0);
+  gl_FragColor = vec4(vec3(1.0, 0.820, 0.890) * 0.9 * a * vLook.x, 1.0);
 }`;
 
 // The butterfly: the sprite's (motifs.svg, both wings and the body in one 120 x 100 frame), each half a
@@ -304,11 +329,20 @@ void main() {
   float per = 16.0 + 12.0 * fract(aP.z * 0.618 + 0.29), run = mod(uTime + aP.z * 5.3, per) / 3.2;
   float d = aP.x - run;
   float pulse = run < 1.2 && aP.w < 2.5 ? exp(-d * d * 160.0) * 0.8 : 0.0;
+  // The reading impulse (G1): light leaves the node read along each of its relations at a constant speed
+  // (L.y = departure, L.w = ±duration, its sign the direction): a white head, and behind it a trail in the
+  // relation's hue ending rose, dying in the phosphor's time (RÉMANENCE §6.1). None on work from other hands.
+  float dur = max(abs(L.w), 0.05), u = (uTime - L.y) / dur;
+  float dd = mix(1.0 - aP.x, aP.x, step(0.0, L.w)) - u;
+  float head = 0.0, trail = 0.0;
+  if (u > 0.0 && u * dur < dur + 1.0 && aP.w < 2.5) { head = exp(-dd * dd * 220.0); trail = dd < 0.0 ? exp(dd * dur * 3.3) : 0.0; }
+  pulse = max(pulse, max(head, 0.55 * trail) * 0.9);
   float k;
   gl_Position = place(aPos, k);
   gl_PointSize = clamp(uDpr * k * (5.0 + 2.5 * lit + 2.0 * pulse), 1.0, uMaxPt);
   float haze = clamp((1.0 - k) * 2.2, 0.0, 0.45);
-  vC = mix(mix(aCol, vec3(0.55, 0.45, 1.0), haze), vec3(1.0), 0.3 * pulse) * (pattern * 0.4 + pulse * 0.5) * gain * L.z * aEdge * (1.0 + 0.9 * lit);
+  vec3 col = mix(mix(aCol, vec3(0.50, 0.44, 1.0), haze), vec3(1.0, 0.373, 0.635), 0.5 * step(0.001, trail) * (1.0 - trail) * (1.0 - head));
+  vC = mix(col, vec3(1.0), 0.3 * pulse + 0.5 * head) * (pattern * 0.4 + pulse * 0.5) * gain * L.z * aEdge * (1.0 + 0.9 * lit);
 }`;
 
 // Nodes: one quad each, drawn by kind. vK.y = radius of the SVG circle within the quad (the hit area).
@@ -334,7 +368,7 @@ void main() {
   vUv = aCorner;
   // Far nodes lean towards the nebula's violet (atmospheric perspective); near ones stay pure.
   float haze = clamp((1.0 - k) * 2.2, 0.0, 0.45);
-  vC = mix(aCol, vec3(0.55, 0.45, 1.0), haze) * (1.0 - 0.25 * haze);
+  vC = mix(aCol, vec3(0.50, 0.44, 1.0), haze) * (1.0 - 0.25 * haze);
   vK = vec4(aK.x, 1.0 / aK.z, st.z, aK.w);
   vS = vec3(st.xy, uPing[slot]);
 }`;
@@ -344,6 +378,8 @@ varying vec3 vC;
 varying vec4 vK;
 varying vec3 vS;
 uniform vec2 uBeat;
+uniform float uIgnite;
+uniform float uHeart;
 void main() {
   float r = length(vUv);
   if (r >= 1.0) discard;
@@ -355,11 +391,15 @@ void main() {
   float ring = exp(-dr * dr / (wr * wr));
   float sleeve = exp(-dr * dr * 204.08);
   vec3 col;
+  float warm = 0.0;
   if (kind < 0.5) {
     // TheHive: a body of glass (its lattice is drawn as points), a bright limb, light spilling out.
     float limb = smoothstep(0.72, 1.0, x) * (1.0 - smoothstep(1.0, 1.07, x));
     float spill = x > 1.0 ? exp(-(x - 1.0) * (x - 1.0) * 5.0) : 0.0;
     col = vC * (0.03 + 0.05 * exp(-x * x * 2.0) + 0.3 * limb + 0.8 * ring + 0.24 * spill);
+    // Read (G3), a warm heart comes on inside and breathes slowly (one beat in 3.9 s, ±10 %); at rest, glass.
+    float beat = 0.9 + 0.1 * sin(uBeat.x) + 0.12 * pow(max(0.0, sin(uBeat.x)), 8.0);
+    warm = exp(-x * x * 14.0) * lit * uHeart * beat;
   } else if (kind < 1.5) {
     // Lumina: a white-hot heart that breathes, six thin rays turning very slowly.
     float beat = 0.9 + 0.1 * sin(uBeat.x) + 0.12 * pow(max(0.0, sin(uBeat.x)), 8.0);
@@ -381,10 +421,12 @@ void main() {
     col = mix(vC, vec3(1.0), core * 0.6) * (core * 1.3 + halo * 1.05 + ring * 0.4 + sleeve * 0.16);
   }
   col *= vK.z * (1.0 + 0.85 * lit + 0.35 * near);
+  // The heart, gold to warm white, added last: 1.4 at most, since the additive blend lightens the rings before it.
+  col += mix(vC, vec3(1.0, 0.96, 0.9), 0.85) * warm * 1.4;
   // Selection: a ring of light runs out from the node (and, a beat later, from its relations); not
-  // from work from other hands, which takes no light.
+  // from work from other hands, which takes no light; at half strength while the map lights up (uIgnite).
   float dp = (r - mix(R * 1.05, 0.96, age)) / 0.022;
-  if (age < 1.0 && kind < 5.5) col += vC * exp(-dp * dp) * (1.0 - age) * 0.9;
+  if (age < 1.0 && kind < 5.5) col += vC * exp(-dp * dp) * (1.0 - age) * 0.9 * mix(1.0, 0.5, uIgnite);
   gl_FragColor = vec4(col * (1.0 - smoothstep(0.6, 1.0, r)), 1.0);
 }`;
 
@@ -433,7 +475,9 @@ export function createConstellation(stage, graph, adj) {
   });
   if (!nodes.length) return null;
   const index = new Map(nodes.map(n => [n.id, n.i]));
-  const hiveIndex = index.get("thehive") ?? 0, lumIndex = index.get("lumina") ?? -1;
+  // The core is read by its role, like everything else: the ringed body at the centre (Lumina), and an
+  // optional inner node drawn inside it (none today).
+  const coreIndex = Math.max(0, nodes.findIndex(n => n.kind === KIND.core)), innerIndex = nodes.findIndex(n => n.kind === KIND.inner);
   const links = [...graph.querySelectorAll(".aether-links [data-link]")].map(el => {
     const [a, b] = el.dataset.link.split(" ");
     const type = Object.keys(LINK).find(t => el.classList.contains("link-" + t)) || "build";
@@ -456,11 +500,12 @@ export function createConstellation(stage, graph, adj) {
     const bend = 0.12 * l.len, lift = (j % 2 ? 1 : -1) * 0.16 * l.len;
     l.C = [M[0] + nx * bend, M[1] + ny * bend, M[2] + lift];
   });
-  const arc = (l, t, out) => {
-    const A = nodes[l.a].pos, B = nodes[l.b].pos, u = 1 - t;
-    for (let i = 0; i < 3; i++) out[i] = u * u * A[i] + 2 * u * t * l.C[i] + t * t * B[i];
+  const curve = (A, C, B, t, out) => {
+    const u = 1 - t;
+    for (let i = 0; i < 3; i++) out[i] = u * u * A[i] + 2 * u * t * C[i] + t * t * B[i];
     return out;
   };
+  const arc = (l, t, out) => curve(nodes[l.a].pos, l.C, nodes[l.b].pos, t, out);
 
   const canvas = document.createElement("canvas");
   canvas.className = "aether-constellation";
@@ -503,9 +548,10 @@ export function createConstellation(stage, graph, adj) {
   function orbitData() {
     const d = [];
     const push = (c, slot, radius, height, phase, speed, tx, tz, size, kind, col) => d.push(c[0], c[1], c[2], slot, radius, height, phase, speed, tx, tz, size, kind, col[0], col[1], col[2]);
-    const hive = nodes[hiveIndex];
-    // TheHive: a honeycomb sphere on its circle, turning on a tilted axis at most half a degree a second
-    // (read, a little faster), a soft band of light moving slowly over it.
+    const hive = nodes[coreIndex];
+    // The core, Lumina: a sphere of cells on its circle — a cognition made of many specialised systems —,
+    // turning on a tilted axis at most half a degree a second (read, a little faster), a soft band of
+    // light moving slowly over it.
     const hr = hive.r;
     for (const [q, isCorner] of honeycomb()) {
       push(hive.pos, hive.i, Math.hypot(q[0], q[2]) * hr, q[1] * hr, Math.atan2(q[2], q[0]), 0.0035, 0.38, -0.2, isCorner ? 2.6 : 1.5, 0, mix(GOLD, WHITE, isCorner ? 0.4 : 0.1).map(v => v * (isCorner ? 1 : 0.75)));
@@ -514,7 +560,7 @@ export function createConstellation(stage, graph, adj) {
     [[hr * 1.38, 1.22, 0.32, 0.006, GOLD, 120], [hr * 1.72, 1.05, -0.95, -0.0045, PINK, 140], [hr * 2.05, 1.34, 1.95, 0.003, mix(VIOLET, CYAN, 0.4), 160]].forEach(([rad, tx, tz, sp, col, n]) => {
       for (let i = 0; i < n; i++) push(hive.pos, AMBIENT, rad, 0, i / n * TAU, sp, tx, tz, 1.8, 1, col.map(v => v * 0.9));
     });
-    // Sparks orbiting each project; Lumina's are quick and close, inside TheHive. What is only
+    // Sparks orbiting each project; an inner node's are quick and close, inside the core. What is only
     // inscribed has none.
     nodes.forEach(n => {
       if (n.kind === 0) return;
@@ -684,6 +730,7 @@ export function createConstellation(stage, graph, adj) {
     // Textures die with a lost context: draw the sprite again (no-op before it has loaded).
     tex.fly = tex.petal = null;
     upload();
+    quiet();
   }
 
   // Interleaved float attributes per program: [name, size].
@@ -710,9 +757,9 @@ export function createConstellation(stage, graph, adj) {
 
   // ---------- Layout ----------
   // s = CSS px per map unit; the SVG's default preserveAspectRatio (xMidYMid meet) does the same.
-  // zoom: on phones the map steps back a little around TheHive, so that the edge labels keep the
+  // zoomBase: on phones the map steps back a little around TheHive, so that the edge labels keep the
   // few pixels of margin the SVG layout gives them even at the far end of the sway.
-  let W = 0, H = 0, dpr = 1, quality = 1, s = 1, ox = 0, oy = 0, filScale = 0, zoom = 1, screenDpr = 0, fallH = 520, fallW = 800, dirty = true;
+  let W = 0, H = 0, dpr = 1, quality = 1, s = 1, ox = 0, oy = 0, filScale = 0, zoomBase = 1, screenDpr = 0, fallH = 520, fallW = 800, dirty = true;
   /** Measures the stage and sizes the canvas; returns true when the drawing buffer was resized. */
   function layout() {
     W = stage.clientWidth; H = stage.clientHeight;
@@ -723,12 +770,20 @@ export function createConstellation(stage, graph, adj) {
     const bw = Math.round(W * dpr), bh = Math.round(H * dpr), resized = canvas.width !== bw || canvas.height !== bh;
     if (resized) { canvas.width = bw; canvas.height = bh; }
     s = Math.min(W / VW, H / VH); ox = (W - VW * s) / 2; oy = (H - VH * s) / 2;
-    zoom = narrow.matches ? 0.965 : 1;
-    // Half extents of the frame around TheHive (map units, depth 0), plus room for the camera's
-    // drift and the petal's size: petals wrap out of sight.
-    const room = narrow.matches ? 0.5 : 1;
-    fallH = Math.max(CY + oy / s, (H - oy) / s - CY) / zoom + 110 * room;
-    fallW = (CX + ox / s) / zoom + 190 * room;
+    zoomBase = narrow.matches ? 0.965 : 1;
+    // Half extents of the frame around TheHive (map units, depth 0) at the widest zoom (.94, lighting up),
+    // plus room for the camera's drift and the petal's size: petals wrap out of sight.
+    const room = narrow.matches ? 0.5 : 1, wide = zoomBase * 0.92;
+    fallH = Math.max(CY + oy / s, (H - oy) / s - CY) / wide + 110 * room;
+    fallW = (CX + ox / s) / wide + 190 * room;
+    // Each label's box around its node (map units, text only): what fit() keeps inside the frame.
+    try {
+      els.forEach((el, i) => {
+        let l = 1e9, t = 1e9, r = -1e9, b = -1e9;
+        for (const tx of el.querySelectorAll("text")) { const bb = tx.getBBox(); l = Math.min(l, bb.x); t = Math.min(t, bb.y); r = Math.max(r, bb.x + bb.width); b = Math.max(b, bb.y + bb.height); }
+        const o = i * 4; box[o] = l; box[o + 1] = t; box[o + 2] = r; box[o + 3] = b;
+      });
+    } catch {}
     if (P && Math.abs(s - filScale) > filScale * 0.08) {
       gl.bindBuffer(gl.ARRAY_BUFFER, buf.fil);
       gl.bufferData(gl.ARRAY_BUFFER, filamentData(s), gl.STATIC_DRAW);
@@ -742,10 +797,35 @@ export function createConstellation(stage, graph, adj) {
   const focusA = new Float32Array(nodes.length), nearA = new Float32Array(nodes.length), clock = new Float32Array(SLOTS);
   const litA = new Float32Array(NL);
   const ping = new Float32Array(SLOTS).fill(2), pingAt = new Float32Array(SLOTS).fill(-99);
+  // No impulse on any relation (uLink.y = departure, .w = ±duration): at the start and after a lost context.
+  const quiet = () => { for (let j = 0; j < NL; j++) { linkState[j * 4 + 1] = -99; linkState[j * 4 + 3] = 0; } };
+  quiet();
   let lastF = -1;
+  // Lot G: the reading impulse (G1), the dive to a sheet and the return by the map (G2), Lumina's heart (G3).
+  const noImpulse = QA.off("impulse"), noDive = QA.off("dive"), noHeart = QA.off("heart");
+  let diveAt = -9, diveFor = -1, diveZoom = 1, diveSx = CX, diveSy = CY, arriveFor = -1, arriveAt = -1e9, seen = 1;
+  // The light leaves the node read along each of its relations (G1) at 1 100 units a second: the
+  // neighbour's ring leaves when it arrives (0.2 to 0.45 s). A relation of work from other hands carries
+  // nothing; its neighbour keeps the old fixed beat.
+  const launch = f => {
+    links.forEach((l, j) => {
+      if (l.a !== f && l.b !== f) return;
+      const o = l.a === f ? l.b : l.a, at = time % 86400 - linkState[j * 4 + 1];
+      // None on work from other hands, nor over a light still running (the old beat instead).
+      if (l.type === 3 || noImpulse || (at >= 0 && at < Math.abs(linkState[j * 4 + 3]) + 1)) { pingAt[o] = time + 0.22; return; }
+      const dur = Math.max(0.05, l.len / 1100);
+      linkState[j * 4 + 1] = time % 86400; linkState[j * 4 + 3] = (l.a === f ? 1 : -1) * dur;
+      pingAt[o] = time + dur;
+    });
+  };
   let focusId = null, dim = 0, time = 0, swayClock = 0, yaw = 0, pitch = 0, ex = 0, ey = 0, py = 0, px = 0, tpx = 0, tpy = 0;
   // Drag to look around: gx/gy is where the hand puts the camera (map units), sx/sy follows it.
   let held = null, gx = 0, gy = 0, sx = 0, sy = 0;
+  // The camera (D3-1/2/6): zoom and pan around zoomBase; the node read is pinned to its screen place
+  // (pinSx/pinSy), the pan solved from the zoom each frame; jx/jy eases a keyboard focus into the frame.
+  let zoom = 1, zoomT = 1, panX = 0, panY = 0, jx = 0, jy = 0, pinFor = -1, pinSx = CX, pinSy = CY, focusAt = -9, keyed = -1, readYaw = 0;
+  let hover = 0, liftUntil = -9, ignitedAt = -99, lastIgnite = -1e9, drew = false, writes = 0, frames = 0;
+  const noZoom = QA.off("zoom"), noOrbit = QA.off("orbit"), noIgnite = QA.off("ignite");
   let running = false, visible = true, lost = false, shown = false, paused = true, stopTask = null, slow = 0, rect = null;
   let base = 0, warm = 0, calm = 0, patience = 6, gaveBackAt = -1e9, shrink = 0;
   // Pacing: at most 60 images a second (a 120 Hz screen draws every other refresh), 30 when the
@@ -754,8 +834,8 @@ export function createConstellation(stage, graph, adj) {
   // Idle (from the page): level 1 keeps the scene alive at 30 images a second; level 2 slows
   // everything down to a stop, then the loop sleeps; waking eases the pace back and fades in.
   let idleLevel = 0, timeScale = 1, asleep = false;
-  const rot = new Float32Array(9), map = new Float32Array(4), m = new Float64Array(9), pt = [0, 0];
-  const last = nodes.map(() => [NaN, NaN]);
+  const rot = new Float32Array(9), map = new Float32Array(4), m = new Float64Array(9), pt = [0, 0], pv = [0, 0];
+  const last = nodes.map(() => [NaN, NaN]), box = new Float32Array(nodes.length * 4).fill(NaN);
 
   const ease = (v, target, rate, dt) => v + (target - v) * (1 - Math.exp(-rate * dt));
   // The phosphor law (RÉMANENCE §6.1): light comes on in about 120 ms and goes back in about 900 ms.
@@ -765,11 +845,33 @@ export function createConstellation(stage, graph, adj) {
     const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
     m[0] = cy; m[1] = 0; m[2] = sy; m[3] = sp * sy; m[4] = cp; m[5] = -sp * cy; m[6] = -cp * sy; m[7] = sp; m[8] = cp * cy;
   };
-  // Same projection as PLACE in the shaders, in map units (y down, like the SVG), written into pt.
-  const project = p => {
+  // Same projection as PLACE in the shaders: view() is the sway and the camera's slide, in map units
+  // around TheHive (y up, into pv); project() adds the zoom and pan that uMap folds in (SVG units, into pt).
+  const view = p => {
     const qx = m[0] * p[0] + m[1] * p[1] + m[2] * p[2], qy = m[3] * p[0] + m[4] * p[1] + m[5] * p[2], qz = m[6] * p[0] + m[7] * p[1] + m[8] * p[2];
     const k = CAM / Math.max(CAM - qz, 60);
-    pt[0] = CX + ((qx - ex) * k + ex) * zoom; pt[1] = CY - ((qy - ey) * k + ey) * zoom;
+    pv[0] = (qx - ex) * k + ex; pv[1] = (qy - ey) * k + ey;
+  };
+  const project = p => {
+    view(p);
+    pt[0] = CX + (pv[0] - panX) * zoom; pt[1] = CY - (pv[1] - panY) * zoom;
+  };
+  // The frame's bound on the zoom around the pinned node (pv holds its view): every other label, where
+  // the sway has it now, keeps FIT units from the stage's edge.
+  const FIT = 10;
+  const fit = f => {
+    const fx = pv[0], fy = pv[1], fl = FIT - ox / s, fr = VW + ox / s - FIT, ft = FIT - oy / s, fb = VH + oy / s - FIT;
+    let z = 9;
+    for (let i = 0; i < nodes.length; i++) {
+      const o = i * 4;
+      if (i === f || box[o] !== box[o]) continue;
+      view(nodes[i].pos);
+      const dx = pv[0] - fx + jx, dy = fy - pv[1] - jy;
+      if (dx > 0) z = Math.min(z, (fr - box[o + 2] - pinSx) / dx); else if (dx < 0) z = Math.min(z, (pinSx + box[o] - fl) / -dx);
+      if (dy > 0) z = Math.min(z, (fb - box[o + 3] - pinSy) / dy); else if (dy < 0) z = Math.min(z, (pinSy + box[o + 1] - ft) / -dy);
+    }
+    pv[0] = fx; pv[1] = fy;
+    return z;
   };
 
   // ---------- Butterfly ----------
@@ -777,6 +879,20 @@ export function createConstellation(stage, graph, adj) {
   // comes from a related node) and settles by it, never by work from other hands. Perched, it breathes
   // as on the page (two beats in 6.4 s, then stillness); in flight, a stroke every 0.26 s.
   const fly = { p: [0, 60, 40], v: [0, 0, 0], head: [0, 1], flap: 0, open: 1, from: -1, trip: null }, aim = [0, 0, 0];
+  // A flight along a bow from A to B (a relation's arc, or one lifted like it), 0.9 to 2.2 s by its length.
+  const trip = (A, C, B, len) => ({ A, C, B, s: 0, dur: clamp(len / 220, 0.9, 2.2) });
+  const rim = () => { const c = nodes[coreIndex]; return [c.pos[0] + c.r * 0.95, c.pos[1] + c.r * 0.8, c.pos[2] + 16]; };
+  // Out of view (the page scrolled on) it goes home to the rim, unseen.
+  const perch = () => { const A = rim(); for (let i = 0; i < 3; i++) { fly.p[i] = A[i]; fly.v[i] = 0; } fly.from = coreIndex; fly.trip = null; };
+  // Back by the map (G2): from the rim to the node read, or from where it is (the stage never left the screen).
+  const flight = n => {
+    const A = rim(), B = n.pos;
+    if (Math.hypot(fly.p[0] - A[0], fly.p[1] - A[1], fly.p[2] - A[2]) > 40) for (let i = 0; i < 3; i++) A[i] = fly.p[i];
+    const len = Math.hypot(B[0] - A[0], B[1] - A[1], B[2] - A[2]);
+    for (let i = 0; i < 3; i++) { fly.p[i] = A[i]; fly.v[i] = 0; }
+    fly.from = n.i;
+    fly.trip = n.i === coreIndex || len < 60 ? null : trip(A, [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2, (A[2] + B[2]) / 2 + 0.16 * len], B, len);
+  };
   function steer(dt, f) {
     if (f >= 0 && inscribed(nodes[f])) f = -1;
     if (f !== fly.from) {
@@ -784,24 +900,27 @@ export function createConstellation(stage, graph, adj) {
       fly.from = f;
       fly.trip = null;
       const l = prev >= 0 && f >= 0 ? links.find(l => (l.a === prev && l.b === f) || (l.b === prev && l.a === f)) : null;
-      if (l) fly.trip = { l, s: 0, dur: Math.min(2.2, Math.max(0.9, l.len / 220)), back: l.b === prev };
+      if (l) fly.trip = trip(nodes[prev].pos, l.C, nodes[f].pos, l.len);
     }
     if (fly.trip) {
       const tr = fly.trip;
       tr.s = Math.min(1, tr.s + dt / tr.dur);
-      const e = tr.s * tr.s * (3 - 2 * tr.s);
-      arc(tr.l, tr.back ? 1 - e : e, aim);
+      curve(tr.A, tr.C, tr.B, tr.s * tr.s * (3 - 2 * tr.s), aim);
       if (tr.s >= 1) fly.trip = null;
     } else {
-      // Perched at the upper right of the node read, or of TheHive's rim.
-      const n = nodes[f >= 0 ? f : hiveIndex];
+      // Perched at the upper right of the node read, or of the core's rim.
+      const n = nodes[f >= 0 ? f : coreIndex];
       aim[0] = n.pos[0] + n.r * 0.95; aim[1] = n.pos[1] + n.r * 0.8; aim[2] = n.pos[2] + 16;
     }
+    // While the hand turns the map (D3-2) it takes off and hovers, nearer and higher; it settles a second after.
+    if (held?.moved && !noOrbit) liftUntil = time + 1;
+    hover = fade(hover, time < liftUntil ? 1 : 0, dt);
+    aim[1] += 14 * hover; aim[2] += 60 * hover;
     // A spring toward the aim; on a trip it holds the arc closely.
     const stiff = fly.trip ? 60 : 7, damp = fly.trip ? 14 : 5.2, v = fly.v, q = fly.p;
     for (let i = 0; i < 3; i++) { v[i] += ((aim[i] - q[i]) * stiff - v[i] * damp) * dt; q[i] += v[i] * dt; }
     // The body turns toward its flight on screen, and back upright once perched.
-    const sp = Math.hypot(v[0], v[1]), flying = Math.min(1, Math.max(0, (sp - 6) / 30));
+    const sp = Math.hypot(v[0], v[1]), flying = Math.max(hover, Math.min(1, Math.max(0, (sp - 6) / 30)));
     const hx = sp > 4 ? v[0] / sp : 0.28, hy = sp > 4 ? v[1] / sp : 0.96, e = 1 - Math.exp(-dt * (sp > 4 ? 8 : 2));
     fly.head[0] += (hx - fly.head[0]) * e; fly.head[1] += (hy - fly.head[1]) * e;
     const hl = Math.hypot(fly.head[0], fly.head[1]) || 1; fly.head[0] /= hl; fly.head[1] /= hl;
@@ -828,7 +947,7 @@ export function createConstellation(stage, graph, adj) {
 
   function frame(now, dt) {
     if (!running || !visible || lost || broken || document.hidden || covered()) { owed = 0; paused = true; return false; }
-    if (paused) { paused = false; warm = 0; }
+    if (paused) { paused = false; warm = 0; diveFor = -1; liftUntil = -9; }
     try { if (!ready()) return true; } catch (error) { console.warn("Constellation disabled:", error); broken = true; return false; }
     // Resizes (observer, density change on another screen, adaptive quality) are applied here, right
     // before drawing, so the cleared canvas is never shown.
@@ -843,14 +962,35 @@ export function createConstellation(stage, graph, adj) {
     dt = real * timeScale;
     time += dt;
 
+    // Lighting up (D3-6): the map comes from a little further and higher and settles in 1.6 s while, from
+    // Lumina, each project's ring leaves by its distance, at half strength; at most once in 10 s.
+    if (!shown) {
+      ignitedAt = time; zoom = zoomBase * (noIgnite ? 1 : 0.94); panX = panY = readYaw = jx = jy = 0; pinFor = -1;
+      if (!noIgnite && now - lastIgnite > 10000) {
+        lastIgnite = now;
+        const hive = nodes[coreIndex];
+        for (const n of nodes) if (!inscribed(n)) pingAt[n.i] = time + Math.hypot(n.pos[0] - hive.pos[0], n.pos[1] - hive.pos[1]) / 900;
+      }
+    }
+    const ig = noIgnite ? 0 : 1 - smooth(0, 1.6, time - ignitedAt);
+
     // Focus: the read node and its relations light up, the rest dims; the sway nearly stops
-    // so the node stays under the pointer.
-    const f = focusId == null ? -1 : index.get(focusId) ?? -1;
-    const near = f >= 0 ? adj?.get(focusId) : null;
+    // so the node stays under the pointer. While the map dives (G2) the node whose sheet opens stays the
+    // one read, whatever the focus (the jump to the sheet blurs it).
+    if (arriveFor >= 0) diveFor = -1;
+    const diving = diveFor >= 0 && time - diveAt < 0.48;
+    if (!diving) diveFor = -1;
+    const f = diving ? diveFor : focusId == null ? -1 : index.get(focusId) ?? -1;
+    const near = f >= 0 ? adj?.get(nodes[f].id) : null;
     dim = fade(dim, f >= 0 ? 1 : 0, dt);
-    if (f !== lastF) {
-      lastF = f;
-      if (f >= 0) { pingAt[f] = time; nodes.forEach(n => { if (near?.has(n.id)) pingAt[n.i] = time + 0.22; }); }
+    // Back by the map (G2): once the map is in place (most of the stage in view, 1.2 s at most) the ring,
+    // the impulses and the flight leave together; the focus moving elsewhere drops the arrival.
+    if (arriveFor >= 0 && arriveFor !== f) arriveFor = -1;
+    const waiting = arriveFor >= 0 && seen < 0.55 && now - arriveAt < 1200, arriving = arriveFor >= 0 && !waiting;
+    if (arriving) { arriveFor = -1; if (!noDive && !inscribed(nodes[f])) flight(nodes[f]); }
+    if (f !== lastF || arriving) {
+      lastF = f; focusAt = time;
+      if (f >= 0 && !waiting) { pingAt[f] = time; launch(f); }
     }
     for (let i = 0; i < nodes.length; i++) { const age = (time - pingAt[i]) / 0.9; ping[i] = age < 0 || age > 1 ? 2 : age; }
     for (let i = 0; i < nodes.length; i++) {
@@ -871,7 +1011,7 @@ export function createConstellation(stage, graph, adj) {
       linkState[j * 4 + 2] = 1 - 0.85 * dim * (1 - litA[j]);
     });
 
-    steer(dt, f);
+    steer(dt, waiting ? -1 : f);
     swayClock += dt * (1 - 0.85 * dim);
     px = ease(px, tpx, 2.5, dt); py = ease(py, tpy, 2.5, dt);
     // The camera drifts slowly across the map and follows a mouse over it; the sway only adds a
@@ -879,22 +1019,66 @@ export function createConstellation(stage, graph, adj) {
     const amp = narrow.matches ? 0.5 : 1;
     if (!held) { gx = ease(gx, 0, 1.6, dt); gy = ease(gy, 0, 1.6, dt); }
     sx = ease(sx, gx, 9, dt); sy = ease(sy, gy, 9, dt);
-    ex = amp * (150 * Math.sin(swayClock * TAU / 47) + 50 * Math.sin(swayClock * TAU / 19 + 1.3)) + px * 180 - sx;
-    ey = amp * 70 * Math.sin(swayClock * TAU / 31 + 0.4) - py * 110 - sy;
-    yaw = amp * 0.05 * Math.sin(swayClock * TAU / 54) + px * 0.03 + sx * 0.00045;
-    pitch = amp * 0.022 * Math.sin(swayClock * TAU / 38 + 0.7) - py * 0.018 - sy * 0.0004;
+    // Orbit at the hand (D3-2): the drag turns the map (24° of yaw, 9° of pitch at full reach; half on a
+    // phone) more than it slides the camera; released, it comes back frontal, never spinning on.
+    const slide = noOrbit ? 1 : 0.45, turnX = noOrbit ? 0.00045 : 0.001 * amp, turnY = noOrbit ? 0.0004 : 0.00073 * amp;
+    ex = amp * (150 * Math.sin(swayClock * TAU / 47) + 50 * Math.sin(swayClock * TAU / 19 + 1.3)) + px * 180 - sx * slide + 110 * ig * amp;
+    ey = amp * 70 * Math.sin(swayClock * TAU / 31 + 0.4) - py * 110 - sy * slide;
+    yaw = amp * 0.05 * Math.sin(swayClock * TAU / 54) + px * 0.03 + sx * turnX + readYaw;
+    pitch = amp * 0.022 * Math.sin(swayClock * TAU / 38 + 0.7) - py * 0.018 - sy * turnY + 0.07 * ig * amp;
     rows();
+
+    // Reading (D3-1): a node held under the pointer a quarter of a second, or reached by the keyboard or
+    // a tap, is pinned to its pixel and the map comes closer around it (15 %; 8 % at the frame's edge),
+    // no further than the frame lets every label stay whole (fit); the SVG keeps its units.
+    const key = f >= 0 && keyed === f;
+    const reading = f >= 0 && !noZoom && (key || time - focusAt >= 0.25);
+    if (diving) {
+      // The dive (G2): ×1.35 in 480 ms and the node drawn to the centre, strong from the first frames (the
+      // page's own scroll carries the stage out of view within half a second); the eases take over after.
+      const dk = 1 - (time - diveAt) / 0.48, e = 1 - dk * dk * dk;
+      view(nodes[f].pos);
+      pinFor = -1; jx = jy = 0; pinSx = diveSx + (CX - diveSx) * e; pinSy = diveSy + (CY - diveSy) * e;
+      zoom = zoomT = Math.min(diveZoom * (1 + 0.35 * e), fit(f));
+      panX = pv[0] - (pinSx - CX) / zoom; panY = pv[1] + (pinSy - CY) / zoom;
+    } else if (reading) {
+      view(nodes[f].pos);
+      if (pinFor !== f) {
+        pinFor = f;
+        // Pinned where it is on screen now; with the keyboard, a node out of the frame is first brought back in.
+        pinSx = CX + (pv[0] - panX) * zoom; pinSy = CY - (pv[1] - panY) * zoom;
+        if (key) { pinSx = clamp(pinSx, 60, VW - 60); pinSy = clamp(pinSy, 50, VH - 50); }
+        jx = pv[0] - (pinSx - CX) / zoom - panX; jy = pv[1] + (pinSy - CY) / zoom - panY;
+      }
+      jx = ease(jx, 0, 6, dt); jy = ease(jy, 0, 6, dt);
+      const rest = zoomBase * (1 - 0.06 * ig);
+      zoomT = Math.abs(jx) + Math.abs(jy) < 3 ? Math.max(rest, Math.min(rest * (1.15 - 0.07 * Math.min(1, Math.max(Math.abs(pv[0]) / 400, Math.abs(pv[1]) / 240))), fit(f))) : zoom;
+      zoom = ease(zoom, zoomT, zoomT > zoom ? 4.5 : 3.3, dt);
+      // The pan is solved from this frame's zoom: the node read never drifts under the pointer.
+      panX = pv[0] - (pinSx - CX) / zoom - jx; panY = pv[1] + (pinSy - CY) / zoom - jy;
+    } else {
+      pinFor = -1; jx = jy = 0;
+      zoomT = zoomBase * (1 - 0.06 * ig);
+      zoom = ease(zoom, zoomT, zoomT > zoom ? 4.5 : 3.3, dt);
+      panX = ease(panX, 0, 3.3, dt); panY = ease(panY, 0, 3.3, dt);
+    }
+    // Reading already turns the map a touch (3.5° at most) toward the node's side; applied next frame, the node pinned.
+    readYaw = fade(readYaw, reading && !noOrbit ? 0.06 * amp * nodes[f].pos[0] / CX : 0, dt);
+    drew = true;
     draw();
 
     // Keep the accessible SVG nodes on their stars (only when one moved by a third of a pixel).
+    writes = 0;
     for (let i = 0; i < nodes.length; i++) {
       project(nodes[i].pos);
       const l = last[i];
       if (!(Math.abs(pt[0] - l[0]) * s < 0.33 && Math.abs(pt[1] - l[1]) * s < 0.33)) {
         els[i].setAttribute("transform", `translate(${pt[0].toFixed(1)} ${pt[1].toFixed(1)})`);
         l[0] = pt[0]; l[1] = pt[1];
+        writes++;
       }
     }
+    frames++;
     if (!shown) { shown = true; stage.classList.add("is-gl"); }
     if (idleLevel >= 2 && timeScale < 0.015) { asleep = true; stage.classList.add("is-asleep"); return false; }
     return true;
@@ -929,15 +1113,18 @@ export function createConstellation(stage, graph, adj) {
     gl.viewport(0, 0, bw, bh);
     // Column-major for GLSL.
     rot[0] = m[0]; rot[1] = m[3]; rot[2] = m[6]; rot[3] = m[1]; rot[4] = m[4]; rot[5] = m[7]; rot[6] = m[2]; rot[7] = m[5]; rot[8] = m[8];
-    // clip = (A + B·x·k, C + E·y·k), the map-to-canvas "meet" transform folded in.
-    map[0] = 2 * s * zoom / W; map[1] = 2 * s * zoom / H; map[2] = (ox + CX * s) * 2 / W - 1; map[3] = 1 - (oy + CY * s) * 2 / H;
+    // clip = (A + B·x·k, C + E·y·k), the map-to-canvas "meet" transform folded in, with the camera's
+    // zoom and pan (project() is its twin).
+    map[0] = 2 * s * zoom / W; map[1] = 2 * s * zoom / H; map[2] = (ox + (CX - panX * zoom) * s) * 2 / W - 1; map[3] = 1 - (oy + (CY + panY * zoom) * s) * 2 / H;
 
     gl.disable(gl.BLEND);
     const bg = use("bg");
     gl.uniform2f(bg.u.uRes, bw, bh);
-    gl.uniform3f(bg.u.uView, s * dpr, ox * dpr, oy * dpr);
+    // The nebula zooms and pans with the map (zn: the zoom around its rest scale).
+    const zn = zoom / zoomBase;
+    gl.uniform3f(bg.u.uView, s * dpr * zn, (ox + s * CX * (1 - zn)) * dpr, (oy + s * CY * (1 - zn)) * dpr);
     // The nebula moves like a layer far behind (k about 0.54): opposite to the near projects.
-    gl.uniform2f(bg.u.uPar, yaw * 560 - ex * 0.46, pitch * 560 + ey * 0.46);
+    gl.uniform2f(bg.u.uPar, yaw * 560 - ex * 0.46 + panX * zoomBase, pitch * 560 + ey * 0.46 - panY * zoomBase);
     gl.uniform4f(bg.u.uPh, (time * 0.021) % TAU, (time * 0.017) % TAU, (time * 0.013) % TAU, (time * 0.009) % TAU);
     gl.uniform1f(bg.u.uDim, dim);
     const roll = time * 0.006;
@@ -954,7 +1141,6 @@ export function createConstellation(stage, graph, adj) {
 
     const orbit = place("orbit");
     gl.uniform4fv(orbit.u.uNode, nodeState);
-    gl.uniform1f(orbit.u.uBand, Math.sin(time * 0.3));
     gl.drawArrays(gl.POINTS, 0, orbitCount + dustCount);
 
     if (filCount) {
@@ -964,11 +1150,11 @@ export function createConstellation(stage, graph, adj) {
       gl.drawArrays(gl.POINTS, 0, filCount);
     }
 
-    const flash = place("flash"), hive = nodes[hiveIndex];
+    const flash = place("flash"), hive = nodes[coreIndex];
     gl.uniform1f(flash.u.uTime, time % 86400);
     gl.uniform4f(flash.u.uHive, hive.pos[0], hive.pos[1], hive.pos[2], hive.r);
-    // Shooting stars dim with the nebula; impulses follow TheHive and Lumina (and brighten when read).
-    const hs = nodeState[hiveIndex * 4 + 2] + 1.2 * Math.max(focusA[hiveIndex], lumIndex >= 0 ? focusA[lumIndex] : 0);
+    // Shooting stars dim with the nebula; impulses follow the core and its inner node (and brighten when read).
+    const hs = nodeState[coreIndex * 4 + 2] + 1.2 * Math.max(focusA[coreIndex], innerIndex >= 0 ? focusA[innerIndex] : 0);
     gl.uniform2f(flash.u.uGlow, tier2() ? 1 - 0.5 * dim : 0, hs);
     gl.drawArrays(gl.POINTS, 0, flashCount);
 
@@ -987,6 +1173,9 @@ export function createConstellation(stage, graph, adj) {
     gl.uniform4fv(node.u.uNode, nodeState);
     gl.uniform1fv(node.u.uPing, ping);
     gl.uniform2f(node.u.uBeat, (time * 1.6) % TAU, (time * 0.02) % TAU);
+    // The lighting-up wave's rings leave at half strength (all gone by 1.4 s); eased off, not switched.
+    gl.uniform1f(node.u.uIgnite, noIgnite ? 0 : 1 - smooth(1.2, 1.6, time - ignitedAt));
+    gl.uniform1f(node.u.uHeart, noHeart ? 0 : 1);
     gl.drawArrays(gl.TRIANGLES, 0, (nodes.length + DECOR) * 6);
 
     // Local y is the body: (cos, sin) of the turn that brings it onto the heading. Small: about 3 % of
@@ -1019,7 +1208,14 @@ export function createConstellation(stage, graph, adj) {
   try { init(); } catch (error) { console.warn("Constellation disabled:", error); canvas.remove(); return null; }
 
   new ResizeObserver(() => { dirty = true; if (running) wake(); }).observe(stage);
-  if ("IntersectionObserver" in window) new IntersectionObserver(entries => { visible = entries[entries.length - 1].isIntersecting; if (visible) wake(); }).observe(stage);
+  document.fonts?.ready.then(() => { dirty = true; if (running) wake(); });
+  if ("IntersectionObserver" in window) new IntersectionObserver(entries => {
+    const e = entries[entries.length - 1];
+    visible = e.isIntersecting;
+    // The share of the stage in view, of what the viewport can hold (G2).
+    seen = e.intersectionRatio / Math.min(1, (e.rootBounds?.height ?? 1e9) / e.boundingClientRect.height);
+    if (visible) wake(); else perch();
+  }, { threshold: [0, 0.3, 0.6, 0.9] }).observe(stage);
   // Parallax follows a mouse or a pen over the map; touch keeps the slow sway only.
   // The stage's box is read on the first move after a scroll or a resize, never inside a frame.
   addEventListener("scroll", () => { rect = null; }, { passive: true });
@@ -1032,20 +1228,24 @@ export function createConstellation(stage, graph, adj) {
     tpy = Math.max(-1, Math.min(1, (e.clientY - rect.top) / rect.height * 2 - 1));
   }, { passive: true });
   stage.addEventListener("pointerleave", () => { tpx = tpy = 0; }, { passive: true });
-  // Drag to look around, with a mouse or a pen from the background (a node keeps its click): near
-  // projects follow the hand, far stars slide the other way; on release the camera eases back.
-  // Touch keeps scrolling the page.
+  // The node the keyboard (or a tap) focused; on the stage, not the <svg> (a focus listener makes it a Tab stop).
+  stage.addEventListener("focusin", e => { const g = e.target.closest?.(".a-node[data-node]"); keyed = g ? index.get(g.dataset.node) ?? -1 : -1; });
+  stage.addEventListener("focusout", () => { keyed = -1; });
+  // Drag to turn the map, from the background (a node keeps its click); one pointer at a time. A finger
+  // turns it by a horizontal stroke: touch-action (css/aether.css) keeps the vertical one for the page.
   stage.addEventListener("pointerdown", e => {
-    if (!running || e.pointerType === "touch" || e.button !== 0 || e.target.closest?.(".a-node")) return;
-    held = { id: e.pointerId, x: e.clientX, y: e.clientY };
+    if (held || !running || e.button !== 0 || e.target.closest?.(".a-node")) return;
+    held = { id: e.pointerId, x: e.clientX, y: e.clientY, touch: e.pointerType === "touch", moved: false };
     stage.setPointerCapture?.(e.pointerId);
     stage.classList.add("is-dragging");
-    e.preventDefault();
+    if (e.pointerType !== "touch") e.preventDefault();
   });
   stage.addEventListener("pointermove", e => {
     if (!held || e.pointerId !== held.id) return;
     rect ??= stage.getBoundingClientRect();
     const unit = VW / Math.max(1, rect.width);
+    // A stroke (not a tap, nor the start of a scroll the page is about to take): the butterfly lifts.
+    if (!held.moved) held.moved = Math.abs(e.clientX - held.x) > 6 || (!held.touch && Math.abs(e.clientY - held.y) > 6);
     gx = Math.max(-420, Math.min(420, (e.clientX - held.x) * unit * 0.9));
     gy = Math.max(-220, Math.min(220, -(e.clientY - held.y) * unit * 0.6));
     wake();
@@ -1069,6 +1269,22 @@ export function createConstellation(stage, graph, adj) {
     if (running) wake();
   });
 
+  // ?qa=prof: each drawn frame (SVG moves included) is a "sky-frame" performance measure.
+  const task = QA.on("prof") ? (now, dt) => {
+    drew = false;
+    const t0 = performance.now(), more = frame(now, dt);
+    if (drew) performance.measure("sky-frame", { start: t0, end: performance.now() });
+    return more;
+  } : frame;
+  // Loopback getter: the camera's state and a node's projected place (map units, CSS px).
+  if (QA.local) window.__YOSULJIN_SKY_QA = () => ({
+    zoom, zoomT, panX, panY, pinFor, yaw, pitch, ex, ey, time, frames, writes, hover, dragging: !!held, ignite: time - ignitedAt, pace, quality,
+    dive: diveFor >= 0 ? time - diveAt : -1, arrive: arriveFor, seen, trip: fly.trip ? fly.trip.s : -1, fly: [fly.p[0], fly.p[1], fly.p[2]], dim, ping: Array.from(ping),
+    // Each relation's impulse: departure (uTime space, -99 = none), signed duration, and its progress now.
+    impulses: links.map((l, j) => ({ link: nodes[l.a].id + " " + nodes[l.b].id, at: linkState[j * 4 + 1], dur: linkState[j * 4 + 3], u: linkState[j * 4 + 3] ? (time % 86400 - linkState[j * 4 + 1]) / Math.abs(linkState[j * 4 + 3]) : null })),
+    node: id => { const n = nodes[index.get(id)]; if (!n) return null; project(n.pos); return { x: pt[0], y: pt[1], left: ox + pt[0] * s, top: oy + pt[1] * s }; }
+  });
+
   return {
     // Called again whenever the page's classes change (aether.js): it also resumes the frames once a
     // menu or the immersive frame no longer covers the page.
@@ -1077,7 +1293,7 @@ export function createConstellation(stage, graph, adj) {
       if (!running) {
         running = true;
         clearTimeout(shrink);
-        if (!stopTask) stopTask = every(frame);
+        if (!stopTask) stopTask = every(task);
       }
       wake();
     },
@@ -1085,7 +1301,7 @@ export function createConstellation(stage, graph, adj) {
     stop() {
       if (!running) return;
       const wasShown = shown;
-      running = false; shown = false; held = null;
+      running = false; shown = false; held = null; arriveFor = diveFor = -1;
       stopTask?.(); stopTask = null;
       stage.classList.remove("is-gl", "is-asleep", "is-dragging");
       restore();
@@ -1103,6 +1319,27 @@ export function createConstellation(stage, graph, adj) {
     focus(id) {
       focusId = id ?? null;
       if (running) wake();
+    },
+    /** The sheet of this node opens (aether.js): the map dives toward it as the page scrolls away, and the
+     *  butterfly takes off toward the camera. */
+    dive(id) {
+      const i = index.get(id) ?? -1;
+      if (i < 0 || noDive || !running || !shown || (diveFor === i && time - diveAt < 0.48)) return;
+      view(nodes[i].pos);
+      diveFor = i; diveAt = time; diveZoom = zoom; diveSx = CX + (pv[0] - panX) * zoom; diveSy = CY - (pv[1] - panY) * zoom;
+      const n = nodes[i];
+      // Up, and ahead to the node (never toward work from other hands).
+      if (!inscribed(n)) { fly.v[0] += (n.pos[0] - fly.p[0]) * 1.5; fly.v[1] += (n.pos[1] - fly.p[1]) * 1.5; }
+      fly.v[2] += 700;
+      liftUntil = time + 0.6;
+      wake();
+    },
+    /** Back from a sheet by its « Sur la carte » link (aether.js), the node focused: once the map is in place
+     *  its ring leaves, the light runs along its relations and the butterfly flies to it. */
+    arrive(id) {
+      if (!running || lost) return;
+      arriveFor = index.get(id) ?? -1; arriveAt = performance.now();
+      wake();
     }
   };
 }

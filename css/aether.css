@@ -2,8 +2,8 @@
 
 /* Palette (styles.css 02): the Aether page takes gold as its hue (--acc, --tint); what is only
    specified or envisioned stays violet, code cyan, roles magenta, as on the map; work from other
-   hands, inscribed but not a project, takes --dim (#9a8590 as a triplet). */
-.aether-grand{--aether-pink:var(--acc-aether);--aether-violet:var(--acc-worlds);--aether-cyan:var(--acc-dev);--rgb-inscrit:154,133,144}
+   hands, inscribed but not a project, takes --dim (#a48d9e as a triplet). */
+.aether-grand{--aether-pink:var(--acc-aether);--aether-violet:var(--acc-worlds-text);--aether-cyan:var(--acc-dev);--rgb-inscrit:164,141,158}
 .aether-grand .aether-orbit-stage{background:radial-gradient(circle at 50% 46%,rgba(var(--tint),.13),transparent 30%),radial-gradient(circle at 18% 20%,rgba(var(--rgb-violet),.1),transparent 34%),radial-gradient(circle at 86% 82%,rgba(var(--rgb-magenta),.07),transparent 32%),linear-gradient(180deg,rgba(255,255,255,.018),transparent)}
 .aether-grand .aether-core-glow{background:radial-gradient(circle,rgba(255,246,225,.34),rgba(var(--tint),.16) 32%,transparent 68%)}
 
@@ -76,9 +76,9 @@
 /* Lumina sits inside TheHive (D88): TheHive answers on its ring and on its whole label block. */
 .aether-grand .node-hit{fill:transparent;stroke:none;pointer-events:all}
 .aether-grand .aether-links path{transition:opacity .3s ease,stroke-width .3s ease;vector-effect:non-scaling-stroke}
-.aether-grand .aether-links .link-noyau{stroke:rgba(var(--rgb-gold),.55);stroke-width:1.4;stroke-dasharray:none;animation:none}
-.aether-grand .aether-links .link-build{stroke:rgba(var(--rgb-cyan),.45);stroke-width:1.1;stroke-dasharray:5 6}
-.aether-grand .aether-links .link-role{stroke:rgba(var(--rgb-magenta),.55);stroke-width:1.2;stroke-dasharray:1.5 5;stroke-linecap:round}
+.aether-grand .aether-links .link-noyau{stroke:rgba(var(--rgb-gold),.62);stroke-width:1.4;stroke-dasharray:none;animation:none}
+.aether-grand .aether-links .link-build{stroke:rgba(var(--rgb-cyan),.50);stroke-width:1.1;stroke-dasharray:5 6}
+.aether-grand .aether-links .link-role{stroke:rgba(var(--rgb-magenta),.62);stroke-width:1.2;stroke-dasharray:1.5 5;stroke-linecap:round}
 .aether-grand .aether-graph.has-focus .aether-links path{opacity:.1}
 .aether-grand .aether-graph.has-focus .aether-links path.is-lit{opacity:1;stroke-width:2.2}
 
@@ -94,15 +94,11 @@
    a subtitle that grows steps down as much, so it never touches its label. */
 .aether-grand .a-node text{font-size:max(15px,calc(10px * var(--u,1)))}
 .aether-grand .a-node .node-sub{font-size:max(9px,calc(10px * var(--u,1)));fill:rgba(var(--rgb-gold),.85);transform:translateY(calc(max(0px,10px * var(--u,1) - 9px) * .9))}
-.aether-grand .a-node-inner .node-sub{fill:rgba(var(--rgb-accent),.95)}
 .aether-grand .a-node-noyau .node-sub{fill:rgba(var(--rgb-magenta),.92)}
 .aether-grand .a-node-code .node-sub{fill:rgba(var(--rgb-cyan),.88)}
 .aether-grand .a-node-future .node-sub,.aether-grand .a-node-vision .node-sub{fill:var(--acc-worlds-text)}
 .aether-grand .a-node-core circle{fill:rgba(18,10,18,.96);stroke:rgba(var(--rgb-gold),.85);stroke-width:2}
 .aether-grand .a-node-core text{font-size:max(20px,calc(10px * var(--u,1)));font-weight:600;letter-spacing:.2em}
-.aether-grand .a-node-inner circle{fill:rgba(30,13,26,.98);stroke:rgba(var(--rgb-accent),.95);stroke-width:1.6}
-.aether-grand .a-node-inner text{font-size:max(11px,calc(10px * var(--u,1)));letter-spacing:.14em}
-.aether-grand .a-node-inner .node-sub{font-size:max(7px,calc(10px * var(--u,1)));transform:translateY(calc(max(0px,10px * var(--u,1) - 7px) * .9))}
 .aether-grand .a-node-noyau circle{stroke:rgba(var(--rgb-magenta),.85)}
 .aether-grand .a-node-code circle{stroke:rgba(var(--rgb-cyan),.7)}
 .aether-grand .a-node-future circle{stroke:rgba(var(--rgb-violet),.9);stroke-dasharray:4 4}
@@ -138,25 +134,27 @@
 .aether-constellation{position:absolute;inset:0;z-index:-1;display:block;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity .9s ease}
 .aether-orbit-stage.is-gl .aether-constellation{opacity:1}
 .aether-orbit-stage.is-gl.is-asleep .aether-constellation{opacity:.6;transition-duration:2.4s}
-/* The background can be dragged to look around (mouse or pen); nodes keep the pointer cursor. */
+/* The background can be dragged to turn the map (mouse or pen); nodes keep the pointer cursor. */
 @media(pointer:fine){.aether-orbit-stage.is-gl{cursor:grab}.aether-orbit-stage.is-gl.is-dragging{cursor:grabbing;user-select:none}}
+/* A finger turns it too (constellation.js): a horizontal stroke on the background is the map's, a vertical
+   one stays the page's scroll, and pinching stays the system's zoom (WCAG 1.4.4). SVG only: untouched. */
+.aether-orbit-stage.is-gl{touch-action:pan-y pinch-zoom}
 .aether-orbit-stage.is-gl .aether-orbit-ring,.aether-orbit-stage.is-gl .aether-core-glow,
 .aether-orbit-stage.is-gl .aether-pulses,.aether-orbit-stage.is-gl .core-halo,.aether-orbit-stage.is-gl .aether-links{display:none}
 .aether-grand .is-gl .a-node circle{fill:transparent;stroke:transparent;filter:none;transition:none}
 /* The keyboard ring sits on a glow: a dark halo keeps it above 3:1 against light and dark alike. */
 .aether-grand .is-gl .a-node:focus-visible circle{stroke:#fff;stroke-width:3.2;stroke-dasharray:none;filter:drop-shadow(0 0 1.2px #000) drop-shadow(0 0 2.6px rgba(0,0,0,.9))}
-/* Touch targets: each node (TheHive has its label block) carries an invisible hit circle of 44 map
-   units, about 30 px on a 375 px phone; nothing of it is ever drawn, focus ring included. */
+/* Touch targets: each node carries an invisible hit circle of 44 map units, about 30 px on a 375 px
+   phone (the core's own disc is wider); nothing of it is ever drawn, focus ring included. */
 .aether-grand .aether-graph .a-node circle.node-hit{fill:transparent;stroke:none;filter:none;animation:none;transition:none;transform:none;pointer-events:all}
-/* A dark halo keeps the labels legible over the glows; Lumina's label leaves the heart of light
-   for the lower half of TheHive. */
+/* A dark halo keeps the labels legible over the glows; the core's label leaves the heart of light
+   for the lower half of Lumina's sphere. */
 .aether-grand .is-gl .a-node text{paint-order:stroke;stroke:rgba(4,2,8,.8);stroke-width:4px;stroke-linejoin:round}
-.aether-grand .is-gl .a-node-inner text{transform:translateY(34px)}
-.aether-grand .is-gl .a-node-inner .node-sub{transform:translateY(calc(34px + max(0px,10px * var(--u,1) - 7px) * .9))}
+.aether-grand .is-gl .a-node-core text{transform:translateY(30px)}
+.aether-grand .is-gl .a-node-core .node-sub{transform:translateY(calc(30px + max(0px,10px * var(--u,1) - 9px) * .9))}
 /* The label of the node being read glows in its kind's neon (one filtered element at a time). */
 .aether-grand .is-gl .a-node.is-focus text{filter:drop-shadow(0 0 4px rgba(var(--node-glow,var(--tint)),.95)) drop-shadow(0 0 10px rgba(var(--node-glow,var(--tint)),.55))}
 .aether-grand .a-node-core{--node-glow:var(--rgb-gold)}
-.aether-grand .a-node-inner{--node-glow:var(--rgb-accent)}
 .aether-grand .a-node-noyau{--node-glow:var(--rgb-magenta)}
 .aether-grand .a-node-code{--node-glow:var(--rgb-cyan)}
 .aether-grand :is(.a-node-future,.a-node-vision){--node-glow:var(--rgb-violet)}
@@ -181,7 +179,7 @@
 .aether-project p{margin:0}
 .project-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
 .aether-grand .project-state{margin:0;font-size:10px}
-.project-state.vision{color:var(--acc-worlds);border-style:dashed}
+.project-state.vision{color:var(--acc-worlds-text);border-style:dashed}
 .project-meta{font:400 10px var(--mono);letter-spacing:.14em;color:var(--dim)}
 .aether-project h4{margin:6px 0 0;font:400 34px/1 var(--serif);letter-spacing:-.01em}
 .project-line{font-size:15px;line-height:1.5;color:var(--paper)}
@@ -190,6 +188,20 @@
 .project-rel{margin-top:auto!important;padding-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:400 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .project-rel a{padding:5px 8px;border:1px solid var(--line);color:var(--paper);text-decoration:none;letter-spacing:.06em;text-transform:none;font-size:11px;transition:border-color .2s,color .2s}
 .project-rel a:hover,.project-rel a:focus-visible{border-color:var(--aether-pink);color:var(--aether-pink)}
+
+/* Dive and return (G2). The page scrolls smoothly only for the 900 ms around a jump aether.js asked for
+   (a sheet from the map, the map from a sheet): the skip link and the keyboard's own scrolls stay instant;
+   under reduced motion styles.css 16 forces auto. With html's scroll-padding (96px) the map lands at its
+   sticky place. « Sur la carte » is a real link on every sheet that has a node: 44 px, mono label, lit in the
+   sheet's hue under the pointer or the focus; on work from other hands --dim, without light. */
+@media(prefers-reduced-motion:no-preference){html.is-diving{scroll-behavior:smooth}}
+.aether-grand .aether-orbit-stage{scroll-margin-top:4px}
+.aether-grand .project-map{display:inline-flex;align-items:center;align-self:start;gap:6px;min-height:44px;font:400 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+.aether-grand .project-map .arrow{transform:rotate(-45deg)}
+.aether-grand .project-map:is(:hover,:focus-visible){color:rgb(var(--hue))}
+.aether-grand .aether-project>:not(.project-rel)+.project-map{margin-top:auto}
+.aether-grand .aether-project.is-inscrit .project-map{color:var(--dim)}
+.aether-grand .aether-project.is-inscrit .project-map:is(:hover,:focus-visible){color:var(--paper)}
 
 /* The Aether repository is private: its entry among the final links is a statement, not a link. */
 .aether-final-links .aether-final-private{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:center;margin:0;padding:16px 14px;border-right:1px solid var(--line);font:400 10px var(--mono);letter-spacing:.14em;color:var(--muted)}
@@ -230,7 +242,7 @@
 /* Hues of the project sheets: the colour each project's role has on the map (vision violet, code cyan,
    the language magenta, Lumina its accent, what is only specified violet). */
 .aether-grand .grid-code .aether-project{--hue:var(--rgb-cyan)}
-.aether-grand .grid-vision .aether-project{--hue:var(--rgb-violet)}
+.aether-grand .grid-vision .aether-project{--hue:168,156,255}
 .aether-grand #projet-lumina{--hue:var(--rgb-accent)}
 .aether-grand #projet-la-lumina{--hue:var(--rgb-magenta)}
 .aether-grand #projet-reminiscence,.aether-grand #projet-furu{--hue:var(--rgb-violet)}
@@ -355,13 +367,12 @@ html.mode-lite .aether-shell :is(*,*::before,*::after){animation:none!important}
   .aether-project h4{font-size:30px}
   .aether-grand .aether-orbit-stage{min-height:0;aspect-ratio:1000/720}
   /* Phones: labels at their floor without tracking, and the SVG map steps back like the
-     constellation (its zoom, .965), so the edge labels keep their margin; Lumina's label, which could
-     not reach 10 px inside TheHive, is left to its node's name (aria-label) and the panel. */
+     constellation (its zoom, .965), so the edge labels keep their margin; the core's name stays inside
+     its disc, a little smaller. */
   .aether-grand .aether-orbit-stage:not(.is-gl) .aether-graph{transform:scale(.965)}
   .aether-grand .a-node text{font-size:max(26px,calc(10px * var(--u,1)))}
   .aether-grand .a-node:not(.a-node-core) text{letter-spacing:0}
-  .aether-grand .a-node-core text{font-size:max(28px,calc(10px * var(--u,1)))}
-  .aether-grand .a-node-inner text{display:none}
+  .aether-grand .a-node-core text{font-size:max(22px,calc(10px * var(--u,1)))}
   .aether-grand .a-node-vision text{font-size:max(21px,calc(10px * var(--u,1)))}
   .aether-grand .a-node .node-sub{display:none}
   .aether-grand .aether-hero{row-gap:18px}

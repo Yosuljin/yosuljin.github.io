@@ -14,19 +14,26 @@
 
 /* 02 · TOKENS */
 :root{
-  --bg:#070407;--bg-2:#0c070b;--ink:#020102;
-  --glass:#0d0811;--plate:rgba(8,4,10,.82);       /* glass under any text laid on the world */
-  --paper:#f4ecef;--muted:#b09ba4;--dim:#9a8590;--faint:#4a3c43;   /* --dim: 6:1 on --bg, 4.9:1 on a plate over a bright world; --faint is never text */
-  --phosphor:#fff4f8;--sakura:#ffc8dc;--led:#ff2f62;   /* the beam's core and the lit title; petals and Chinese words; the standby LED only */
+  --bg:#06040b;--bg-2:#0b0714;--ink:#020103;
+  --glass:#0e0916;--plate:rgba(8,5,14,.82);       /* glass under any text laid on the world */
+  --paper:#f6eef2;--muted:#c4abbb;--dim:#a48d9e;--faint:#4f3d52;   /* --muted 9.6:1, --dim 6.7:1 on --bg (5.9:1 on a plate over a bright world); --faint is never text */
+  --phosphor:#fff4f8;--sakura:#ffd1e3;--led:#ff2f62;   /* the beam's core and the lit title; petals and Chinese words; the standby LED only */
   /* Signature colours: one vivid hue per domain, a hot pink accent for the space itself. */
-  --accent:#ff5fa2;--acc-dev:#36e2ff;--acc-photo:#ffb23e;--acc-writing:#ff5fd1;--acc-worlds:#8c6bff;--acc-aether:#ffd36b;
-  --acc-worlds-text:#a58cff;   /* the violet of Mondes for small text (7.6:1) */
-  --rgb-phosphor:255,244,248;--rgb-sakura:255,200,220;--rgb-rose:255,140,192;
-  --rgb-accent:255,95,162;--rgb-cyan:54,226,255;--rgb-photo:255,178,62;--rgb-magenta:255,95,209;--rgb-violet:140,107,255;--rgb-gold:255,211,107;
-  --rose:#ff8cc0;--rose-2:#e0569a;--plum:#5a1734;--ice:#7ce9ff;
+  --accent:#ff5fa2;--acc-dev:#2ee8ff;--acc-photo:#ff9d3a;--acc-writing:#e86bff;--acc-worlds:#7a6cff;--acc-aether:#ffd25a;
+  --acc-worlds-text:#a89cff;   /* the violet of Mondes for small text (8.6:1); --acc-worlds itself never carries small text */
+  /* Second hue of each channel's atmosphere (sky, mist, reflections, deep materials): light, never text. */
+  --acc-dev-2:#4d7dff;--acc-photo-2:#ffe9b8;--acc-writing-2:#5a48e6;--acc-worlds-2:#5cf0bd;
+  --rgb-dev-2:77,125,255;--rgb-photo-2:255,233,184;--rgb-writing-2:90,72,230;--rgb-worlds-2:92,240,189;
+  --rgb-phosphor:255,244,248;--rgb-sakura:255,209,227;--rgb-rose:255,140,192;
+  --rgb-accent:255,95,162;--rgb-cyan:46,232,255;--rgb-photo:255,157,58;--rgb-magenta:232,107,255;--rgb-violet:122,108,255;--rgb-gold:255,210,90;
+  --rose:#ff8cc0;--rose-2:#e0569a;--plum:#5a1734;--ice:#86ecff;
+  --bark:90,45,51;   /* cherry wood: the menu's halos and the frame of its dossier */
+  /* The tube's three phosphors (scanlines, grille): a grain, never a band of colour; alpha stays at or under .035. */
+  --rgb-ph-r:255,80,110;--rgb-ph-g:80,255,168;--rgb-ph-b:90,140,255;
   /* --tint: RGB triplet of the page's hue; lines, glows and the phosphor take it. Domain pages override it (11). */
   --tint:255,122,182;
-  --line:rgba(var(--tint),.17);--line-2:rgba(var(--tint),.08);--line-3:rgba(var(--tint),.045);
+  --tint-2:var(--rgb-violet);   /* the page's second hue, for the flat night (07); domain pages override it (11) */
+  --line:rgba(var(--tint),.20);--line-2:rgba(var(--tint),.10);--line-3:rgba(var(--tint),.045);
   --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
   --zh:"Yosuljin Hanzi","Songti TC","PMingLiU","Noto Serif CJK TC",serif;   /* Traditional Chinese, fixed lexicon */
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
@@ -44,7 +51,7 @@
 *,*::before,*::after{box-sizing:border-box}
 html{background:var(--bg);color:var(--paper);scroll-padding-top:96px;overscroll-behavior-y:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 /* Lines are re-derived on body, where the domain pages set their own --tint. */
-body{--line:rgba(var(--tint),.17);--line-2:rgba(var(--tint),.08);--line-3:rgba(var(--tint),.045)}
+body{--line:rgba(var(--tint),.20);--line-2:rgba(var(--tint),.10);--line-3:rgba(var(--tint),.045)}
 body{margin:0;min-height:100svh;background:var(--bg);font-family:var(--sans);line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit}
@@ -79,7 +86,7 @@ svg.arrow{display:inline-block;flex:none;width:12px;height:12px;vertical-align:-
 :is(.mode-toggle,.sound-toggle,.fullscreen-toggle,.menu-toggle,.brand){position:relative}
 :is(.mode-toggle,.sound-toggle,.fullscreen-toggle,.menu-toggle,.brand)::before{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%)}
 /* Scrolling documents slide under a solid band so the chrome never sits on text. */
-html:not(.cinema) .topbar{background:linear-gradient(rgba(7,4,7,.97) 74%,rgba(7,4,7,0))}
+html:not(.cinema) .topbar{background:linear-gradient(rgba(6,4,11,.97) 74%,rgba(6,4,11,0))}
 .brand-cluster{display:flex;align-items:center;gap:10px}
 .brand{display:flex;align-items:center;gap:12px}
 .brand-mark{display:grid;place-items:center;width:32px;height:32px;border:1px solid var(--line);font:18px/1 var(--serif);color:var(--rose);transition:background var(--t-off) var(--ease-decay),color var(--t-off) var(--ease-decay)}
@@ -88,10 +95,10 @@ html:not(.cinema) .topbar{background:linear-gradient(rgba(7,4,7,.97) 74%,rgba(7,
 .brand-copy{display:flex;flex-direction:column;gap:3px}
 .brand-copy b{font:500 11px var(--mono);letter-spacing:.2em}
 .brand-copy small{font:400 10px var(--mono);letter-spacing:.16em;color:var(--muted)}
-.mode-toggle{min-width:66px;padding:7px 9px;border:1px solid var(--line);background:rgba(7,4,7,.5);color:var(--rose);font:500 10px var(--mono);letter-spacing:.16em;cursor:pointer;transition:border-color .3s,background .3s,color .3s}
+.mode-toggle{min-width:66px;padding:7px 9px;border:1px solid var(--line);background:rgba(6,4,11,.5);color:var(--rose);font:500 10px var(--mono);letter-spacing:.16em;cursor:pointer;transition:border-color .3s,background .3s,color .3s}
 .mode-toggle:hover,.mode-toggle:focus-visible{border-color:var(--rose);background:rgba(var(--tint),.07)}
 html.mode-lite .mode-toggle{color:var(--muted)}
-.sound-toggle{display:flex;align-items:center;gap:7px;height:29px;padding:0 9px;border:1px solid var(--line);background:rgba(7,4,7,.5);color:var(--muted);font:500 10px var(--mono);letter-spacing:.16em;cursor:pointer;transition:border-color .3s,color .3s,background .3s}
+.sound-toggle{display:flex;align-items:center;gap:7px;height:29px;padding:0 9px;border:1px solid var(--line);background:rgba(6,4,11,.5);color:var(--muted);font:500 10px var(--mono);letter-spacing:.16em;cursor:pointer;transition:border-color .3s,color .3s,background .3s}
 .sound-toggle:hover,.sound-toggle:focus-visible{border-color:var(--rose);color:var(--rose)}
 .sound-toggle.is-on{color:var(--rose)}
 .sound-bars{position:relative;display:flex;align-items:flex-end;gap:2px;height:11px;overflow:hidden}
@@ -108,7 +115,7 @@ html:not(.mode-lite) .sound-toggle.is-on.is-playing .sound-bars::before{animatio
 /* Centred on the page, the label needs the whole bar: below 1280 px it would slide under the controls or touch
    them (the longest label, AETHER / CARTOGRAPHIE, keeps a clear gap from 1280 px). */
 @media(max-width:1279px){.top-meta{display:none}}
-.menu-toggle{position:relative;display:flex;align-items:center;gap:14px;padding:12px 16px;border:1px solid var(--line);background:rgba(7,4,7,.72);cursor:pointer;font:500 10px var(--mono);letter-spacing:.18em;transition:border-color .35s,color .35s,transform .45s var(--ease)}
+.menu-toggle{position:relative;display:flex;align-items:center;gap:14px;padding:12px 16px;border:1px solid var(--line);background:rgba(6,4,11,.72);cursor:pointer;font:500 10px var(--mono);letter-spacing:.18em;transition:border-color .35s,color .35s,transform .45s var(--ease)}
 .menu-toggle:hover,.menu-toggle:focus-visible{border-color:var(--rose);color:var(--rose)}
 .menu-icon{position:relative;display:flex;flex-direction:column;gap:5px;width:18px}
 .menu-icon i{height:1px;background:currentColor;transition:transform .4s var(--ease)}
@@ -128,9 +135,9 @@ html:not(.mode-lite) .sound-toggle.is-on.is-playing .sound-bars::before{animatio
   background:
     linear-gradient(rgba(var(--tint),.026) 1px,transparent 1px),
     linear-gradient(90deg,rgba(var(--tint),.022) 1px,transparent 1px),
-    radial-gradient(circle at 78% 46%,rgba(109,25,58,.32),transparent 36%),
-    radial-gradient(circle at 12% 82%,rgba(70,14,37,.24),transparent 30%),
-    #080309;
+    radial-gradient(circle at 78% 46%,rgba(var(--bark),.32),transparent 36%),
+    radial-gradient(circle at 12% 82%,rgba(var(--bark),.24),transparent 30%),
+    var(--bg);
   background-size:58px 58px,58px 58px,100% 100%,100% 100%;
   opacity:0;transition:opacity .35s}
 /* The menu fades in where it stands: its links never move under a finger (the ignition below is a cover). */
@@ -176,7 +183,7 @@ html:not(.mode-lite) .sound-toggle.is-on.is-playing .sound-bars::before{animatio
 /* Aether lives apart: its own column, its own frame, its own signal. */
 .menu-aether{position:relative;padding-left:clamp(28px,4vw,64px)}
 .menu-aether::before{content:"";position:absolute;left:0;top:-8%;bottom:-8%;width:1px;background:linear-gradient(transparent,rgba(var(--tint),.28) 30%,rgba(var(--rgb-cyan),.18) 70%,transparent)}
-.menu-project-main{--acc:var(--acc-aether);--acc-rgb:var(--rgb-gold);position:relative;display:grid;grid-template-columns:1fr auto;grid-template-areas:"sigil sigil" "num num" "name name" "desc desc" "go go";justify-items:start;gap:10px;padding:clamp(26px,4.5vh,44px) clamp(24px,2.6vw,38px);border:1px solid rgba(var(--tint),.22);background:radial-gradient(circle at 78% 18%,rgba(var(--tint),.13),transparent 46%),linear-gradient(140deg,rgba(66,14,40,.55),rgba(8,3,9,.72));box-shadow:0 0 0 1px rgba(var(--tint),.05),0 30px 90px rgba(90,23,52,.35),inset 0 0 60px rgba(var(--tint),.04)}
+.menu-project-main{--acc:var(--acc-aether);--acc-rgb:var(--rgb-gold);position:relative;display:grid;grid-template-columns:1fr auto;grid-template-areas:"sigil sigil" "num num" "name name" "desc desc" "go go";justify-items:start;gap:10px;padding:clamp(26px,4.5vh,44px) clamp(24px,2.6vw,38px);border:1px solid rgba(var(--tint),.22);background:radial-gradient(circle at 78% 18%,rgba(var(--tint),.13),transparent 46%),linear-gradient(140deg,rgba(var(--bark),.55),rgba(8,5,14,.72));box-shadow:0 0 0 1px rgba(var(--tint),.05),0 30px 90px rgba(var(--bark),.35),inset 0 0 60px rgba(var(--tint),.04)}
 .menu-project-main::before,.menu-project-main::after{content:"";position:absolute;inset:-1px;pointer-events:none;opacity:0}
 .menu-project-main::before{border:1px solid rgba(var(--rgb-rose),.5);box-shadow:0 0 20px rgba(var(--rgb-rose),.12);transition:opacity var(--t-off) var(--ease-decay)}
 .menu-project-main::after{border:1px solid rgba(var(--acc-rgb),.55);box-shadow:0 0 24px rgba(var(--acc-rgb),.16),inset 0 0 50px rgba(var(--acc-rgb),.06);transition:opacity .3s ease-out}
@@ -258,13 +265,14 @@ html:not(.mode-lite) .sound-toggle.is-on.is-playing .sound-bars::before{animatio
    between press and release). */
 :is(a[href],button).is-pressed{translate:0 1px}
 .hero-title{position:relative}
-/* Changing page: the afterimage. The navigation is the browser's own and never waits. Where cross-document view
-   transitions exist, the title being left (portal.js marks it) turns rose and dies out over the next page in
-   900 ms, while the two pages cross in 120 ms: nothing disappears at once. Elsewhere, and under reduced motion,
-   a plain load. */
+/* Changing page: a change of channel (19), the same in every browser. Where cross-document view transitions exist
+   they add the afterimage: the title being left (portal.js marks it) turns rose and dies out over the next page in
+   700 ms, a phosphor that remembers. The two pages cross under the closed lids (the same picture), and the
+   transition never takes a click. Under reduced motion, none. */
 @view-transition{navigation:auto}
+::view-transition{pointer-events:none}
 .afterimage{color:var(--rose)!important;view-transition-name:afterimage}
-::view-transition-old(afterimage){animation:afterimageOut var(--t-off) var(--ease-decay) both}
+::view-transition-old(afterimage){animation:afterimageOut .7s var(--ease-decay) both}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:var(--t-on)}
 @keyframes afterimageOut{to{opacity:0}}
 @media (prefers-reduced-motion:reduce){@view-transition{navigation:none}}
@@ -278,14 +286,14 @@ html:not(.mode-lite) .sound-toggle.is-on.is-playing .sound-bars::before{animatio
    vignettes, which screen blending never let show, are gone. --crt is the strength of the tube. */
 .crt{--crt:.72;position:fixed;inset:0;z-index:26;pointer-events:none;overflow:hidden}
 .crt-lines,.crt-phosphor,.crt-grille,.crt-glass{position:absolute;inset:0}
-.crt-lines{background:repeating-linear-gradient(rgba(var(--rgb-gold),.045) 0 1px,transparent 1px 4px);opacity:calc(.42 * var(--crt))}
-.crt-lines::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 12px,rgba(var(--rgb-gold),.018) 12px 13px);opacity:.7}
-.crt-phosphor{background:repeating-linear-gradient(to right,rgba(var(--rgb-photo),.016) 0 1px,transparent 1px 3px);opacity:calc(.75 * var(--crt))}
+.crt-lines{background:repeating-linear-gradient(rgba(var(--rgb-ph-r),.032) 0 1px,transparent 1px 4px,rgba(var(--rgb-ph-g),.028) 4px 5px,transparent 5px 8px,rgba(var(--rgb-ph-b),.034) 8px 9px,transparent 9px 12px);opacity:calc(.42 * var(--crt))}
+.crt-lines::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 12px,rgba(var(--rgb-ph-g),.014) 12px 13px,transparent 13px 25px,rgba(var(--rgb-ph-b),.016) 25px 26px,transparent 26px 38px,rgba(var(--rgb-ph-r),.015) 38px 39px);opacity:.7}
+.crt-phosphor{background:repeating-linear-gradient(to right,rgba(var(--rgb-ph-r),.016) 0 1px,transparent 1px 2px,rgba(var(--rgb-ph-g),.012) 2px 3px,transparent 3px 4px,rgba(var(--rgb-ph-b),.018) 4px 5px,transparent 5px 6px);opacity:calc(.75 * var(--crt))}
 .crt-grille{box-shadow:inset 0 0 0 1px rgba(var(--tint),.04);opacity:calc(.8 * var(--crt))}
 .crt-glass{display:none}
 /* Cinema: a lighter scan, a colour grille, a glint on the glass. */
 html.cinema .crt-lines{opacity:calc(.28 * var(--crt))}
-html.cinema .crt-grille{background:repeating-linear-gradient(90deg,rgba(255,70,120,.018) 0 1px,rgba(80,255,170,.014) 1px 2px,rgba(80,140,255,.022) 2px 3px);opacity:calc(.28 * var(--crt))}
+html.cinema .crt-grille{background:repeating-linear-gradient(90deg,rgba(var(--rgb-ph-r),.018) 0 1px,rgba(var(--rgb-ph-g),.014) 1px 2px,rgba(var(--rgb-ph-b),.022) 2px 3px);opacity:calc(.28 * var(--crt))}
 html.cinema .crt-glass{display:block;background:radial-gradient(ellipse at 50% 42%,rgba(var(--rgb-gold),.03),transparent 61%),linear-gradient(rgba(var(--rgb-gold),.01),transparent 18%);opacity:var(--crt)}
 /* LITE: the scanlines a touch stronger. */
 html.mode-lite .crt-lines{opacity:calc(.45 * var(--crt))}
@@ -309,10 +317,10 @@ html.is-deep-idle *,html.is-deep-idle *::before,html.is-deep-idle *::after{anima
 .world-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;pointer-events:none;opacity:0;transition:opacity 1.2s ease}
 html.world-ready.mode-full .world-canvas{opacity:1}
 /* Without WebGL (and in LITE): the same night, flat. A dark planet, its rim lit by a sun just behind it. */
-.world-fallback{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse 60% 46% at 20% 16%,rgba(var(--tint),.07),transparent 70%),var(--bg)}
+.world-fallback{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse 60% 46% at 20% 16%,rgba(var(--tint),.14),transparent 70%),radial-gradient(ellipse 54% 40% at 70% 30%,rgba(var(--tint-2),.06),transparent 70%),var(--bg)}
 /* Flat, the Entrée's composition: the planet's centre is off the screen at the bottom right, only its crescent shows,
    lit from the top left; its ring one thin line; one tint (the page's), no orange, nothing behind the titles. */
-.world-fallback i{position:absolute;right:calc(-1 * min(26vw,330px));bottom:calc(-1 * min(26vw,330px));width:min(52vw,660px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 50%,#120819 0,#0a0512 62%,#060309 100%);box-shadow:inset 12px 12px 22px -6px rgba(var(--tint),.5),inset 3px 3px 6px -2px rgba(255,226,240,.45),0 0 90px rgba(var(--tint),.08)}
+.world-fallback i{position:absolute;right:calc(-1 * min(26vw,330px));bottom:calc(-1 * min(26vw,330px));width:min(52vw,660px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 50%,var(--glass) 0,var(--bg-2) 62%,var(--bg) 100%);box-shadow:inset 12px 12px 22px -6px rgba(var(--tint),.5),inset 3px 3px 6px -2px rgba(255,226,240,.45),0 0 90px rgba(var(--tint),.08)}
 .world-fallback::after{content:"";position:absolute;right:calc(-1 * min(44vw,560px));bottom:calc(-1 * min(13vw,165px));width:min(88vw,1120px);height:min(26vw,330px);border:1px solid rgba(var(--tint),.22);border-radius:50%;transform:rotate(-14deg)}
 html.world-ready.mode-full .world-fallback{opacity:0;transition:opacity 1.2s ease}
 .detail-page .world-fallback::after{display:none}   /* on a reading page the ring would cross the right margin as a stray line */
@@ -330,7 +338,7 @@ html.cinema .hud{display:block;position:fixed;inset:0;z-index:50;pointer-events:
 html.cinema.world-ready .marks{display:block;position:fixed;inset:0;z-index:5;pointer-events:none}
 .mark{position:absolute;left:0;top:0;opacity:0;will-change:transform,opacity;--tone:var(--dim)}
 .mark.tone-rose{--tone:var(--rose)}.mark.tone-ice{--tone:var(--ice)}
-.mark.tone-dev{--tone:var(--acc-dev)}.mark.tone-photo{--tone:var(--acc-photo)}.mark.tone-writing{--tone:var(--acc-writing)}.mark.tone-worlds{--tone:var(--acc-worlds)}
+.mark.tone-dev{--tone:var(--acc-dev)}.mark.tone-photo{--tone:var(--acc-photo)}.mark.tone-writing{--tone:var(--acc-writing)}.mark.tone-worlds{--tone:var(--acc-worlds-text)}
 .mark.tone-accent{--tone:var(--accent)}.mark.tone-aether{--tone:var(--acc-aether)}
 /* Landscape phones: the worlds are too small for their labels, which pile up. */
 @media (max-height:520px) and (orientation:landscape){html.cinema.world-ready .marks{display:none}}
@@ -347,7 +355,7 @@ html.cinema.world-ready .marks{display:block;position:fixed;inset:0;z-index:5;po
 .panel{position:relative;min-height:100svh;display:flex;isolation:isolate}
 .panel-inner{position:relative;z-index:2;width:min(1220px,calc(100% - 2 * var(--gutter) - 70px));min-height:100svh;margin:0 auto;padding:118px 0 54px;display:flex;flex-direction:column}
 html.mode-lite .panel{border-bottom:1px solid var(--line-2)}
-html.mode-lite .panel-home{background:radial-gradient(circle at 50% 48%,rgba(30,10,20,.7),transparent 60%)}
+html.mode-lite .panel-home{background:radial-gradient(circle at 50% 48%,rgba(var(--rgb-accent),.09),transparent 60%)}
 .section-head{display:flex;justify-content:space-between;align-items:center}
 .eyebrow{font-size:var(--label);color:var(--dim)}
 .eyebrow span{padding:0 8px}
@@ -384,6 +392,26 @@ html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .hero-title .wr
 @keyframes inkHold{from{transform:translateY(var(--h-ink))}to{transform:none}}
 @keyframes beamDown{0%{opacity:0;transform:none}3%{opacity:1}90%{opacity:1}100%{opacity:0;transform:translateY(100%)}}
 @keyframes restDown{from{opacity:1}to{opacity:var(--glow-floor)}}
+/* YO · SUL · JIN, three plates of glass (cinema). Once the beam has written the title (main.js adds .is-written at
+   the end of winOpen, and takes it back when the cinema is left), SUL and JIN sit 14 and 28 px in front of YO and
+   slide against it when the eye moves (09): a relief of glass, not an extrusion — no shadow, no fringe, the title's
+   bloom stays its only light. The window's overflow:hidden is a grouping property that flattens any relief: it
+   stays while the beam writes, then there is nothing left to clip. The plates settle into depth on the phosphor's
+   slow law, once; YO keeps no transform at all (:where keeps the specificity, so no layer is made for nothing).
+   Phones live the same relief with their own 10/20 px (the mobile block after 16, as specific and later, keeps its
+   values and its vertical nudges): nothing flattens the title there — the panel's filter:none (09) beats the mobile
+   drop-shadow — so until the title is written the syllables keep the nudges alone, on the plane, and then settle
+   into depth as on desktop instead of popping when the window stops clipping. */
+html.cinema .hero-title,html.cinema .hero-title .hero-word{transform-style:preserve-3d}
+html.cinema .hero-title.is-written .write-win{overflow:visible;transform-style:preserve-3d}
+html.cinema .hero-title .hw{transition:transform var(--t-off) var(--ease-decay)}
+html.cinema .hero-title.is-written .hw:where(:nth-child(n+2)){transform:translateZ(var(--hz))}
+html.cinema .hero-title .hw:nth-child(2){--hz:14px}
+html.cinema .hero-title .hw:nth-child(3){--hz:28px}
+@media(max-width:700px){
+  html.cinema .panel .hero-title:not(.is-written) .hw:nth-child(2){transform:translateY(-2px)}
+  html.cinema .panel .hero-title:not(.is-written) .hw:nth-child(3){transform:translateY(3px)}
+}
 /* 世界之間, "between the worlds": a vertical colophon in the right margin, written once, then at rest (in FULL only:
    LITE and reduced motion show it at rest at once). */
 .colophon{position:absolute;z-index:3;right:0;top:50%;margin-top:-48px;writing-mode:vertical-rl;font:400 15px/1 var(--zh);font-synthesis:none;letter-spacing:.36em;color:var(--sakura);opacity:var(--glow-floor);pointer-events:none}
@@ -451,7 +479,7 @@ html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .colophon .writ
 .aether-copy{max-width:660px;margin:auto 0}
 .aether-copy .lead{margin-top:clamp(16px,3vh,30px)}
 .aether-module-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;max-width:640px;margin-top:clamp(18px,3.2vh,30px);background:rgba(var(--tint),.1)}
-.aether-module-strip span{display:flex;flex-direction:column;justify-content:center;min-height:clamp(48px,7vh,62px);padding:10px 14px;background:rgba(8,3,9,.62);transition:background .3s}
+.aether-module-strip span{display:flex;flex-direction:column;justify-content:center;min-height:clamp(48px,7vh,62px);padding:10px 14px;background:rgba(8,5,14,.62);transition:background .3s}
 .aether-module-strip span:hover{background:rgba(44,10,28,.6)}
 .aether-module-strip b{font-size:var(--label);font-weight:500;color:var(--rose)}
 .aether-module-strip small{margin-top:4px;font-size:var(--label);letter-spacing:.06em;text-transform:none;color:var(--muted)}
@@ -469,7 +497,7 @@ html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .colophon .writ
 /* The Aether scene is in gold, the source (§9.3): its italic, its labels, its one call to action; no vivid rose. */
 .panel-aether .display-title em{color:var(--acc-aether)}
 .panel-aether .aether-module-strip{background:rgba(var(--rgb-gold),.12)}
-.panel-aether .aether-module-strip span:hover{background:rgba(8,3,9,.62)}
+.panel-aether .aether-module-strip span:hover{background:rgba(8,5,14,.62)}
 .panel-aether .aether-module-strip b,.panel-aether .aether-bottom strong{color:var(--acc-aether)}
 .panel-aether .primary-link{border-color:rgba(var(--rgb-gold),.4);background:rgba(var(--rgb-gold),.05)}
 .panel-aether .primary-link span{color:var(--acc-aether)}
@@ -482,6 +510,21 @@ html.cinema,html.cinema body{height:100%;overflow:hidden;overscroll-behavior:non
 html.cinema .scenes{position:fixed;inset:0;z-index:10;perspective:1100px;perspective-origin:50% 46%;transform:rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg));transform-style:preserve-3d}
 html.cinema .panel{position:absolute;inset:0;min-height:0;visibility:hidden;will-change:transform,opacity;transform-origin:50% 50%}
 html.cinema .panel-inner{height:100%;min-height:0;padding:clamp(86px,13vh,118px) 0 clamp(54px,9vh,82px);perspective:900px;transform-style:preserve-3d}
+/* Diorama (desktop). The perspective above reaches only the direct children of .panel-inner: these containers pass
+   it on, so the layers they hold (data-depth, main.js) are projected at their own depth instead of flat on their
+   container's plane — the title flies towards the lens faster than its lead, the labels stay on the plane. main.js
+   keeps the big layers a little in front at rest and moves the perspective's origin with the pointer, from the
+   scenes' own rest origin: a scene has a thickness, and the eye reads it when the hand moves. None of these has a
+   grouping property (no overflow, filter, isolation), nor a plate: on a preserve-3d container a background is a
+   plane at z = 0 sorted against the children — the cards of Domaines fly behind it as they arrive — so the grid's
+   veil lives on each card, under its own plate (same pixels at rest, and it flies with the card). Phones keep the
+   block after 16 as it is: their branch writes no depth, and this rule would project its translateZ(22px) in
+   Repères and Domaines (×1.025 on text at rest) where its flat containers used to swallow them. */
+@media(min-width:701px){
+  html.cinema .panel-inner{perspective-origin:50% 46%}
+  html.cinema :is(.home-copy,.about-layout,.about-layout>div,.channels-intro,.channels-intro>div,.domain-grid,.aether-copy,.aether-actions){transform-style:preserve-3d}
+  html.cinema .domain-card{background:linear-gradient(var(--plate),var(--plate)),rgba(5,2,6,.42)}
+}
 html.cinema .reveal{opacity:1;transform:none;transition:none}
 html.cinema:not(.booted) .panel-home{visibility:visible}
 html.cinema .site-footer{display:none}
@@ -490,15 +533,19 @@ html.cinema .lead,html.cinema .about-copy,html.cinema .card-text{text-shadow:0 1
 /* Repères keeps its world on the right; Domaines and Aether leave room for theirs. */
 html.cinema .about-layout{grid-template-columns:minmax(0,1fr) minmax(220px,.62fr);margin-right:34%}
 html.cinema .channels-intro{max-width:880px}
-html.cinema .domain-grid{background:rgba(5,2,6,.42)}
 html.cinema .aether-copy{max-width:600px}
-/* The presence column surfaces at the end of the journey. */
-html.cinema .presence-dock{position:fixed;z-index:30;right:calc(var(--gutter) + 12px);top:50%;width:clamp(200px,17vw,240px);margin:0;padding:0;border:0;display:block;opacity:var(--reveal,0);transform:translate3d(calc((1 - var(--reveal,0)) * 46px),-50%,0);visibility:hidden}
+/* The presence column surfaces at the end of the journey: out of the depth of the last world (220 px behind the
+   glass, 80 % of its size, when it comes into view at half the reveal — main.js shows it from there) up to the
+   plane, drifting in from the right as it comes. perspective() as a function: the dock is fixed, outside the
+   scenes' 3D context; the centring and the drift stay outside the projection (before it in the list), so the dock
+   grows around its own centre instead of unfolding from its lower right. --reveal is written by main.js in flight
+   only, and the dock is already one composited layer. */
+html.cinema .presence-dock{position:fixed;z-index:30;right:calc(var(--gutter) + 12px);top:50%;width:clamp(200px,17vw,240px);margin:0;padding:0;border:0;display:block;opacity:var(--reveal,0);transform:translate3d(calc((1 - var(--reveal,0)) * 46px),-50%,0) perspective(900px) translateZ(calc((var(--reveal,0) - 1) * 440px));visibility:hidden}
 html.cinema.presence-live .presence-dock{visibility:visible}
 html.cinema .presence-intro p,html.cinema .presence-note{display:none}
 html.cinema .presence-intro>span{display:inline-block;margin:0 0 12px;padding:4px 8px;background:var(--plate)}
 html.cinema .presence-links{display:flex;flex-direction:column;gap:1px;background:none}
-html.cinema .presence-link{min-height:0;padding:11px 14px;grid-template-columns:auto 1fr auto;background:rgba(8,3,9,.9)}
+html.cinema .presence-link{min-height:0;padding:11px 14px;grid-template-columns:auto 1fr auto;background:rgba(8,5,14,.9)}
 html.cinema .presence-link b{font-size:17px}
 html.cinema .presence-link small{display:none}
 /* The pending card keeps its state in the narrow dock: « À VENIR » under its name, not over it. */
@@ -524,7 +571,7 @@ html.cinema .scenes .panel-inner,html.cinema .scenes .panel-inner::after,html.ci
 .presence-note>span{color:var(--dim);font-size:var(--label)}
 .presence-intro p{max-width:360px;margin:16px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
 .presence-links{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--line-2)}
-.presence-link{position:relative;grid-column:span 2;display:grid;grid-template-columns:auto 1fr auto;align-content:start;gap:7px 12px;min-height:118px;padding:20px 18px;background:rgba(8,3,9,.72);transition:background .35s,transform .45s var(--ease)}
+.presence-link{position:relative;grid-column:span 2;display:grid;grid-template-columns:auto 1fr auto;align-content:start;gap:7px 12px;min-height:118px;padding:20px 18px;background:rgba(8,5,14,.72);transition:background .35s,transform .45s var(--ease)}
 @media(min-width:901px){.presence-link{grid-column:span 3}}
 .presence-link b{grid-column:2;font:400 clamp(20px,1.7vw,28px)/1 var(--serif);letter-spacing:.01em}
 .presence-link small{grid-column:2/-1;font-size:var(--label);letter-spacing:.08em;text-transform:none;color:var(--muted)}
@@ -546,7 +593,7 @@ html.cinema .scenes .panel-inner,html.cinema .scenes .panel-inner::after,html.ci
    divider carries its salve, the blocks are glass plates. Labels stay --dim, overlines --muted; the tint marks the
    second-line italic, links, focus and lit states. --acc-text is that tint where it must read as small text. */
 .detail-page{--acc:var(--rose);--acc-text:var(--acc);min-height:100svh}
-.domain-dev{--acc:var(--acc-dev);--tint:var(--rgb-cyan)}.domain-photo{--acc:var(--acc-photo);--tint:var(--rgb-photo)}.domain-write{--acc:var(--acc-writing);--tint:var(--rgb-magenta)}.domain-worlds{--acc:var(--acc-worlds);--acc-text:var(--acc-worlds-text);--tint:var(--rgb-violet)}.domain-aether{--acc:var(--acc-aether);--tint:var(--rgb-gold)}
+.domain-dev{--acc:var(--acc-dev);--tint:var(--rgb-cyan);--tint-2:var(--rgb-dev-2)}.domain-photo{--acc:var(--acc-photo);--tint:var(--rgb-photo);--tint-2:var(--rgb-photo-2)}.domain-write{--acc:var(--acc-writing);--tint:var(--rgb-magenta);--tint-2:var(--rgb-writing-2)}.domain-worlds{--acc:var(--acc-worlds);--acc-text:var(--acc-worlds-text);--tint:var(--rgb-violet);--tint-2:var(--rgb-worlds-2)}.domain-aether{--acc:var(--acc-aether);--tint:var(--rgb-gold);--tint-2:var(--rgb-gold)}
 .detail-page .world-canvas{z-index:0}
 .detail-shell{position:relative;z-index:2;width:min(1240px,calc(100% - 2 * var(--gutter)));margin:0 auto;padding:124px 0 70px}
 .detail-top{display:flex;justify-content:space-between;align-items:center;gap:20px;border-bottom:1px solid var(--line)}
@@ -570,7 +617,7 @@ html.cinema .scenes .panel-inner,html.cinema .scenes .panel-inner::after,html.ci
 .detail-hero .colophon{position:absolute;top:var(--hero-top);left:calc(100% + min(48px,(max(var(--gutter),(100vw - 1240px) / 2) - 1em) / 2));right:auto;width:1em;margin:0;font-size:20px;letter-spacing:.34em}
 /* Over the world (a planet's rim may pass behind it) the word keeps a soft dark ground. It lives on the hero, not
    inside the word (which rests at .55 and would dim it): a breath of glass, never a frame; it comes with the writing. */
-html:not(.mode-lite) .detail-hero::after{content:"";position:absolute;top:calc(var(--hero-top) - 42px);left:calc(100% + min(48px,(max(var(--gutter),(100vw - 1240px) / 2) - 1em) / 2) - 46px);width:112px;height:190px;z-index:0;border-radius:50%;background:radial-gradient(closest-side,rgba(7,4,7,.9),rgba(7,4,7,.7) 60%,transparent);pointer-events:none}
+html:not(.mode-lite) .detail-hero::after{content:"";position:absolute;top:calc(var(--hero-top) - 42px);left:calc(100% + min(48px,(max(var(--gutter),(100vw - 1240px) / 2) - 1em) / 2) - 46px);width:112px;height:190px;z-index:0;border-radius:50%;background:radial-gradient(closest-side,rgba(6,4,11,.9),rgba(6,4,11,.7) 60%,transparent);pointer-events:none}
 .detail-hero .colophon{z-index:1}
 @media (prefers-reduced-motion:no-preference){html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .detail-hero::after{animation:mistIn .8s var(--ease-scan) 1.85s both}}
 @media (max-width:899px),(prefers-contrast:more),(forced-colors:active){.detail-hero::after{display:none}}
@@ -582,7 +629,7 @@ html.mode-lite .detail-hero .colophon.write,html.mode-lite .detail-hero .colopho
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:48px;background:var(--line-2)}
 /* Blocks: glass plates over the world, still under the pointer: nothing moves in a reading column. Their transition
    is the reveal's (.reveal, 03): a block's own transition used to replace it, and the blocks popped in. */
-.detail-block{position:relative;min-height:220px;padding:28px 30px;background:linear-gradient(120deg,rgba(var(--tint),.075),transparent 46%),var(--plate);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.detail-block{position:relative;min-height:220px;padding:28px 30px;background:linear-gradient(120deg,rgba(var(--tint),.11),transparent 46%),var(--plate);transition:opacity .8s var(--ease),transform .8s var(--ease)}
 .detail-block.wide{grid-column:1/-1}
 .detail-block h2{margin:0 0 16px;font:400 clamp(30px,3vw,48px)/1 var(--serif)}
 .detail-block h2 em{font-style:italic;color:var(--acc)}
@@ -616,7 +663,7 @@ html.mode-lite :is(.detail-grid .detail-block,.detail-foot).reveal{opacity:1;tra
 /* 13 · PHOTOGRAPHIE */
 .photo-portfolio{position:relative;z-index:2;margin-top:clamp(40px,7vw,90px)}
 .photo-index{display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:clamp(64px,10vw,130px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.photo-index a{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:12px;min-height:116px;padding:22px;border-right:1px solid var(--line);background:rgba(8,3,9,.5);transition:background .4s,transform .45s var(--ease)}
+.photo-index a{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:12px;min-height:116px;padding:22px;border-right:1px solid var(--line);background:rgba(8,5,14,.5);transition:background .4s,transform .45s var(--ease)}
 .photo-index a:last-child{border-right:0}
 .photo-index a::before{content:"";position:absolute;left:0;top:0;width:1px;height:0;background:var(--acc);transition:height .5s var(--ease)}
 .photo-index a:hover,.photo-index a:focus-visible{background:rgba(var(--rgb-photo),.05);transform:translateY(-3px)}
@@ -628,7 +675,7 @@ html.mode-lite :is(.detail-grid .detail-block,.detail-foot).reveal{opacity:1;tra
 .photo-section-head{display:grid;grid-template-columns:minmax(160px,max-content) 1fr auto;align-items:end;gap:24px;margin-bottom:26px;padding-bottom:16px;border-bottom:1px solid var(--line)}
 .photo-section-head .detail-index{margin:0}
 .photo-section-head h2{margin:0;font:400 clamp(44px,6vw,84px)/.9 var(--serif)}
-.photo-empty-series{display:grid;grid-template-columns:minmax(240px,.85fr) minmax(280px,1.15fr);min-height:420px;border:1px solid var(--line);background:rgba(8,3,9,.6);overflow:hidden}
+.photo-empty-series{display:grid;grid-template-columns:minmax(240px,.85fr) minmax(280px,1.15fr);min-height:420px;border:1px solid var(--line);background:rgba(8,5,14,.6);overflow:hidden}
 .photo-empty-frame{position:relative;min-height:420px;border-right:1px solid var(--line);background:linear-gradient(90deg,transparent 49.8%,rgba(var(--rgb-photo),.1) 50%,transparent 50.2%),linear-gradient(0deg,transparent 49.8%,rgba(var(--rgb-photo),.1) 50%,transparent 50.2%)}
 .photo-empty-frame::before{content:"";position:absolute;inset:12%;border:1px solid rgba(var(--rgb-photo),.16);transform:rotate(-4deg)}
 .photo-empty-frame span{position:absolute;left:27%;top:21%;width:46%;height:58%;border:1px dashed rgba(var(--rgb-photo),.22);transform:rotate(5deg)}
@@ -640,14 +687,14 @@ html.mode-lite :is(.detail-grid .detail-block,.detail-foot).reveal{opacity:1;tra
 .photo-empty-copy p{max-width:520px;margin:0;color:var(--muted);font-size:15px;line-height:1.75}
 .photo-empty-copy em{margin-top:34px;font:400 var(--label) var(--mono);font-style:normal;letter-spacing:.18em;color:var(--dim)}
 .photo-theme-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
-.photo-theme{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-height:164px;padding:22px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(8,3,9,.55);overflow:hidden;transition:background .4s,transform .45s var(--ease)}
+.photo-theme{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-height:164px;padding:22px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(8,5,14,.55);overflow:hidden;transition:background .4s,transform .45s var(--ease)}
 .photo-theme::after{content:"";position:absolute;right:-45px;bottom:-60px;width:150px;height:150px;border:1px solid rgba(var(--rgb-photo),.12);border-radius:50%;transition:transform .6s var(--ease)}
 .photo-theme:hover,.photo-theme:focus-visible{background:rgba(var(--rgb-photo),.05);transform:translateY(-4px)}
 .photo-theme:hover::after{transform:scale(1.25) rotate(18deg)}
 .photo-theme span{font:400 var(--label) var(--mono);letter-spacing:.16em;color:var(--acc)}
 .photo-theme b{font:400 clamp(28px,3vw,44px)/1 var(--serif)}
 .photo-theme i{font:400 var(--label) var(--mono);font-style:normal;letter-spacing:.1em;color:var(--dim)}
-.photo-single-stage{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:350px;padding:40px clamp(24px,5vw,70px);border:1px solid var(--line);background:rgba(8,3,9,.6);overflow:hidden}
+.photo-single-stage{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:350px;padding:40px clamp(24px,5vw,70px);border:1px solid var(--line);background:rgba(8,5,14,.6);overflow:hidden}
 .photo-single-stage p{position:relative;z-index:2;max-width:580px;margin:0 0 16px;color:var(--muted);font:400 clamp(20px,2vw,28px)/1.35 var(--serif)}
 .photo-single-stage strong{position:relative;z-index:2;font:400 var(--label) var(--mono);font-weight:400;letter-spacing:.18em;color:var(--acc)}
 .photo-series-cover{position:relative;min-height:360px;overflow:hidden}
@@ -1270,7 +1317,7 @@ html.mode-lite :is(.detail-grid .detail-block,.detail-foot).reveal{opacity:1;tra
 }
 
 /* 2026-10-08 — contrast, immersive chrome, realistic phosphor scan, mobile depth */
-.fullscreen-toggle{display:flex;align-items:center;gap:7px;height:29px;padding:0 9px;border:1px solid var(--line);background:rgba(7,4,7,.5);color:var(--dim);font:500 10px var(--mono);letter-spacing:.14em;cursor:pointer;transition:border-color .3s,color .3s,background .3s,transform .3s var(--ease)}
+.fullscreen-toggle{display:flex;align-items:center;gap:7px;height:29px;padding:0 9px;border:1px solid var(--line);background:rgba(6,4,11,.5);color:var(--dim);font:500 10px var(--mono);letter-spacing:.14em;cursor:pointer;transition:border-color .3s,color .3s,background .3s,transform .3s var(--ease)}
 .fullscreen-toggle:hover,.fullscreen-toggle:focus-visible,.fullscreen-toggle.is-on{border-color:var(--ice);color:var(--ice);background:rgba(var(--rgb-cyan),.055)}
 .fullscreen-frame{width:9px;height:9px;border:1px solid currentColor;position:relative;opacity:.8}
 .fullscreen-frame:before,.fullscreen-frame:after{content:"";position:absolute;width:4px;height:4px;background:var(--bg);border:1px solid currentColor}
@@ -1283,7 +1330,7 @@ html.cinema .panel-inner{filter:drop-shadow(0 16px 42px rgba(0,0,0,.16))}
   html.cinema .panel-inner{width:calc(100% - 28px);padding-top:82px;padding-bottom:34px}
   html.cinema .home-copy{transform:translateZ(34px) rotateX(var(--text-tilt,0deg));}
   html.cinema .display-title,html.cinema .hero-title{filter:drop-shadow(0 18px 34px rgba(0,0,0,.32));}
-  html.cinema .lead,html.cinema .about-copy,html.cinema .card-text{color:#c7b4bc}
+  html.cinema .lead,html.cinema .about-copy,html.cinema .card-text{color:var(--muted)}
   html.cinema .domain-grid{gap:8px;background:transparent}
   html.cinema .domain-card{min-height:146px;padding:15px 12px;border:1px solid rgba(var(--tint),.14)}
   html.cinema .aether-module-strip{perspective:900px}
@@ -1351,8 +1398,8 @@ html.immersive-nav{overflow:hidden!important}
    A click, a tap or a key turns the picture and the sound on together (sound.js); the power-on (18)
    then opens the picture from the centre, where the standby dot was. */
 .signal-gate{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;overflow:hidden;color:var(--paper);
-  background:linear-gradient(112deg,transparent 34%,rgba(255,255,255,.022) 44%,transparent 56%),repeating-linear-gradient(0deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px),radial-gradient(ellipse 120% 95% at 50% 50%,#0d0811 0%,#060308 52%,#010001 100%)}
-.signal-gate::backdrop{background:#020102}
+  background:linear-gradient(112deg,transparent 34%,rgba(255,255,255,.022) 44%,transparent 56%),repeating-linear-gradient(0deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px),radial-gradient(ellipse 120% 95% at 50% 50%,var(--bg-2) 0%,var(--bg) 52%,var(--ink) 100%)}
+.signal-gate::backdrop{background:var(--ink,#020103)}
 /* The whole glass is the switch. */
 .signal-gate-switch{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:0;background:none;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
 /* The bezel: the edge of the glass, brighter when the switch has the keyboard focus. */
@@ -1379,7 +1426,7 @@ html.immersive-nav{overflow:hidden!important}
 .signal-gate-quiet:focus-visible{outline-offset:0}
 /* Standby LED, bottom right of the bezel. */
 .signal-gate-led{position:absolute;right:clamp(28px,6vmin,64px);bottom:calc(clamp(36px,7vmin,58px) + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:10px;font:400 var(--label) var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--dim);pointer-events:none}
-.signal-gate-led::before{content:"";width:6px;height:6px;border-radius:50%;background:#ff2f62;box-shadow:0 0 8px 2px rgba(255,47,98,.75)}
+.signal-gate-led::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--led);box-shadow:0 0 8px 2px rgba(255,47,98,.75)}
 @media (max-width:520px){.signal-gate-top span:last-child,.signal-gate-led{display:none}}
 /* Switching on: the hints go out at once, the dot stretches into the power-on line underneath. */
 .signal-gate.is-leaving{animation:gateFade .26s linear forwards}
@@ -1392,11 +1439,11 @@ html.immersive-nav{overflow:hidden!important}
 /* 18 · POWER-ON — the tube switches on at launch: dark screen, a bright line, the picture opens from it.
    Overlay only: the live page is never transformed. boot.js sets .power-pending before the first paint;
    portal.js replaces it with the animated .crt-power. If no script runs, the cover fades out by itself. */
-html.power-pending::after{content:"";position:fixed;inset:0;z-index:20001;background:#020102;pointer-events:none;animation:powerFailsafe .4s linear 2.6s forwards}
+html.power-pending::after{content:"";position:fixed;inset:0;z-index:20001;background:var(--ink);pointer-events:none;animation:powerFailsafe .4s linear 2.6s forwards}
 html.power-pending.power-hold::after{animation:none}
 @keyframes powerFailsafe{to{opacity:0;visibility:hidden}}
 .crt-power{position:fixed;inset:0;z-index:20001;pointer-events:none;overflow:hidden}
-.crt-power-lid{position:absolute;left:0;right:0;height:50.2%;background:#020102}
+.crt-power-lid{position:absolute;left:0;right:0;height:50.2%;background:var(--ink)}
 .crt-power-lid.top{top:0;animation:crtLidTop .72s cubic-bezier(.7,0,.2,1) .2s both}
 .crt-power-lid.bottom{bottom:0;animation:crtLidBottom .72s cubic-bezier(.7,0,.2,1) .2s both}
 @keyframes crtLidTop{to{transform:translateY(-101%)}}
@@ -1415,3 +1462,38 @@ html.power-pending.power-hold::after{animation:none}
   100%{transform:scaleX(1) scaleY(1);opacity:0}
 }
 @media(prefers-reduced-motion:reduce){html.power-pending::after,.crt-power{display:none}}
+
+/* 19 · CHANGEMENT DE CANAL — the page change (portal.js). The page being left collapses to a line: two lids close on
+   the picture in 260 ms, a line lights up where they meet and keeps breathing while the next page downloads
+   (overlays only: the live page is never transformed). The next page arrives covered — boot.js marks it
+   .channel-pending before its first paint and one pseudo-element draws the closed tube — and opens from the line in
+   half a second, faster than the power-on (18): a channel, not a cold start. Without script the cover fades out by
+   itself. Reduced motion: no departure, a short fade on arrival. Under the lids and under the immersive frame the
+   page's frame loop sleeps (js/core/loop.js). */
+/* The next page arrives covered: the root's two pseudo-elements are the closed lids, their hot edges meeting as the
+   line, there from the first paint and opened by CSS alone 120 ms later — the opening never waits for a script;
+   portal.js only clears the class once it is over. The lids move on the compositor (transform only). */
+html.channel-pending::before,html.channel-pending::after{content:"";position:fixed;left:0;right:0;height:50.2%;z-index:20001;pointer-events:none}
+html.channel-pending::before{top:0;background:linear-gradient(to top,#fff 0 2px,rgba(var(--rgb-accent),.55) 2px 5px,rgba(var(--rgb-accent),.2) 14px,rgba(var(--rgb-cyan),.08) 30px,var(--ink) 80px) var(--ink);animation:chanOpenTop .46s cubic-bezier(.16,1,.3,1) .12s both}
+html.channel-pending::after{bottom:0;background:linear-gradient(to bottom,#fff 0 2px,rgba(var(--rgb-accent),.55) 2px 5px,rgba(var(--rgb-accent),.2) 14px,rgba(var(--rgb-cyan),.08) 30px,var(--ink) 80px) var(--ink);animation:chanOpenBottom .46s cubic-bezier(.16,1,.3,1) .12s both}
+@keyframes chanOpenTop{to{transform:translateY(-101%)}}
+@keyframes chanOpenBottom{to{transform:translateY(101%)}}
+.crt-channel{position:fixed;inset:0;z-index:20001;pointer-events:none;overflow:hidden}
+.crt-channel-lid{position:absolute;left:0;right:0;height:50.2%;background:var(--ink)}
+.crt-channel-lid.top{top:0}
+.crt-channel-lid.bottom{bottom:0}
+.crt-channel-lid::after{content:"";position:absolute;left:0;right:0;height:2px;background:#fff;box-shadow:0 0 10px 2px rgba(255,255,255,.85),0 0 34px 7px rgba(var(--rgb-accent),.65),0 0 80px 16px rgba(var(--rgb-cyan),.28)}
+.crt-channel-lid.top::after{bottom:-1px}
+.crt-channel-lid.bottom::after{top:-1px}
+.crt-channel-line{position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:#fff;box-shadow:0 0 14px 3px rgba(255,255,255,.95),0 0 48px 10px rgba(var(--rgb-accent),.7),0 0 120px 28px rgba(var(--rgb-cyan),.35)}
+/* Departure: the lids close on the picture; the line, behind their meeting edges, breathes until the next page. */
+.crt-channel.is-closing .crt-channel-lid.top{animation:chanLidTopClose .26s cubic-bezier(.55,0,.85,.25) both}
+.crt-channel.is-closing .crt-channel-lid.bottom{animation:chanLidBottomClose .26s cubic-bezier(.55,0,.85,.25) both}
+.crt-channel.is-closing .crt-channel-line{opacity:0;animation:chanLineBreath 1.4s ease-in-out .22s infinite alternate forwards}
+@keyframes chanLidTopClose{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+@keyframes chanLidBottomClose{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes chanLineBreath{from{opacity:.7}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){
+  .crt-channel,html.channel-pending::before{display:none}
+  html.channel-pending::after{top:0;bottom:0;height:auto;background:var(--ink);animation:powerFailsafe .24s linear forwards;animation-duration:.24s!important}
+}

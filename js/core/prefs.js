@@ -1,12 +1,16 @@
 // Display preferences shared by every page.
 const KEY = "yosuljin-display-mode";
+// LITE is a dated choice: a bare "lite" written by a visit before the 2026-10-13 publication is stale (an old
+// preference must not hide the site's new state), only the dated value counts. The key keeps its name
+// (confidentialite.html describes it); js/boot.js reads the same value before the first paint.
+const LITE = "lite@2026-10-13";
 const listeners = new Set();
 
 export const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 export const finePointer = matchMedia("(pointer: fine)");
 
 function read() {
-  try { return localStorage.getItem(KEY) === "lite" ? "lite" : "full"; } catch { return "full"; }
+  try { return localStorage.getItem(KEY) === LITE ? "lite" : "full"; } catch { return "full"; }
 }
 
 let mode = read();
@@ -21,7 +25,7 @@ export const isCinema = () =>
 
 export function setMode(next) {
   mode = next === "lite" ? "lite" : "full";
-  try { localStorage.setItem(KEY, mode); } catch {}
+  try { localStorage.setItem(KEY, mode === "lite" ? LITE : "full"); } catch {}
   applyMode();
   listeners.forEach(fn => fn(mode));
 }

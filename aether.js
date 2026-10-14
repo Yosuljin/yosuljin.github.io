@@ -85,15 +85,13 @@ links.forEach(l=>{const[a,b]=ends(l);adj.get(a)?.add(b);adj.get(b)?.add(a);});
 // Work from other hands (data-owner="inscrit") is drawn apart, its relations too (css/aether.css).
 const inscrit=new Set(nodes.filter(n=>n.dataset.owner==="inscrit").map(n=>n.dataset.node));
 links.forEach(l=>{if(ends(l).some(k=>inscrit.has(k)))l.classList.add("is-inscrit");});
-// Lumina is drawn inside TheHive (D88) rather than joined by a line.
-adj.get("thehive")?.add("lumina");adj.get("lumina")?.add("thehive");
 
 // Counts are read from the page, never typed by hand (Aether rule: what is counted is generated).
 // What is only inscribed (other hands' work the park uses) is counted apart from the projects.
 const setCount=(key,value)=>{const el=document.querySelector('[data-count="'+key+'"]');if(el)el.textContent=String(value);};
 setCount("projects",document.querySelectorAll(".aether-project:not(.is-inscrit)").length);
 setCount("inscrits",document.querySelectorAll(".aether-project.is-inscrit").length);
-setCount("relations",links.length+1);
+setCount("relations",links.length);
 
 const panel=document.querySelector("[data-node-panel]");
 const field=key=>panel?.querySelector("[data-panel-"+key+"]");
@@ -130,9 +128,36 @@ function show(id){
 }
 const focusedNode=()=>document.activeElement?.closest?.(".a-node[data-node]");
 
+// A jump the page asks for (a sheet, the map) scrolls smoothly for 900 ms (css/aether.css, html.is-diving);
+// the skip link and the keyboard's own scrolls keep their instant behaviour; reduced motion ignores the class.
+let diving=0;
+const jump=go=>{html.classList.add("is-diving");clearTimeout(diving);go();diving=setTimeout(()=>html.classList.remove("is-diving"),900);};
 // Nodes are role="link" groups, not SVG <a>: the shared page scripts read a.href as a string,
-// which an SVG link does not provide. Activation goes to the project sheet.
-const open=n=>{if(n.dataset.target)location.hash=n.dataset.target;};
+// which an SVG link does not provide. Activation goes to the project sheet: the page scrolls down to it
+// while the constellation dives toward the node (G2); a sheet already targeted is scrolled to again.
+const open=n=>{
+  const t=n.dataset.target;
+  if(!t)return;
+  sky?.dive(n.dataset.node);
+  jump(()=>{if(location.hash==="#"+t)document.getElementById(t)?.scrollIntoView();else location.hash=t;});
+};
+// « Sur la carte » (G2): each sheet with a node links back up to the map; the node takes the focus (its
+// ring, its impulses, the panel speaks once) and the butterfly flies to it from Lumina. A real link: without
+// JS it still reaches #carte; a modified click (new tab) stays the browser's. The jump to #carte sends the
+// focus to the viewport (the stage is not focusable), so the node is focused after it, and once more after
+// the frame in case the browser applies the fragment's focus late.
+park?.addEventListener("click",e=>{
+  const a=e.target.closest?.("a[data-map-node]");
+  if(!a||e.defaultPrevented||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;
+  const n=nodes.find(x=>x.dataset.node===a.dataset.mapNode);
+  if(!n)return;
+  e.preventDefault();
+  jump(()=>{if(location.hash==="#carte")stage?.scrollIntoView();else location.hash="carte";});
+  const take=()=>{if(document.activeElement!==n)n.focus({preventScroll:true});};
+  take();
+  requestAnimationFrame(()=>requestAnimationFrame(take));
+  sky?.arrive(n.dataset.node);
+});
 // One Tab stop for the whole map (roving tabindex): the node focused last keeps tabindex 0,
 // so Tab leaves the map at once and Shift+Tab comes back to where the reader was.
 const rove=n=>nodes.forEach(m=>m.setAttribute("tabindex",m===n?"0":"-1"));
@@ -154,8 +179,7 @@ graph.parentElement.addEventListener("focusout",e=>{if(!graph.contains(e.related
 // Arrow keys move to the nearest node in that direction (spatial navigation on the map);
 // Home and End go to the first and last node. Positions are the map's own layout, read once here
 // before the constellation moves anything, so a key always leads to the same neighbour whatever the
-// motion. data-nav-offset shifts a node's navigation point: TheHive navigates from its label, below
-// the disc, so Lumina at the centre stays reachable.
+// motion. data-nav-offset can shift a node's navigation point (e.g. to a label block); no node needs it today.
 const place=new Map(nodes.map(n=>{
   const m=/translate\(([-\d.]+)[ ,]+([-\d.]+)\)/.exec(n.getAttribute("transform")||"");
   const o=/([-\d.]+)[ ,]+([-\d.]+)/.exec(n.dataset.navOffset||"");
@@ -196,7 +220,7 @@ const wanted=()=>html.classList.contains("mode-full")&&!reduced.matches&&!forced
 function syncSky(){
   if(!wanted()){sky?.stop();return;}
   if(sky){sky.start();return;}
-  loading??=import("./js/world/constellation.js?v=20261009-r2").then(m=>{
+  loading??=import("./js/world/constellation.js?v=20261014-r1").then(m=>{
     if(!wanted()){loading=null;return;} // switched to LITE meanwhile: no context for nothing
     sky=m.createConstellation(stage,graph,adj);
     if(!sky)return;

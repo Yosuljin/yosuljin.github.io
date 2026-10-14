@@ -2,8 +2,8 @@
 // lit, the current page's or the one being read, and only a lit line shows its Chinese word; a butterfly, the guide,
 // rests on the current page's line and flies only when a line is chosen.
 import { $, $$ } from "../core/dom.js?v=20261007-r7";
-import { reducedMotion, getMode } from "../core/prefs.js?v=20261008-r9";
-import { sfx } from "./sound.js?v=20261009-r2";
+import { reducedMotion, getMode } from "../core/prefs.js?v=20261014-r1";
+import { sfx } from "./sound.js?v=20261014-r1";
 
 const ZH = { dev: "開發", photo: "攝影", writing: "寫作", worlds: "世界" };
 // The sprite by this module's own address: the 404 page is served at any depth, where a path relative to the
@@ -167,8 +167,8 @@ export function initMenu({ onToggle } = {}) {
   // The names' widths change when the display font arrives, and with the window.
   document.fonts?.ready.then(() => { if (open) guideBird.home(); });
   addEventListener("resize", () => { if (open) guideBird.home(); }, { passive: true });
-  // Back from the history (bfcache): the guide is home again.
-  addEventListener("pageshow", e => { if (e.persisted && open) guideBird.home(); });
+  // Back from the history (bfcache): a menu still open was left behind a page change, it switches off.
+  addEventListener("pageshow", e => { if (e.persisted && open) hide({ restoreFocus: false }); });
   toggle.addEventListener("click", () => (open ? hide() : show()));
   $(".menu-shade")?.addEventListener("click", () => hide());
   document.addEventListener("keydown", e => {

@@ -2,7 +2,7 @@
 // route 0..3 = Entrée → Repères → Domaines → Aether. Detail pages render a single world.
 // Frame: nebula sky (low resolution) → scene (bodies, rings, gates, particles) → bloom → signal post.
 import { mat4, vec3, program, buffer, indexBuffer, attribs, sphereMesh, torusMesh, ringMesh, tubeMesh, noiseTexture, floatFormat, colorTarget, sceneTarget, rng, cacheUniforms } from "./gl.js?v=20261009-r2";
-import * as S from "./shaders.js?v=20261009-r2";
+import * as S from "./shaders.js?v=20261014-r1";
 
 const TAU = Math.PI * 2;
 const WHITE = [1, 1, 1];
@@ -24,13 +24,15 @@ function palette() {
   try { st = getComputedStyle(document.body || document.documentElement); } catch {}
   const get = (name, fallback) => (st && parseColor(st.getPropertyValue(name).trim())) || parseColor(fallback);
   return {
-    accent: get("--accent", "#ff5fa2"), dev: get("--acc-dev", "#36e2ff"), photo: get("--acc-photo", "#ffb23e"),
-    writing: get("--acc-writing", "#ff5fd1"), worlds: get("--acc-worlds", "#8c6bff"), aether: get("--acc-aether", "#ffd36b")
+    accent: get("--accent", "#ff5fa2"), dev: get("--acc-dev", "#2ee8ff"), photo: get("--acc-photo", "#ff9d3a"),
+    writing: get("--acc-writing", "#e86bff"), worlds: get("--acc-worlds", "#7a6cff"), aether: get("--acc-aether", "#ffd25a"),
+    // Each channel's second hue of atmosphere (sky, mist, reflections, deep materials): light, never text.
+    dev2: get("--acc-dev-2", "#4d7dff"), photo2: get("--acc-photo-2", "#ffe9b8"), writing2: get("--acc-writing-2", "#5a48e6"), worlds2: get("--acc-worlds-2", "#5cf0bd")
   };
 }
 
 // Domain colours are shared with the domain pages (CSS accents); createWorld reads the live values.
-export const DOMAINS = [["dev", "#36e2ff"], ["photo", "#ffb23e"], ["writing", "#ff5fd1"], ["worlds", "#8c6bff"]].map(([key, hex]) => ({ key, color: parseColor(hex) }));
+export const DOMAINS = [["dev", "#2ee8ff"], ["photo", "#ff9d3a"], ["writing", "#e86bff"], ["worlds", "#7a6cff"]].map(([key, hex]) => ({ key, color: parseColor(hex) }));
 
 // Quality tiers: pixel ratio cap and pixel budget, multisampling (WebGL2 only), bloom depth, sky divider.
 const TIERS = [
@@ -88,14 +90,21 @@ function routeU(route) {
 let failed = false; // a GPU that cannot build the shaders is not asked again on this page
 
 // Local QA only (loopback): ?qa=nopetals,nobfly,nomist,norays,notube,nowater,nopersist,tier=0|1|2 isolates
-// each layer's cost; ?qa=zones tints the reading zones (the dimmed boxes behind the text).
+// each layer's cost; ?qa=nolock,nobreath isolates the lock and the breath of an arrival (lock(), airflow());
+// ?qa=zones tints the reading zones (the dimmed boxes behind the text); ?qa=noday keeps a domain page's light still
+// (blendSky); ?qa=noperch gives the guide its old swarm (updateFlock); ?qa=norun keeps the sap from running up a
+// branch (setFocus); ?qa=noripple keeps the water still under the pointer (touchWater).
+// On loopback the page also gets window.__YOSULJIN_WORLD_QA (the guide on screen, the day, the shafts, the sap's
+// runs, the water's rings), for the bench.
 const QA = (() => {
   const flags = new Set();
+  let local = false;
   try {
-    if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) (new URLSearchParams(location.search).get("qa") || "").split(",").forEach(f => f && flags.add(f.trim()));
+    local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+    if (local) (new URLSearchParams(location.search).get("qa") || "").split(",").forEach(f => f && flags.add(f.trim()));
   } catch {}
   const tier = [...flags].map(f => /^tier=([012])$/.exec(f)).find(Boolean);
-  return { off: name => flags.has("no" + name), on: name => flags.has(name), tier: tier ? +tier[1] : null };
+  return { off: name => flags.has("no" + name), on: name => flags.has(name), tier: tier ? +tier[1] : null, local };
 })();
 
 export function createWorld(canvas, options = {}) {
@@ -177,24 +186,29 @@ export function createWorld(canvas, options = {}) {
     giant: { kind: 0, deep: [0.016, 0.008, 0.03], mid: mul(C.worlds, 0.2), high: mul(mix(C.aether, C.worlds, 0.4), 0.3), hot: C.aether, atmo: C.aether, bands: 4, seed: 9.1, storm: 0 },
     // The domain pages' worlds (detailWorld only): the page's one tint, and a low rim (it passes behind the colophon).
     domains: [
-      { kind: 2, deep: [0.008, 0.025, 0.045], mid: mul(C.dev, 0.2), high: mix(C.dev, WHITE, 0.4), hot: C.dev, atmo: mul(C.dev, 0.35), seed: 2 },
-      { kind: 3, deep: mul(C.photo, 0.12), mid: mul(C.photo, 0.68), high: mix(C.photo, WHITE, 0.45), hot: C.photo, atmo: mul(mix(C.photo, C.accent, 0.2), 0.35), seed: 5 },
-      { kind: 4, deep: mul(C.writing, 0.07), mid: mul(C.writing, 0.48), high: mix(C.writing, WHITE, 0.5), hot: C.writing, atmo: mul(C.writing, 0.35), seed: 8 },
-      { kind: 5, deep: mul(C.worlds, 0.09), mid: mul(C.worlds, 0.55), high: mix(C.worlds, WHITE, 0.35), hot: mix(C.worlds, WHITE, 0.3), atmo: mul(C.worlds, 0.35), seed: 11 }
+      { kind: 2, deep: mul(C.dev2, 0.1), mid: mul(C.dev, 0.3), high: mix(C.dev, WHITE, 0.4), hot: C.dev, atmo: mul(C.dev, 0.35), seed: 2 },
+      { kind: 3, deep: mul(C.photo, 0.12), mid: mul(C.photo, 0.68), high: mix(C.photo2, C.photo, 0.3), hot: C.photo, atmo: mul(mix(C.photo, C.accent, 0.2), 0.35), seed: 5 },
+      { kind: 4, deep: mul(C.writing2, 0.12), mid: mul(C.writing, 0.56), high: mix(C.writing, WHITE, 0.5), hot: C.writing, atmo: mul(C.writing, 0.35), seed: 8 },
+      { kind: 5, deep: mul(C.worlds, 0.09), mid: mul(C.worlds, 0.62), high: mix(C.worlds, WHITE, 0.35), hot: mix(C.worlds, WHITE, 0.3), atmo: mul(mix(C.worlds, C.worlds2, 0.5), 0.35), seed: 11 }
     ]
   };
   // Each world's sky (nebula colours, sun) and light.
   const SKY_INDEX = [
-    { a: mul(C.writing, 0.2), b: mul(C.worlds, 0.24), c: mul(C.dev, 0.18), deep: [0.008, 0.006, 0.03], sun: vec3.norm([-0.85, 0.5, 0.1]), sunCol: mix(C.accent, WHITE, 0.55), glow: 0.5 },
-    { a: mul(C.worlds, 0.34), b: mul(C.dev, 0.26), c: mul(C.accent, 0.24), deep: [0.005, 0.007, 0.03], sun: vec3.norm([-0.85, 0.42, 0.18]), sunCol: mix(C.photo, WHITE, 0.6), glow: 0.6 },
-    { a: mul(C.dev, 0.22), b: mul(C.writing, 0.3), c: mul(C.worlds, 0.3), deep: [0.007, 0.006, 0.03], sun: vec3.norm([-0.2, 0.5, -0.84]), sunCol: mix(C.accent, WHITE, 0.6), glow: 0.4 },
-    { a: [0.07, 0.04, 0.2], b: mul(C.aether, 0.26), c: mul(C.accent, 0.24), deep: [0.008, 0.006, 0.02], sun: vec3.norm([0.4, 0.1, -0.9]), sunCol: mix(C.aether, WHITE, 0.4), glow: 0.5 }
+    { a: mul(C.writing, 0.34), b: mul(C.worlds, 0.38), c: mul(C.dev, 0.20), deep: [0.012, 0.006, 0.046], sun: vec3.norm([-0.85, 0.5, 0.1]), sunCol: mix(C.accent, WHITE, 0.55), glow: 0.5 },
+    { a: mul(C.worlds, 0.44), b: mul(C.dev, 0.26), c: mul(C.accent, 0.3), deep: [0.012, 0.006, 0.046], sun: vec3.norm([-0.85, 0.42, 0.18]), sunCol: mix(C.photo, WHITE, 0.6), glow: 0.6 },
+    { a: mul(C.dev, 0.22), b: mul(C.writing, 0.4), c: mul(C.worlds, 0.38), deep: [0.012, 0.006, 0.046], sun: vec3.norm([-0.2, 0.5, -0.84]), sunCol: mix(C.accent, WHITE, 0.6), glow: 0.4 },
+    { a: [0.07, 0.04, 0.2], b: mul(C.aether, 0.34), c: mul(C.accent, 0.3), deep: [0.012, 0.006, 0.046], sun: vec3.norm([0.4, 0.1, -0.9]), sunCol: mix(C.aether, WHITE, 0.4), glow: 0.5 }
   ];
   const detailIndex = typeof options.detail === "number" ? options.detail : 0;
   const detailCol = DOM[detailIndex] || C.accent;
+  // The page's second hue of atmosphere (sky, mist): the colour comes from the light, not from the lines.
+  const detailCol2 = [C.dev2, C.photo2, C.writing2, C.worlds2][detailIndex] || C.worlds2;
   // The page's one tint: the space itself (accent) on the index, the domain's channel on its page.
   const pageTint = kind === "index" ? C.accent : detailCol;
-  const SKY = kind === "index" ? SKY_INDEX : [{ a: mul(detailCol, 0.3), b: mul(C.worlds, 0.26), c: mul(mix(detailCol, C.accent, 0.45), 0.3), deep: [0.01, 0.007, 0.022], sun: vec3.norm([0.8, 0.38, -0.46]), sunCol: mix(detailCol, WHITE, 0.6), glow: 0.5 }];
+  // One hot spot per page: the cyan and the green (dev, the second hue of Mondes) are 2-3x brighter than the violets,
+  // so the page's two sky hues are weighted by page (dev's own hue, the second hue of Photographie and of Mondes, lower).
+  const skyA = [0.36, 0.45, 0.45, 0.45][detailIndex] ?? 0.45, skyB = [0.3, 0.2, 0.3, 0.18][detailIndex] ?? 0.3;
+  const SKY = kind === "index" ? SKY_INDEX : [{ a: mul(detailCol, skyA), b: mul(detailCol2, skyB), c: mul(mix(detailCol, C.accent, 0.45), 0.38), deep: [0.012, 0.007, 0.034], sun: vec3.norm([0.8, 0.38, -0.46]), sunCol: mix(detailCol, WHITE, 0.6), glow: 0.5 }];
   const BAND = vec3.norm([0.25, 1, 0.18]);
   // Identity layer per world: how many sakura petals, the mist colours, where the butterflies rest.
   const MOOD = kind === "index" ? [
@@ -207,7 +221,7 @@ export function createWorld(canvas, options = {}) {
     { petals: 0.3, mist: [C.photo, C.accent] },     // photographie: clear air, light
     { petals: 0.55, mist: [C.writing, C.worlds] },  // écriture: petals in the air
     { petals: 0.4, mist: [C.worlds, C.dev] }        // mondes: haze between worlds
-  ][detailIndex] || { petals: 0.45, mist: [detailCol, C.worlds] }].map(m => ({ ...m, mist: [detailCol, mix(detailCol, C.accent, 0.5)], swarm: [0.9, 1.05, 1.3] }));
+  ][detailIndex] || { petals: 0.45, mist: [detailCol, C.worlds] }].map(m => ({ ...m, mist: [detailCol, detailIndex === 3 ? mix(detailCol, detailCol2, 0.5) : detailCol2], swarm: [0.9, 1.05, 1.3] }));
   const mood = { petals: 0 };
   // Safe zones (CSS px boxes of the text the world must keep readable): per scene, and the fixed HUD.
   const zones = [[], [], [], []], ZONE = new Float32Array(48), ZONEK = new Float32Array(12);
@@ -282,7 +296,8 @@ export function createWorld(canvas, options = {}) {
   // at different heights, each with its own rise, length and fork; a leader; flowers in separate clusters
   // towards the ends, so the sky shows between the limbs. It stands on a rock half in the black water and turns
   // with the moons' orbit. Local frame: y up, foot of the trunk at y -0.56, limb i towards angle i·90° in the
-  // xz plane. TREE_S scales it about its foot.
+  // xz plane. TREE_S scales it about its foot. A line's id is its domain (4: trunk, roots, leader); a fork or a
+  // twig adds where it leaves its limb (0..1, the fraction), so the sap's run (TREE_VS) reaches it there and splits.
   const TREE_S = 1.15;
   const TREE = (() => {
     const T = rng(4242), lines = [], clusters = [], tips = [];
@@ -321,11 +336,11 @@ export function createWorld(canvas, options = {}) {
       clusters.push([vec3.add(pts[7], [0, 0.07, 0]), 0.1 + T() * 0.03, i]);
       // The fork: a branch leaves the limb at about 55 %, rising, to one side.
       const side = (i % 2 ? 1 : -1) * (0.55 + T() * 0.3);
-      const fork = limb(pts[5], az + side, L.e0 * 0.9 + 0.25, L.e1 + 0.35, L.len * 0.45, 0.016, 0.006, 5, 0.25, i);
+      const fork = limb(pts[5], az + side, L.e0 * 0.9 + 0.25, L.e1 + 0.35, L.len * 0.45, 0.016, 0.006, 5, 0.25, i + 5 / 9);
       clusters.push([fork[5], 0.13 + T() * 0.03, i]);
       // Two twigs near the tip, with small clusters.
       for (let s = 0; s < 2; s++) {
-        const tw = limb(pts[6 + s * 2], az - side * (0.6 + s * 0.5), 0.9, 0.5, 0.12 + T() * 0.06, 0.008, 0.004, 3, 0.25, i);
+        const tw = limb(pts[6 + s * 2], az - side * (0.6 + s * 0.5), 0.9, 0.5, 0.12 + T() * 0.06, 0.008, 0.004, 3, 0.25, i + (6 + s * 2) / 9);
         clusters.push([tw[3], 0.08 + T() * 0.03, i]);
       }
     });
@@ -359,9 +374,39 @@ export function createWorld(canvas, options = {}) {
   // One light per domain on its branch (the card pointed at): amount and tint, index 4 for trunk and leader.
   const LITK = new Float32Array(5), LITC = new Float32Array(15);
   DOM.forEach((col, i) => LITC.set(col, i * 3));
-  const branchLight = u => { for (let i = 0; i < 4; i++) LITK[i] = state.focusAmt[i]; gl.uniform1fv(u.uLitK, LITK); gl.uniform3fv(u.uLitC, LITC); };
+  // The sap: a card aimed at sends one drop of light from the trunk up its branch (.87 s to the tips, TREE_FS) and
+  // the tips' blossoms flare for a second (BLOSSOM_FS) — the reader's attention irrigates one limb of one person,
+  // not a hover glow. RUN_AT: the world's time each run started; RUN: its age in seconds, 9 for none (made relative
+  // here, never in a shader: safe in mediump), updated in render; it stands still with the clock at rest; never
+  // under reduced motion (setFocus); ?qa=norun. The mirror draws it too (branchLight serves both).
+  const RUN_AT = new Float32Array(5).fill(-99), RUN = new Float32Array(5).fill(9);
+  const branchLight = u => { for (let i = 0; i < 4; i++) LITK[i] = state.focusAmt[i]; gl.uniform1fv(u.uLitK, LITK); gl.uniform3fv(u.uLitC, LITC); gl.uniform1fv(u.uRun, RUN); };
   const heartNow = [0, 0, 0];
   const REFLECT = (() => { const m = mat4.create(); m[5] = -1; m[13] = 2 * WATER_Y; return m; })();
+  // The water under the pointer: where its ray touches the black water, one ring widens in the reflection for
+  // ~2.5 s and fades (WATER_FS uRing) — the water is the one thing of the world that keeps a gesture, and slowly
+  // (nothing really disappears). Not the neon rain of before (rings everywhere, by themselves): one ring where the
+  // reader touches, in the reflection, no colour added. At most three alive, never more than one a half second, a
+  // new one only .15 u from the last (or after 2 s); a tap (a new ptrAt, main.js setPointer) makes one as well.
+  // Ages on the world's clock: they stand still at rest. Tier 1 and up (there is no reflection to bend at tier 0),
+  // never under reduced motion; ?qa=noripple.
+  const rings = [{ x: 0, z: 0, t0: -99, k: 0 }, { x: 0, z: 0, t0: -99, k: 0 }, { x: 0, z: 0, t0: -99, k: 0 }], RING = new Float32Array(12).fill(-1);
+  let ringCur = 0, lastRing = -99, lastRingX = 0, lastRingZ = 0, lastPtrAt = -1e9;
+  function touchWater() {
+    if (kind !== "index" || reduced.matches || q.tier === 0 || QA.off("ripple") || QA.off("water")) return;
+    if (state.ptrAt === lastPtrAt || Math.abs(routeNow() - 2) > 0.8) return;
+    lastPtrAt = state.ptrAt;
+    if (ptrDir[1] > -0.02) return;
+    // The clock's hourly wrap: the last ring's time would stay ahead of the clock (no ring for up to an hour).
+    if (lastRing > state.time) lastRing = -99;
+    const tt = (WATER_Y - eye[1]) / ptrDir[1];
+    if (tt <= 0) return;
+    const x = eye[0] + ptrDir[0] * tt - c2[0], z = eye[2] + ptrDir[2] * tt - c2[2];
+    if (Math.hypot(x, z) > 2.4 * TREE_S || state.time - lastRing < 0.5) return;
+    if (Math.hypot(x - lastRingX, z - lastRingZ) < 0.15 && state.time - lastRing < 2) return;
+    rings[ringCur] = { x, z, t0: state.time, k: 1.2 };
+    ringCur = (ringCur + 1) % 3; lastRing = state.time; lastRingX = x; lastRingZ = z;
+  }
 
   // Aether: nodes on two shells + interior relays, linked to their nearest neighbours.
   const meshNodes = [];
@@ -417,15 +462,20 @@ export function createWorld(canvas, options = {}) {
 
 
   // Sakura petals: four corners per petal, home in a box that wraps around the camera (PETAL_VS). Composed by
-  // light, not by number: 40 / 90 / 220 by tier on the index, 24 / 50 / 120 on a domain page.
-  const PETALS = (kind === "index" ? [40, 90, 220] : [24, 50, 120])[startTier];
+  // light, not by number: 40 / 90 / 220 by tier on the index, 24 / 50 / 120 on a domain page. Each has its rank
+  // in the flight (the share that passes — at rest, in transit, for a breath — fades through it: drawPetals),
+  // which is its phase too; its spin is a whole number of turns an hour, so the hourly wrap of the clocks
+  // (uTime, uGustT) never turns a petal.
+  const PETALS = (kind === "index" ? [40, 90, 220] : [24, 50, 120])[startTier], SPIN = TAU / 3600;
   const petalData = new Float32Array(PETALS * 48), petalIdx = new Uint16Array(PETALS * 6);
   for (let i = 0; i < PETALS; i++) {
-    const seed = [R(), R(), R(), R()], axis = vec3.norm([R() - 0.5, R() - 0.5, R() - 0.5]), spin = 0.6 + R() * 2.2, ph = R(), tint = R() < 0.14 ? R() : 0;
-    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([x, y], k) => petalData.set([...seed, ...axis, spin, x, y, ph, tint], (i * 4 + k) * 12));
+    const seed = [R(), R(), R(), R()], axis = vec3.norm([R() - 0.5, R() - 0.5, R() - 0.5]), spin = Math.round((0.6 + R() * 2.2) / SPIN) * SPIN, tint = R() < 0.14 ? R() : 0;
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([x, y], k) => petalData.set([...seed, ...axis, spin, x, y, i / PETALS, tint], (i * 4 + k) * 12));
     petalIdx.set([i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 1, i * 4 + 3, i * 4 + 2], i * 6);
   }
   const petals = { buf: buffer(gl, petalData), idx: indexBuffer(gl, petalIdx), count: PETALS * 6 };
+  // The box (world units) the flight wraps in; the drift is kept inside it, so wrapping it never moves a petal.
+  const PBOX = [9, 6, 11];
   // Their shape, from the sprite (motifs.svg #sakura-petal-fill: obovate, a narrow V notch, a short claw; never a heart),
   // one tracing for the DOM and the world, rasterised once: R the membrane, G the outline, B the veins
   // (direction §5.3, §8.1). Mipmapped: an out-of-focus petal reads a coarser level.
@@ -535,6 +585,11 @@ export function createWorld(canvas, options = {}) {
     route: 0, vel: 0, px: 0, py: 0, spx: 0, spy: 0, focus: -1, focusAmt: [0, 0, 0, 0],
     glitch: 0, glitchUntil: 0, glitchPeak: 0, title: null, fade: 0, flight: 0, span: 0, scroll: 0, scrollY: null, floor: 0, time: 0, clock: 0, bank: 0,
     worldTime: performance.now() / 1000, pace: 1, paceTarget: 1, ptrAt: -1e9, ptrK: 0,
+    // The petals' air (airflow()): the breath of an arrival, the wind and the gust integrated into a drift.
+    breath: 0, drift: [0, 0, 0], gust: 0, gustT: 0,
+    // A domain page: how far the day has turned with the reading (blendSky), and the guide's places on the page
+    // (setPerch, setCompanion, setAim: a screen x in NDC with a page y in CSS px, or a column's x).
+    day: 0, perch: null, companion: null, wide: false, aim: null,
     detail: detailIndex
   };
   const view = mat4.create(), proj = mat4.create(), M = mat4.create(), M2 = mat4.create(), MI = mat4.identity(mat4.create());
@@ -656,15 +711,15 @@ export function createWorld(canvas, options = {}) {
     attribs(gl, geo.buf, [[a.aPos, 3], [a.aDir, 3], [a.aInfo, 4]]);
     gl.drawArrays(gl.POINTS, 0, geo.count);
   }
-  const lightOf = (dir, col, amb = [0.02, 0.015, 0.035], fillCol = C.dev) => ({ dir, col, amb, fill: vec3.norm([-dir[0], -dir[1] - 0.6, -dir[2]]), fillCol });
+  const lightOf = (dir, col, amb = [0.02, 0.014, 0.05], fillCol = C.dev) => ({ dir, col, amb, fill: vec3.norm([-dir[0], -dir[1] - 0.6, -dir[2]]), fillCol });
   /** Right-handed frame whose Y axis is n (a torus built in XZ then faces n). */
   const frameFor = n => { const x = vec3.norm(vec3.cross(Math.abs(n[1]) > 0.95 ? [1, 0, 0] : [0, 1, 0], n)); return [x, n, vec3.cross(x, n)]; };
   const ringNormal = m => vec3.norm([m[4], m[5], m[6]]);
 
   // ---------- Worlds (pass 0: opaque bodies, pass 1: light, rings and particles) ----------
   const SUN0 = SKY_INDEX[0].sun;
-  const ICE = [124 / 255, 233 / 255, 1];
-  const L0 = lightOf(SUN0, mix(C.accent, WHITE, 0.62), [0.03, 0.02, 0.06], mul(ICE, 0.5));
+  const ICE = [134 / 255, 236 / 255, 1];   // --ice
+  const L0 = lightOf(SUN0, mix(C.accent, WHITE, 0.5), [0.03, 0.02, 0.06], mul(ICE, 0.5));
   const planetM0 = mat4.create();
   function world0(o, pass) {
     // The Entrée: the planet's centre is out of the frame at the bottom right (camera()); only its crescent, lit
@@ -683,7 +738,7 @@ export function createWorld(canvas, options = {}) {
     drawHalo(c, 1, mul(C.accent, 0.35), mix(C.accent, WHITE, 0.3), SUN0, 0.45 * o * (1 + arrive * 0.35), 1.9, 4.6);
   }
 
-  const L1 = lightOf(SKY_INDEX[1].sun, mix(C.photo, WHITE, 0.7), [0.025, 0.02, 0.05], C.accent);
+  const L1 = lightOf(SKY_INDEX[1].sun, mix(C.photo, WHITE, 0.55), [0.025, 0.02, 0.05], C.accent);
   const lensM = mat4.create();
   function world1(o, pass) {
     const c = c1;
@@ -703,7 +758,8 @@ export function createWorld(canvas, options = {}) {
     {
       const { p, u, a } = P.iris;
       gl.useProgram(p); common(u);
-      gl.uniformMatrix4fv(u.uModel, false, mat4.basis(M, c, lx, ly, lz, 1)); gl.uniform2f(u.uR, 0.8, 1.13);
+      // The pupil's reflex: on an arrival the iris tightens by 7 % at once and lets go in about 1.5 s (arrival()).
+      gl.uniformMatrix4fv(u.uModel, false, mat4.basis(M, c, lx, ly, lz, 1)); gl.uniform2f(u.uR, 0.8 * (1 - 0.07 * arrive), 1.13);
       gl.uniform3fv(u.uColA, mix(C.accent, WHITE, 0.55)); gl.uniform3fv(u.uColB, mul(WHITE, 0.85)); gl.uniform3fv(u.uColC, mix(C.worlds, WHITE, 0.65));
       // 0.005 turn/s: 18 whole turns in the clock's hour, so its wrap does not jump.
       gl.uniform1f(u.uSpin, (t() * 0.005) % 1); gl.uniform1f(u.uAlpha, 0.5 * o * (1 + arrive * 0.25));
@@ -725,8 +781,8 @@ export function createWorld(canvas, options = {}) {
     const { p, u, a } = P.tree;
     gl.useProgram(p); common(u);
     gl.uniformMatrix4fv(u.uModel, false, treeM); gl.uniform3fv(u.uCam, eye); gl.uniform3fv(u.uHeart, mat4.apply(treeM, HEART));
-    // Against the backlight the wood reads dark: deep bark, a rim of light along its edges.
-    gl.uniform3fv(u.uBark, [0.04, 0.02, 0.032]); gl.uniform3fv(u.uRim, mix(C.accent, WHITE, 0.35)); gl.uniform3fv(u.uFill, mul(C.dev, 0.3)); gl.uniform3fv(u.uSap, C.accent);
+    // Against the backlight the wood reads dark: red-brown bark, a copper rim of light along its edges.
+    gl.uniform3fv(u.uBark, [0.07, 0.028, 0.03]); gl.uniform3fv(u.uRim, mix(C.accent, [0.69, 0.41, 0.35], 0.5)); gl.uniform3fv(u.uFill, mul(C.dev, 0.3)); gl.uniform3fv(u.uSap, C.accent);
     gl.uniform1f(u.uTime, t()); branchLight(u);
     attribs(gl, tree.buf, [[a.aPos, 3], [a.aNrm, 3], [a.aV, 1], [a.aId, 1]]);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tree.idx);
@@ -737,8 +793,16 @@ export function createWorld(canvas, options = {}) {
     gl.useProgram(p); common(u);
     bind(2, reflRT ? reflRT.tex : noise);
     gl.uniform3f(u.uC, c2[0], WATER_Y, c2[2]); gl.uniform1f(u.uR, 2.4 * TREE_S); gl.uniform2f(u.uRes, sceneRT.w, sceneRT.h);
-    gl.uniform3fv(u.uCam, eye); gl.uniform3fv(u.uDeep, [0.006, 0.006, 0.016]); gl.uniform3fv(u.uNeonA, C.accent); gl.uniform3fv(u.uNeonB, C.dev);
-    gl.uniform1f(u.uTime, t()); gl.uniform1f(u.uRain, 0); gl.uniform1f(u.uHasRefl, mirrored ? 1 : 0); gl.uniform1f(u.uAlpha, 0.92 * o);
+    gl.uniform3fv(u.uCam, eye); gl.uniform3fv(u.uDeep, [0.004, 0.004, 0.02]); gl.uniform3fv(u.uNeonA, C.accent); gl.uniform3fv(u.uNeonB, ICE);
+    gl.uniform1f(u.uTime, t()); gl.uniform1f(u.uHasRefl, mirrored ? 1 : 0); gl.uniform1f(u.uAlpha, 0.92 * o);
+    // The rings' ages, relative (-1 for none: the shader skips it); the clock's hourly wrap ends a ring early,
+    // reduced motion (its clock stands still) all of them.
+    const now = t();
+    for (let i = 0; i < 3; i++) {
+      const r = rings[i], age = now - r.t0, o = i * 4;
+      RING[o] = r.x; RING[o + 1] = r.z; RING[o + 2] = r.k > 0 && age >= 0 && age < 3 && !reduced.matches ? age : -1; RING[o + 3] = r.k;
+    }
+    gl.uniform4fv(u.uRing, RING);
     attribs(gl, quad, [[a.aCorner, 2]]);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
@@ -832,13 +896,67 @@ export function createWorld(canvas, options = {}) {
     const side = vec3.norm(vec3.cross(tan, [0, 1, 0])), up = vec3.cross(side, tan);
     return { p, tan, side, up, cols: [[mix(C.worlds, WHITE, 0.6), mix(C.dev, WHITE, 0.6)], [C.dev, C.writing, C.photo, C.worlds], [C.aether, mix(C.aether, WHITE, 0.4)]][i] };
   });
-  // Arrival: when the camera settles on a new world, its light swells for a moment.
-  let arrive = 0, arrivedAt = -1;
+  // Arrival: as the camera settles on a new world (within .04 of it) its light swells for a moment (and Repères'
+  // iris tightens); once it has stopped there (main.js snaps its spring to the world, .7 s later, and measures the
+  // scene's text in that same frame, before this one: the reading zones are whole at the lock's first frame, so
+  // nothing slides behind the text, not even on a first visit) the channel locks and the air moves (lock(),
+  // breathe()) — never on a flight through a world, which does not stop there. The arrival's lock takes the place
+  // of one still waiting (a wake's, the page's). Nothing when the page scrolls (the index out of cinema).
+  let arrive = 0, arrivedAt = -1, lockedWorld = -1;
   function arrival(dt) {
     arrive *= Math.exp(-dt * 1.6);
-    if (kind !== "index" || reduced.matches) return;
+    if (kind !== "index" || reduced.matches || state.scrollY != null) return;
     const r = routeNow(), i = Math.round(r);
-    if (Math.abs(r - i) < 0.08 && i !== arrivedAt) { if (arrivedAt >= 0) arrive = 1; arrivedAt = i; }
+    if (Math.abs(r - i) < 0.04 && i !== arrivedAt) { if (arrivedAt >= 0) arrive = 1; arrivedAt = i; }
+    if (r === i && state.vel === 0 && i !== lockedWorld) {
+      if (lockedWorld >= 0) { lockAt = 0; lock(i); breathe(1); }
+      lockedWorld = i;
+    }
+  }
+  // The channel locks (the picture of a tube catching its channel): one band slides aside for a quarter of a second
+  // and the picture locks net. Three events, never at rest: an arrival on a world of the index (with its sound:
+  // "world-arrive", heard by js/ui/fx.js), the page opened under its lids, the first frame after a deep rest.
+  // Bands are 0.7 s apart at least (as the gates' sounds); every arrival keeps its sound (sound.js has its own
+  // limiter), so an arrival right after a wake's lock is still heard; none under reduced motion.
+  let lastLock = -1e9, lockAt = 0, lockAmount = 0.22, lockMs = 280, lockedOnArrival = false;
+  function lock(i, amount = 0.22, ms = 280) {
+    if (reduced.matches || QA.off("lock")) return;
+    if (i >= 0) canvas.dispatchEvent(new CustomEvent("world-arrive", { bubbles: true, detail: { world: i } }));
+    if (state.clock - lastLock < 0.7) return;
+    lastLock = state.clock;
+    glitch(amount, ms);
+  }
+  /** A lock a moment from now (clock seconds), unless one is already due. */
+  function lockSoon(delay, amount, ms) {
+    if (lockAt) return;
+    lockAt = performance.now() / 1000 + delay; lockAmount = amount; lockMs = ms;
+  }
+  // The breath of the channel: the air moves when the camera arrives on a world (and the lock), and once on a
+  // domain page as its canvas comes in — the whole flight passes, the petals part from the axis of the gaze.
+  let breathGoal = 0, breathHold = 0, breathAt = 0;
+  /** A breath of strength k: held 100 ms (the attack reaches k by then, 1.1 · (1 − e⁻²·⁴)), then it dies down. */
+  function breathe(k) { if (!reduced.matches && !QA.off("breath")) { breathGoal = Math.max(breathGoal, k * 1.1); breathHold = 0.1; } }
+  /** The petals' air: the breath (a 40 ms attack, then it dies down in about 1.5 s), the slow gust, and the wind
+   *  and the gust's time integrated into a drift (PETAL_VS) — on from where the petals are, never a jump; at
+   *  the world's pace, so a resting world's air stands still; nothing under reduced motion. The breath pushes the
+   *  flight towards the camera on the index, up between the lids on a domain page, parts it from the axis of the
+   *  gaze (uPtrK, drawPetals) and spins it faster through the gust's time — all of it integrated or local: it never
+   *  enters uGust, the sway's amplitude, which would slide every petal along its own sway at once (PETAL_VS). */
+  function airflow(dt) {
+    if (breathAt && state.clock >= breathAt) { breathAt = 0; breathe(1.2); }
+    if (breathHold > 0) breathHold -= dt; else breathGoal *= Math.exp(-dt * 1.6);
+    state.breath += (breathGoal - state.breath) * (1 - Math.exp(-dt * 24));
+    if (state.breath < 0.002) state.breath = 0;
+    const tt = t(), gust = 0.5 + 0.5 * Math.sin(tt * 0.37) * Math.sin(tt * 0.23 + 1);
+    state.gust = gust + Math.min(1, state.vel * 0.5);
+    const wdt = reduced.matches ? 0 : dt * state.pace;
+    if (wdt <= 0) return;
+    state.gustT = (state.gustT + wdt * (state.gust + state.breath)) % 3600; // a wrap turns no petal: every spin is whole turns an hour
+    const dir = kind === "index" ? camF : camU, k = (kind === "index" ? -0.9 : 0.35) * state.breath * wdt;
+    const wx = -0.3 - gust * 0.25;
+    state.drift[0] = (state.drift[0] + wx * wdt + dir[0] * k) % PBOX[0];
+    state.drift[1] = (state.drift[1] - 0.2 * wdt + dir[1] * k) % PBOX[1];
+    state.drift[2] = (state.drift[2] + 0.12 * wdt + dir[2] * k) % PBOX[2];
   }
   const gateSide = [0, 0, 0];
   function crossGates() {
@@ -927,20 +1045,26 @@ export function createWorld(canvas, options = {}) {
     gl.uniform1f(u.uTitleK, T && kind === "index" ? sceneAlpha(0) : 0); gl.uniform1f(u.uAspect, cssW / cssH);
     gl.uniform3fv(u.uTitleTint, mix(C.accent, WHITE, 0.55));
     gl.uniform1f(u.uBeamR, 1.6); gl.uniform1f(u.uFocus, vec3.len(vec3.sub(focusAt, eye))); gl.uniform1f(u.uAperture, 0.16);
-    const tt = t(), gust = 0.5 + 0.5 * Math.sin(tt * 0.37) * Math.sin(tt * 0.23 + 1);
-    gl.uniform3fv(u.uCam, eye); gl.uniform3f(u.uBox, 9, 6, 11); gl.uniform3f(u.uWind, -0.3 - gust * 0.25, -0.2, 0.12); gl.uniform3fv(u.uLight, sky.sun);
-    gl.uniform1f(u.uTime, tt); gl.uniform1f(u.uSize, 0.046); gl.uniform1f(u.uGust, gust + Math.min(1, state.vel * 0.5));
+    // The wind, the gust and the breath come integrated (airflow()): the flight goes on from where it is; uGust (the
+    // sway's amplitude) carries the gust and the camera's speed only, never the breath.
+    gl.uniform3fv(u.uCam, eye); gl.uniform3fv(u.uBox, PBOX); gl.uniform3fv(u.uDrift, state.drift); gl.uniform3fv(u.uLight, sky.sun);
+    gl.uniform1f(u.uTime, t()); gl.uniform1f(u.uSize, 0.046); gl.uniform1f(u.uGust, state.gust); gl.uniform1f(u.uGustT, state.gustT);
     gl.uniform1f(u.uCalm, 1 - clamp01(state.vel * 1.5));
-    gl.uniform3fv(u.uPtrDir, ptrDir); gl.uniform1f(u.uPtrK, state.ptrK * 0.9);
-    // Pale sakura (#ffe1ec), a deeper base; one colour (no cyan petals).
-    const pale = [1, 225 / 255, 236 / 255];
+    // The breath leaves along the pointer's ray (the axis of the gaze while the pointer rests in the middle): the
+    // petals part from it and turn around it, as under the pointer's own breath.
+    gl.uniform3fv(u.uPtrDir, ptrDir); gl.uniform1f(u.uPtrK, Math.min(1.4, state.ptrK * 0.9 + state.breath * 1.3));
+    // Pale sakura (--sakura, #ffd1e3), a deeper base; one colour (no cyan petals).
+    const pale = [1, 209 / 255, 227 / 255];
     gl.uniform3fv(u.uColA, mix(C.accent, WHITE, 0.55)); gl.uniform3fv(u.uColB, pale); gl.uniform3fv(u.uColC, pale); gl.uniform1f(u.uAlpha, mood.petals);
     attribs(gl, petals.buf, [[a.aSeed, 4], [a.aRot, 4], [a.aCorner, 4]]);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, petals.idx);
     // At rest only a few petals drift by (a fifth of them, scattered through the buffer); the whole flight
-    // rushes past only while the camera travels.
-    const share = 0.2 + 0.8 * clamp01(state.vel * 1.5);
-    gl.drawElements(gl.TRIANGLES, Math.round(petals.count / 6 * share) * 6, gl.UNSIGNED_SHORT, 0);
+    // rushes past only while the camera travels, and for the breath of an arrival. The share moves through the
+    // flight by rank (aCorner.z): a petal at its edge fades over .12 of the flight (PETAL_VS), never pops, so the
+    // drawn range reaches past the share by half that band.
+    const share = 0.2 + 0.8 * clamp01(state.vel * 1.5 + state.breath);
+    gl.uniform1f(u.uShare, share);
+    gl.drawElements(gl.TRIANGLES, Math.round(petals.count / 6 * Math.min(1, share + 0.06)) * 6, gl.UNSIGNED_SHORT, 0);
   }
   /** Mist into the quarter-resolution fx target (after the shafts, or on a cleared target). */
   function drawMistLayer(hasShafts) {
@@ -969,6 +1093,53 @@ export function createWorld(canvas, options = {}) {
     }
   }
   const transitOf = () => kind === "index" ? Math.sin(Math.PI * (routeNow() - Math.floor(routeNow()))) : 0;
+  // The guide (direction §8.1): one behaviour, the constellation's (js/world/constellation.js: it rests on the rim,
+  // flies when a node is read, settles near it, breathes) brought to the world. On a domain page it rests in the
+  // hero's void (setPerch: the top of the right column, above the aside), flies as the reader scrolls — in the right
+  // margin when it is wide (setCompanion), else on the near rim of the ring where it shows past the plates, else in
+  // the gutter — and settles again 1.2 s after the scroll stops: on the hero while it is on screen, else on the ring
+  // (or the gutter). Never over the title or the text read. A plate aimed at (setAim: hover or focus on the route's
+  // plates, the foot's link) calls it to the margin, level with it; let go, it leaves. Portrait: it rests on the
+  // top of the horizon's limb and lifts off in place. On the index, a card aimed at sets it down on the lit branch's
+  // tip. It answers the reader's progress and what is aimed at, never the pointer itself. Settled, its wings stay
+  // open and breathe (BFLY_VS uRest), head up as on a pane of glass. ?qa=noperch: the swarm of before.
+  const REST = new Float32Array(12);
+  let scrollV = 0, lastScroll = -1, restAt = -1e9, ringEa = -1, ringAt = -1e9, onRing = false;
+  /** The point of the screen (NDC) `dist` ahead of the eye. */
+  const screenPoint = (nx, ny, dist = 1.9) => vec3.add(eye, vec3.scale(vec3.norm(vec3.add(camF, vec3.add(vec3.scale(camR, nx * tanXY[0]), vec3.scale(camU, ny * tanXY[1])))), dist));
+  /** A page y (CSS px) as a screen height in NDC, with the page's scroll (setScrollY). */
+  const pageNy = pageY => 1 - 2 * (pageY - (state.scrollY || 0)) / cssH;
+  /** A point of the ring's outer rim (r 2.08) at angle ea, riding the ring as it turns. */
+  const ringAtAngle = ea => mat4.apply(detailRingM, [Math.cos(ea) * 2.08, 0.02, Math.sin(ea) * 2.08]);
+  /** The perch on the ring: the point of its near rim past the plates (in front of the planet, on screen, right of
+   *  the margin at nx) nearest that margin, one of 24 samples, picked as the guide comes to land (`pick`) and kept
+   *  while it rides the ring — checked once a second, never per frame, and picked again only once it has left the
+   *  screen: no hop between samples. Null while the rim shows nowhere past the plates (windows under ≈ 1600 px). */
+  function ringPoint(nx, pick = false) {
+    if (pick || state.clock - ringAt >= 1) {
+      ringAt = state.clock;
+      // A rim point the planet (unit sphere at the origin) hides: the ray from the eye to it crosses the sphere.
+      const hidden = p => { const d = vec3.sub(p, eye), l = vec3.len(d), tt = -vec3.dot(eye, d) / l; return tt > 0 && tt < l && vec3.len(vec3.add(eye, vec3.scale(d, tt / l))) < 1; };
+      // On screen within `edge` of its border and not left of the margin; nearer it, and the inner screen, is better.
+      const score = (ea, edge) => {
+        const p = ringAtAngle(ea), pr = project(p);
+        if (!pr || hidden(p)) return Infinity;
+        const x = pr.x / cssW * 2 - 1, y = pr.y / cssH * 2 - 1;
+        return x < nx - 0.06 || Math.abs(x) > edge || Math.abs(y) > edge ? Infinity : Math.abs(x - nx) + 3 * Math.max(0, Math.abs(x) - 0.8, Math.abs(y) - 0.8);
+      };
+      if (pick || ringEa < 0 || score(ringEa, 0.99) === Infinity) {
+        let best = -1, bd = Infinity;
+        for (let k = 0; k < 24; k++) { const ea = k / 24 * TAU, d = score(ea, 0.95); if (d < bd) { bd = d; best = ea; } }
+        ringEa = best;
+      }
+    }
+    return ringEa < 0 ? null : ringAtAngle(ringEa);
+  }
+  /** The top of the planet's outline (unit radius at the origin) as the camera sees it, and the outline's up. */
+  function limbTop() {
+    const d = vec3.len(eye), u = vec3.scale(eye, 1 / Math.max(d, 1e-6)), w = vec3.norm(vec3.sub([0, 1, 0], vec3.scale(u, u[1])));
+    return [vec3.add(vec3.scale(u, 1 / Math.max(d, 1.05)), vec3.scale(w, Math.sqrt(Math.max(0, 1 - 1 / (d * d))))), w];
+  }
   /** The flock: at rest a loose swarm in a free corner of the world; in transit they fly ahead of the camera. */
   function updateFlock(dt) {
     const r = routeNow(), tt = t();
@@ -979,18 +1150,59 @@ export function createWorld(canvas, options = {}) {
     // 2.4 units away); they never follow the pointer.
     const atEntree = kind === "index" && wi === 0, portrait = portraitAmount();
     if (atEntree) home = vec3.add(eye, vec3.scale(vec3.norm(vec3.add(camF, vec3.add(vec3.scale(camR, (0.62 - 0.12 * portrait) * tanXY[0]), vec3.scale(camU, (0.55 + 0.17 * portrait) * tanXY[1])))), 2.4));
+    // The guide's reading: the scroll's speed in screens a second (setScrollY: the same on a long page as on a short
+    // one, a lone arrow key or a slow trackpad counts), eased; a settled page is 1.2 s without it.
+    const guide = !QA.off("perch");
+    let settled = true, aimNy = 2;
+    if (guide && kind !== "index") {
+      const sy = state.scrollY || 0;
+      if (lastScroll < 0) lastScroll = sy;
+      scrollV += ((sy - lastScroll) / Math.max(dt, 1 / 240) / cssH - scrollV) * (1 - Math.exp(-dt * 6));
+      lastScroll = sy;
+      if (!reduced.matches && Math.abs(scrollV) > 0.12) restAt = state.clock;
+      settled = state.clock - restAt > 1.2;
+      if (state.aim) aimNy = pageNy(state.aim[1]);
+    }
+    const glass = vec3.norm(vec3.add(vec3.scale(camU, 0.75), vec3.scale(camF, 0.65)));
     flock.forEach((b, i) => {
       const a = tt * (0.35 + b.r * 0.5) + b.a0;
       const wr = atEntree ? b.r * 0.35 : b.r;
       const wander = [Math.cos(a) * wr, Math.sin(a * 1.3 + b.a1) * wr * 0.5, Math.sin(a * 0.8) * wr * 0.7];
-      let target = vec3.add(home, wander);
+      let target = vec3.add(home, wander), rest = 0, haste = transit;
       if (transit > 0.01) target = vec3.lerp(target, vec3.add(curve(PATH, Math.min(6, routeU(r) + b.lead)), vec3.scale(wander, 0.7)), Math.min(1, transit * 1.4));
+      if (i === 0 && guide && kind !== "index") {
+        const tall = detailPortrait() > 0.5;
+        // Flights: a little haste to a plate or along the reading (k ≈ 5), a gentler one to settle (k ≈ 4).
+        if (!tall && state.aim && Math.abs(aimNy) < 1.1) { target = screenPoint(state.aim[0], aimNy); rest = 1; haste = 0.4; onRing = false; }
+        else if (tall) {
+          // The horizon: settled on the top of the limb; reading, up in place (.3, never high on the text).
+          const [top, up] = limbTop(), perch = vec3.add(top, vec3.scale(up, 0.05));
+          target = settled ? perch : vec3.add(vec3.add(perch, vec3.scale(up, 0.3)), vec3.scale(wander, 0.12));
+          rest = settled ? 1 : 0; haste = settled ? 0.25 : 0.4;
+        } else {
+          // The margin (mx: wide, or the gutter); the ring's rim only where it shows past the plates (ringPoint).
+          const heroNy = state.perch ? pageNy(state.perch[1]) : 2, mx = state.companion ?? 0.9, wide = state.wide;
+          const ringRest = settled && Math.abs(heroNy) > 1.05, land = ringRest && !onRing;
+          onRing = ringRest;
+          const rim = ringRest || !(settled || wide) ? ringPoint(mx, land) : null;
+          if (settled) { target = ringRest ? rim || screenPoint(mx, -0.2) : screenPoint(state.perch[0], heroNy); rest = 1; haste = 0.25; }
+          else { target = rim ? vec3.add(rim, vec3.scale(wander, 0.25)) : screenPoint(mx + wander[0] * 0.04, -0.15 + wander[1] * 0.25); haste = 0.4; }
+        }
+      } else if (i === 0 && guide && kind === "index" && state.focus >= 0 && Math.abs(r - 2) < 0.4) {
+        // The card aimed at: on the tip of its lit branch, in the blossoms.
+        target = vec3.add(tipPos[state.focus], [0, 0.09, 0]); rest = 1;
+      }
       if (!b.pos || reduced.matches) b.pos = target;
-      const np = vec3.lerp(b.pos, target, 1 - Math.exp(-dt * (2.2 + transit * 7)));
+      const np = vec3.lerp(b.pos, target, 1 - Math.exp(-dt * (2.2 + haste * 7)));
       const v = vec3.scale(vec3.sub(np, b.pos), 1 / Math.max(dt, 1 / 240));
       b.vel = vec3.lerp(b.vel, v, 1 - Math.exp(-dt * 5));
       b.pos = np;
-      if (vec3.len(b.vel) > 0.02) b.head = vec3.norm(vec3.lerp(b.head, vec3.norm(b.vel), 1 - Math.exp(-dt * 6)));
+      // Wings at rest once it is there (within 35 px or so); head up on its perch, else along its flight.
+      const there = rest && vec3.len(vec3.sub(np, target)) < 0.06 ? 1 : 0;
+      // (Snapped once near: the uniform is then skipped as unchanged, gl.js cacheUniforms.)
+      REST[i] = reduced.matches || Math.abs(there - REST[i]) < 1e-3 ? there : REST[i] + (there - REST[i]) * (1 - Math.exp(-dt * 4));
+      if (there) b.head = vec3.norm(vec3.lerp(b.head, glass, reduced.matches ? 1 : 1 - Math.exp(-dt * 4)));
+      else if (vec3.len(b.vel) > 0.02) b.head = vec3.norm(vec3.lerp(b.head, vec3.norm(b.vel), 1 - Math.exp(-dt * 6)));
       BF0.set([...b.pos, b.size], i * 4); BF1.set([...b.head, b.phase], i * 4);
     });
   }
@@ -999,35 +1211,47 @@ export function createWorld(canvas, options = {}) {
     const { p, u, a } = P.bfly;
     gl.useProgram(p); common(u);
     bind(1, wingTex);
-    gl.uniform4fv(u.uB0, BF0); gl.uniform4fv(u.uB1, BF1); gl.uniform1f(u.uTime, t());
-    // Sakura, drawn over (not added): a fine line that the bloom never burns (the persistence draws its wake).
-    gl.uniform3fv(u.uColA, mix(C.accent, WHITE, 0.62)); gl.uniform1f(u.uAlpha, 0.85);
+    gl.uniform4fv(u.uB0, BF0); gl.uniform4fv(u.uB1, BF1); gl.uniform1fv(u.uRest, REST); gl.uniform1f(u.uTime, t());
+    // Petal pink or morpho blue (each butterfly by its phase, BFLY_FS), drawn over (not added): a fine line that the
+    // bloom never burns (the persistence draws its wake).
+    gl.uniform3fv(u.uColA, mix(C.accent, WHITE, 0.45)); gl.uniform3fv(u.uColB, mix(ICE, C.dev2, 0.4)); gl.uniform1f(u.uAlpha, 0.85);
     blendOver();
     attribs(gl, bfly.buf, [[a.aWing, 4]]);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bfly.idx);
     gl.drawElements(gl.TRIANGLES, bfly.count, gl.UNSIGNED_SHORT, 0);
     blendAdd();
   }
-  /** The light of the current world on screen (sun, central star, Lumina), for the light shafts. */
-  function shaftSource() {
-    if (kind !== "index" || q.tier === 0 || !raysRT || QA.off("rays")) return null;
-    const r = routeNow(), i = Math.round(r), w = 1 - Math.min(1, Math.abs(r - i) * 2.5);
-    const src = [[vec3.add(WORLDS[0].c, vec3.scale(SUN0, 40)), 0.32], null, [heartNow, 0.3], [WORLDS[3].c, 0.4]][i];
-    if (!src || w <= 0) return null;
-    const pr = project(src[0]);
-    if (!pr) return null;
+  /** The light of the current world on screen (sun, central star, Lumina), for the light shafts; on a domain page
+   *  the sun once it is behind the world at the foot of the page (blendSky): the lit limb and the ring smeared out
+   *  from behind the planet through the ring's gaps, discreet (k ≤ .3, the foot only, once the sun's projection
+   *  nears the frame); in portrait from the top of the limb, the horizon, and nothing once it has set under the
+   *  screen. The strength eases over ~.1 s, so a source at the margin's edge never flickers. */
+  let shaftK = 0;
+  function shaftSource(dt) {
+    if (q.tier === 0 || !raysRT || QA.off("rays")) { shaftK = 0; return null; }
+    let src = null;
+    if (kind === "index") {
+      const r = routeNow(), i = Math.round(r), w = 1 - Math.min(1, Math.abs(r - i) * 2.5);
+      const s = [[vec3.add(WORLDS[0].c, vec3.scale(SUN0, 40)), 0.32], null, [heartNow, 0.3], [WORLDS[3].c, 0.4]][i];
+      if (s && w > 0) src = [s[0], s[1] * w];
+    } else if (state.day > 0.55) src = [detailPortrait() > 0.5 ? limbTop()[0] : vec3.scale(sky.sun, 40), 0.3 * smoothstep(0.55, 1, state.day)];
+    const pr = src ? project(src[0]) : null;
+    if (!pr) { shaftK = 0; return null; }
     const uv = [pr.x / cssW, 1 - pr.y / cssH];
     const out = Math.max(Math.abs(uv[0] - 0.5), Math.abs(uv[1] - 0.5)) - 0.5;
-    const k = src[1] * w * (1 - clamp01(out / 0.35));
-    return k > 0.01 ? { uv, k } : null;
+    const k = src[1] * (1 - clamp01(out / 0.35)) * (kind === "index" ? 1 : 1 - clamp01(-uv[1] / 0.03));
+    shaftK += (k - shaftK) * (1 - Math.exp(-dt * 10));
+    return shaftK > 0.01 ? { uv, k: shaftK } : null;
   }
 
   // ---------- Detail pages: the domain's own world, slowly orbited and scrolled ----------
+  // The ring's matrix, set once a frame before the guide reads it (render: the guide may land on it at the first frame).
   const detailRingM = mat4.create();
+  const turnRing = () => mat4.model(detailRingM, [0, 0, 0], 0.42, t() * 0.02, 0.12, 1);
   function detailWorld(pass) {
     const d = state.detail, col = DOM[d] || C.accent, mat = MAT.domains[d] || MAT.hero, c = [0, 0, 0];
-    const L = lightOf(SKY[0].sun, mix(col, WHITE, 0.75), [0.03, 0.025, 0.05], mul(col, 0.35));
-    mat4.model(detailRingM, c, 0.42, t() * 0.02, 0.12, 1);
+    // The sun of the day (blendSky); its face capped at ×.85 at mid-page, so the plates stay the column's main light.
+    const L = lightOf(sky.sun, mul(mix(col, WHITE, 0.75), 1 - 0.15 * Math.sin(Math.PI * state.day)), [0.03, 0.025, 0.05], mul(col, 0.35));
     const n = ringNormal(detailRingM);
     const am = t() * 0.13 + 1, moon = vec3.add(c, [Math.cos(am) * 1.85, 0.55 + Math.sin(am) * 0.85, Math.sin(am) * 1.85 - 0.5]);
     // On a portrait screen the moon would cross the text: it leaves with the low horizon (camera()).
@@ -1043,8 +1267,8 @@ export function createWorld(canvas, options = {}) {
     drawRing(detailRingM, 1.35, 2.1, n, c, 1, [mix(col, WHITE, 0.3), col, mix(col, WHITE, 0.6)], 0.5, 0.3 + d * 0.17, L);
     blendAdd();
     drawDust(belt0, detailRingM, 0, [mix(col, WHITE, 0.4), col, C.accent], 0.4);
-    drawHalo(c, 1, mul(col, 0.6), mix(col, WHITE, 0.35), SKY[0].sun, 0.2, 1.9, 4.6);
-    drawHalo(moon, 0.11, mix(col, WHITE, 0.6), WHITE, SKY[0].sun, 0.35 * moonA, 2.2, 5);
+    drawHalo(c, 1, mul(col, 0.6), mix(col, WHITE, 0.35), sky.sun, 0.2, 1.9, 4.6);
+    drawHalo(moon, 0.11, mix(col, WHITE, 0.6), WHITE, sky.sun, 0.35 * moonA, 2.2, 5);
   }
 
   // ---------- Camera ----------
@@ -1169,6 +1393,21 @@ export function createWorld(canvas, options = {}) {
       sun = vec3.add(sun, vec3.scale(s.sun, w)); glow += s.glow * w;
     });
     sky.sun = vec3.norm(sun); sky.glow = glow;
+    // A domain page: the day turns with the reading. The sun goes round the world (about its axis, 1.65 π) as the
+    // page scrolls — behind on the right at the top (today's night, a low lit limb), round by the camera's side at
+    // two fifths (the day face turned to the reader: the traced parallels, the dunes, the marble, the gas in full
+    // light, capped ×.85 in detailWorld so the plates stay the column's main light), behind the world at the foot:
+    // against the light, a thin lit limb in the tint, the ring glowing through, the sun's disc at the top edge, the
+    // shafts (shaftSource) — a sunset under the motto. The reader's hand makes the day; at rest nothing moves;
+    // under reduced motion today's light, still. Photographie has no light of its own (§3.4): this is lighting, not
+    // emission. Portrait: the horizon sets under the screen by mid-page (camera()), so the whole day turns while it
+    // shows, and the world sets at its sunset.
+    if (kind !== "index") {
+      const day = reduced.matches || QA.off("day") ? 0 : smoothstep(0.04, 0.96, state.scroll / (1 - 0.5 * detailPortrait()));
+      state.day = day;
+      const a = day * Math.PI * 1.65, ca = Math.cos(a), sa = Math.sin(a), s = sky.sun;
+      sky.sun = vec3.norm([s[0] * ca - s[2] * sa, s[1], s[0] * sa + s[2] * ca]);
+    }
     mood.petals = 0;
     MOOD.forEach((m, i) => { const w = MOOD.length === 1 ? 1 : Math.max(0, 1 - Math.abs(r - i)); mood.petals += m.petals * w; });
   }
@@ -1216,6 +1455,12 @@ export function createWorld(canvas, options = {}) {
 
   // ---------- Frame ----------
   let live = false;
+  const rootClass = document.documentElement.classList, bornAt = performance.now() / 1000;
+  // The page's threshold (portal.js) as the world has seen it: the tube coming on (.crt-power, its lids open from
+  // .2 s to .92 s — a page loaded directly, or the index entered from its gate), its dark cover before that
+  // (power-pending, power-hold), a change of channel (channel-pending, its lids open by .58 s, the class gone at
+  // 800 ms). Read once each, never per frame beyond three classList.contains until the first lock.
+  let powering = false, covered = false, sawChannel = false;
   function pass(target, prog, setup) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, target ? target.fb : null);
     gl.viewport(0, 0, target ? target.w : canvas.width, target ? target.h : canvas.height);
@@ -1242,6 +1487,9 @@ export function createWorld(canvas, options = {}) {
     state.spx += (state.px - state.spx) * k; state.spy += (state.py - state.spy) * k;
     const focusK = 1 - Math.exp(-dt * 7);
     for (let i = 0; i < 4; i++) state.focusAmt[i] += ((state.focus === i ? 1 : 0) - state.focusAmt[i]) * focusK;
+    // The sap's runs: their age on the world's clock (9: none, or over; the clock's hourly wrap ends one early;
+    // none under reduced motion, whose clock stands still).
+    for (let i = 0; i < 4; i++) { const age = state.time - RUN_AT[i]; RUN[i] = age >= 0 && age < 9 && !reduced.matches ? age : 9; }
     state.fade = reduced.matches ? 1 : state.fade + (1 - state.fade) * (1 - Math.exp(-dt * 2.2));
     // Fast flight (several worlds in a row: more than a world still to go, or faster than a single step ever
     // goes): the picture dims, like a motion blur, from the very start of the flight, and comes back on arrival,
@@ -1250,16 +1498,39 @@ export function createWorld(canvas, options = {}) {
     const fast = kind === "index" && !reduced.matches ? Math.max(smoothstep(2.2, 4.5, state.vel), smoothstep(1.2, 1.8, state.span)) : 0;
     state.flight += (fast - state.flight) * (1 - Math.exp(-dt * (fast > state.flight ? 16 : 2.6)));
     const remaining = Math.max(0, state.glitchUntil - now);
-    state.glitch = remaining > 0 && !reduced.matches ? state.glitchPeak * (0.45 + 0.55 * Math.random()) : 0;
+    // Its amplitude steps with the band's pattern (6 a second on the world's clock — uTime, the same steps as
+    // POST_FS step_ — so the band and its amplitude change together), never at the frame rate.
+    const gh = Math.sin(Math.floor(t() * 6) * 127.1) * 43758.5453;
+    state.glitch = remaining > 0 && !reduced.matches ? state.glitchPeak * (0.45 + 0.55 * (gh - Math.floor(gh))) : 0;
 
     camera(dt);
     // The pointer's presence: eases in when it moves, out a few seconds after it stops.
     const ptrWant = !reduced.matches && state.clock - state.ptrAt < 2.5 ? 1 : 0;
     state.ptrK += (ptrWant - state.ptrK) * (1 - Math.exp(-dt * (ptrWant ? 3 : 0.8)));
     ptrDir = vec3.norm(vec3.add(camF, vec3.add(vec3.scale(camR, state.px * tanXY[0]), vec3.scale(camU, -state.py * tanXY[1]))));
+    touchWater();
     crossGates(dt);
     arrival(dt);
+    // The page opened: once the lids of its threshold are gone, the channel locks, without a sound of its own —
+    // after a change of channel at ~.95 s (the class goes at 800 ms, just after the channel's sound; the breath
+    // came at the first frame + .3 s); when the tube comes on, power-pending and power-hold go as its lids start
+    // to open, so the breath waits .6 s (the lids three quarters open) and the lock 1 s (open, the line out);
+    // with no threshold at all (FULL chosen during the visit, a context restored), once the canvas's 1.2 s fade
+    // (styles.css 07) is nearly done.
+    if (!lockedOnArrival && live) {
+      if (rootClass.contains("channel-pending")) sawChannel = true;
+      else if (rootClass.contains("power-pending") || rootClass.contains("power-hold")) covered = true;
+      else {
+        lockedOnArrival = true;
+        if (covered && !powering) powering = !!document.querySelector(".crt-power"); // once: the index, from its gate
+        if (powering) { breathAt = state.clock + 0.6; lockSoon(1.0, 0.22, 260); }
+        else lockSoon(sawChannel ? 0.15 : Math.max(0.15, bornAt + 1.05 - state.clock), 0.22, 260);
+      }
+    }
+    if (lockAt && state.clock >= lockAt) { lockAt = 0; lock(-1, lockAmount, lockMs); }
+    airflow(dt);
     blendSky();
+    if (kind !== "index") turnRing();
     updateFlock(dt);
     marks = [];
     bind(0, noise);
@@ -1306,7 +1577,7 @@ export function createWorld(canvas, options = {}) {
     // Bloom: bright pass at half resolution, blurred down a pyramid and added back up.
     const levels = TIERS[q.tier].bloom;
     const hasBloom = !!(down[0] && levels > 1);
-    const shafts = hasBloom ? shaftSource() : null;
+    const shafts = hasBloom ? shaftSource(dt) : null;
     if (hasBloom) {
       bind(1, sceneRT.tex);
       pass(down[0], P.prefilter, u => { gl.uniform2f(u.uTexel, 1 / sceneRT.w, 1 / sceneRT.h); gl.uniform1f(u.uTh, 0.74); gl.uniform1f(u.uKnee, 0.22); });
@@ -1341,7 +1612,7 @@ export function createWorld(canvas, options = {}) {
       // Deep rest: as the world's clock winds down, its picture dims like a tube on standby (and back on waking).
       gl.uniform1f(u.uGlitch, state.glitch); gl.uniform1f(u.uFade, state.fade * (0.5 + 0.5 * state.pace) * (1 - 0.55 * state.flight));
       gl.uniform1f(u.uBloomK, kind === "index" ? 0.7 : 0.5); gl.uniform1f(u.uHasBloom, hasBloom ? 1 : 0);
-      gl.uniform1f(u.uWarp, kind === "index" ? Math.min(0.07, speed * 0.028) : 0); gl.uniform1f(u.uSat, 1.12);
+      gl.uniform1f(u.uWarp, kind === "index" ? Math.min(0.07, speed * 0.028) : 0); gl.uniform1f(u.uSat, 1.2);
       gl.uniform3fv(u.uTint, sky.c);
       gl.uniform1f(u.uScrim, kind === "index" ? portraitAmount() * 0.5 * clamp01(routeNow()) : 0);
       gl.uniform1f(u.uRaysK, fx ? 1 : 0);
@@ -1376,8 +1647,13 @@ export function createWorld(canvas, options = {}) {
     }
     if (!live) {
       live = true;
-      document.documentElement.classList.add("world-live");
+      rootClass.add("world-live");
       canvas.dispatchEvent(new CustomEvent("world-live", { bubbles: true }));
+      // The air moves once as the picture comes, at the canvas's half-fade (1.2 s, styles.css 07) — unless the tube
+      // is dark or still coming on, where the breath waits for its lids (the page's threshold, above).
+      powering = !!document.querySelector(".crt-power");
+      covered = powering || rootClass.contains("power-pending") || rootClass.contains("power-hold");
+      if (!covered) breathAt = state.clock + 0.3;
     }
     return true;
   }
@@ -1417,7 +1693,8 @@ export function createWorld(canvas, options = {}) {
   }
 
   /** Current safe zones as uv boxes: the active scene's and the HUD's, both fading out while the camera travels.
-   *  In the flow layout (the page scrolls: state.scrollY) the text stays on the page: every scene's boxes, measured in
+   *  In the flow layout (the page scrolls: state.scrollY — the index out of cinema, and every domain page, whose
+   *  hero and foot are zones 0 and 1, js/page.js) the text stays on the page: every scene's boxes, measured in
    *  page coordinates, follow the scroll and keep their full strength wherever they are on screen. */
   function packZones() {
     ZONE.fill(0); ZONEK.fill(0);
@@ -1427,9 +1704,14 @@ export function createWorld(canvas, options = {}) {
       if (n >= 12 || k <= 0.01) return;
       ZONE.set([r[0] / cssW, 1 - (r[3] - dy) / cssH, r[2] / cssW, 1 - (r[1] - dy) / cssH], n * 4); ZONEK[n++] = k;
     };
-    if (kind === "index" && state.scrollY != null) {
-      const y = state.scrollY;
-      for (const i of [j, j + 1, j - 1, j + 2, j - 2, j + 3, j - 3]) for (const r of zones[i] || []) if (n < 8 && r[3] > y && r[1] < y + cssH) add(r, 1, y);
+    if (state.scrollY != null) {
+      const y = state.scrollY, order = [j, j + 1, j - 1, j + 2, j - 2, j + 3, j - 3];
+      // A box keeps its shade while its feather still reaches the screen (375 px CSS, two and a half feathers:
+      // the gaussian is at .002 there), so a line leaving by an edge takes its shade with it instead of dropping it
+      // in one frame; the boxes on screen take the slots first.
+      const on = r => r[3] > y && r[1] < y + cssH, reach = r => r[3] > y - 375 && r[1] < y + cssH + 375;
+      for (const i of order) for (const r of zones[i] || []) if (n < 8 && on(r)) add(r, 1, y);
+      for (const i of order) for (const r of zones[i] || []) if (n < 8 && !on(r) && reach(r)) add(r, 1, y);
       for (const r of hudZones) add(r, 1);
       return;
     }
@@ -1437,7 +1719,8 @@ export function createWorld(canvas, options = {}) {
     for (const r of hudZones) add(r, w);
   }
 
-  // The signal glitches only for a change of page (js/ui/glitch.js), as one soft band: never above 0.25.
+  // The signal glitches only when the channel locks (lock(): an arrival on a world, the page opened under its lids,
+  // waking from a deep rest), as one soft band for a quarter of a second: never above 0.25, never at rest.
   function glitch(amount = 0.25, ms = 300) {
     const now = performance.now();
     state.glitchPeak = Math.min(0.25, Math.max(state.glitch ? state.glitchPeak : 0, amount));
@@ -1469,6 +1752,20 @@ export function createWorld(canvas, options = {}) {
   const idle = window.requestIdleCallback;
   if (idle) idle(() => { if (!document.hidden) warmup(); }, { timeout: 2500 });
   else setTimeout(() => { if (!document.hidden) warmup(); }, 1400);
+  // Loopback only: what the bench measures (the guide on screen in CSS px, its rest, the day, the shafts' strength).
+  if (QA.local) {
+    try {
+      window.__YOSULJIN_WORLD_QA = {
+        get guide() { const p = flock[0] && flock[0].pos ? project(flock[0].pos) : null; return { x: p ? p.x : null, y: p ? p.y : null, rest: REST[0], settled: state.clock - restAt > 1.2 }; },
+        get day() { return { day: state.day, sun: sky.sun.slice(), rays: shaftK, tier: q.tier }; },
+        /** The sap's runs: each branch's age in seconds (9: none) and the focus; the water's live rings. */
+        get sap() { return { age: Array.from(RUN.subarray(0, 4)), focus: state.focus }; },
+        get rings() { return rings.filter(r => r.k > 0 && state.time - r.t0 < 3).map(r => ({ x: r.x, z: r.z, age: state.time - r.t0 })); },
+        /** The water on screen (CSS px, null when off screen): its centre, its near and far edges on the camera's axis. */
+        get water() { const R = 2.4 * TREE_S, f = vec3.norm([camF[0], 0, camF[2]]), at = k => project([c2[0] + f[0] * k, WATER_Y, c2[2] + f[2] * k]); return { centre: at(0), near: at(-R), far: at(R) }; }
+      };
+    } catch {}
+  }
 
   return {
     render,
@@ -1479,8 +1776,20 @@ export function createWorld(canvas, options = {}) {
     /** Route (0..3), its velocity (routes/s) and where the reader is heading (a flight's length so far). */
     setRoute(route, vel = 0, target = route) { state.route = Math.max(0, Math.min(3, route)); state.vel = Math.abs(vel); state.span = Math.abs(target - route); },
     setPointer(x, y) { state.px = x; state.py = y; state.ptrAt = performance.now() / 1000; },
-    setFocus(i) { state.focus = i; },
+    /** The card aimed at (hover or focus), -1 for none: its branch lights, and the sap runs up it once. A run
+     *  still playing (under 1.35 s, TREE_FS) is not restarted: a pointer hesitating on a card's edge makes one run. */
+    setFocus(i) {
+      if (i >= 0 && i < 4 && i !== state.focus && RUN[i] >= 1.35 && !reduced.matches && !QA.off("run")) RUN_AT[i] = state.time;
+      state.focus = i;
+    },
     setScroll(s) { state.scroll = s; },
+    /** The guide's perch on a domain page (updateFlock): a screen x (NDC) and a page y (CSS px), or null for none. */
+    setPerch(nx, pageY) { state.perch = pageY == null ? null : [nx, pageY]; },
+    /** The right margin: its centre as a screen x (NDC), or null when the window has none (then .9); `wide` when
+     *  the guide can fly in it (80 px and more), else it waits there (the gutter) only where the ring shows nothing. */
+    setCompanion(nx, wide = false) { state.companion = nx == null ? null : nx; state.wide = nx != null && wide; },
+    /** The plate aimed at (hover or focus): a screen x (NDC) and a page y (CSS px); null lets the guide go. */
+    setAim(nx, pageY) { state.aim = pageY == null ? null : [nx, pageY]; },
     /** The index in the flow layout: the page's scroll (CSS px), null in cinema. Scene zones measured in page
      *  coordinates follow it. */
     setScrollY(y) { state.scrollY = y; },
@@ -1488,7 +1797,13 @@ export function createWorld(canvas, options = {}) {
      *  row on the index. A portrait screen keeps the world's horizon under it. */
     setFloor(y) { state.floor = y; },
     /** Pace of the world's clock: 1 normal, 0 asleep (eased). `asleep` is true once it has come to rest. */
-    setPace(p) { state.paceTarget = clamp01(p); },
+    setPace(p) {
+      // Waking from a rest really reached — the clock had stopped, or not one frame was drawn for 5 s (a hidden
+      // tab: its loop sleeps before the clock can wind down, js/core/loop.js); a window briefly out of focus never
+      // gets there — the channel locks again, lightly, without a sound.
+      if (p > 0 && state.paceTarget === 0 && (state.pace === 0 || performance.now() / 1000 - state.clock > 5)) lockSoon(0.15, 0.15, 200);
+      state.paceTarget = clamp01(p);
+    },
     get asleep() { return state.paceTarget === 0 && state.pace === 0; },
     /** Boxes (CSS px: left, top, right, bottom) of the text of scene i, measured at rest; i = -1 for the fixed HUD. */
     setZones(i, boxes) { if (i < 0) hudZones = boxes.slice(0, 4); else zones[i] = boxes.slice(0, 8); },

@@ -523,12 +523,12 @@ attribute vec4 aInfo; // x: size, y: colour mix
 uniform mat4 uProj,uView,uModel;
 uniform vec3 uCam;
 uniform float uPx,uSize;
-uniform float uLitK[5];
+uniform float uLitK[5],uRun[5];
 uniform vec3 uLitC[5];
-varying float vA,vMix,vRim,vGlow;
+varying float vA,vMix,vRim,vGlow,vRun;
 varying vec3 vGlowC;
 void main(){
-  int i=int(aInfo.w+.5);vGlow=uLitK[i];vGlowC=uLitC[i];
+  int i=int(aInfo.w+.5);vGlow=uLitK[i];vGlowC=uLitC[i];vRun=uRun[i];
   vec4 w=uModel*vec4(aPos,1.);
   vec4 v=uView*w;
   gl_Position=uProj*v;
@@ -541,7 +541,7 @@ void main(){
   vMix=aInfo.y;
 }`;
 export const BLOSSOM_FS = PREC + `
-varying float vA,vMix,vRim,vGlow;
+varying float vA,vMix,vRim,vGlow,vRun;
 varying vec3 vGlowC;
 uniform vec3 uColA,uColB,uColC,uRimCol;
 uniform float uAlpha;
@@ -551,7 +551,11 @@ void main(){
   float a=((1.-smoothstep(0.,.25,r2))*.6+exp(-r2*40.)*.6)*vA*uAlpha;
   if(a<.004)discard;
   vec3 col=vMix<.5?mix(uColA,uColB,vMix*2.):mix(uColB,uColC,vMix*2.-1.);
-  col=mix(col,uRimCol,vRim*.7);
+  // The sap reaching the clusters (vRun: the run's age, world.js RUN; .85 s to the tips): their rim of light
+  // flares for about a second, then rests. The cap at .8 bounds the share of rim colour (the glow's x1.25 below
+  // still applies, as before the sap): the flare never goes past the lit state of before, under the bloom's knee.
+  float flare=step(0.,vRun-.85)*exp(-(vRun-.85)*2.2);
+  col=mix(col,uRimCol,min(.8,vRim*(.7+flare*.5)));
   col=mix(col,vGlowC,vGlow*.3)*(1.+vGlow*.25);
   gl_FragColor=vec4(col*a,a);
 }`;
@@ -562,10 +566,14 @@ void main(){
 export const PETAL_VS = `
 attribute vec4 aSeed;   // xyz: home in the box (0..1), w: size
 attribute vec4 aRot;    // xyz: tumbling axis, w: spin speed
-attribute vec4 aCorner; // xy: corner, z: phase, w: tint
+attribute vec4 aCorner; // xy: corner, z: rank in the flight (0..1), its phase too, w: tint
 uniform mat4 uProj,uView;
-uniform vec3 uCam,uBox,uWind,uLight,uPtrDir,uBeamO,uBeamD;
-uniform float uTime,uSize,uGust,uCalm,uPtrK,uBeamR,uFocus,uAperture,uTitleK,uAspect;
+// uDrift: the wind (and the breath of an arrival) integrated on the CPU; uGustT: the gust's time (and the breath's),
+// integrated too. Multiplying uTime by a changing wind or gust would move or turn every petal at once, and so would
+// a breath in uGust, the sway's amplitude: the breath comes only through uDrift, uGustT and uPtrK (world.js airflow()).
+// uShare: how much of the flight passes (a fifth at rest, all of it in transit or for a breath), by rank.
+uniform vec3 uCam,uBox,uDrift,uLight,uPtrDir,uBeamO,uBeamD;
+uniform float uTime,uSize,uGust,uGustT,uCalm,uPtrK,uBeamR,uFocus,uAperture,uTitleK,uAspect,uShare;
 uniform vec4 uTitle; // the lit title: centre and half-size, in NDC
 varying vec2 vUv;
 varying float vA,vLit,vTint,vBlur,vBack,vSpec,vTitle;
@@ -573,7 +581,7 @@ vec3 rot(vec3 v,vec3 k,float a){float c=cos(a),s=sin(a);return v*c+cross(k,v)*s+
 void main(){
   float ph=aCorner.z*6.2832;
   vec3 sway=vec3(sin(uTime*.9+ph),sin(uTime*.63+ph*1.7)*.5,cos(uTime*.77+ph*.6))*(.25+uGust*.35);
-  vec3 local=fract(aSeed.xyz+(uWind*uTime+sway-uCam)/uBox+.5)-.5;
+  vec3 local=fract(aSeed.xyz+(uDrift+sway-uCam)/uBox+.5)-.5;
   vec3 c=uCam+local*uBox;
   // The pointer is a breath of wind: petals near its ray are pushed aside and turn around it.
   if(uPtrK>0.){
@@ -585,7 +593,7 @@ void main(){
   float dc=-(uView*vec4(c,1.)).z;
   float coc=clamp(abs(dc-uFocus)*uAperture,0.,1.);
   vec3 ax=normalize(aRot.xyz);
-  float ang=uTime*aRot.w*(1.+uGust)+ph;
+  float ang=aRot.w*(uTime+uGustT)+ph;
   vec3 e1=rot(vec3(1.,0.,0.),ax,ang),e2=rot(vec3(0.,1.,0.),ax,ang);
   float s=uSize*(.55+.9*aSeed.w)*(1.+.8*coc);
   vec3 wp=c+(e1*aCorner.x*.75+e2*aCorner.y)*s;
@@ -596,6 +604,8 @@ void main(){
   // At rest no petal comes close to the lens (it would cross the titles); in transit they rush past it.
   float nearCut=mix(.3,1.6,uCalm);
   vA=(1.-smoothstep(.72,1.,max(e.x,max(e.y,e.z))))*smoothstep(nearCut,nearCut*1.8,d);
+  // The share's edge moves through the flight: a petal there fades over .12 of it, in or out, never pops.
+  vA*=1.-smoothstep(uShare-.06,uShare+.06,aCorner.z);
   // The key light: lit where the beam crosses, nearly dark elsewhere.
   vec3 rel=wp-uBeamO,perp=rel-uBeamD*dot(rel,uBeamD);
   float beam=mix(.15,1.3,exp(-dot(perp,perp)/(uBeamR*uBeamR)));
@@ -623,7 +633,7 @@ void main(){
   vec3 s=texture2D(uPetal,vec2(vUv.x*.5+.5,(1.-y)*.333),vBlur*3.5).rgb;
   float a=s.r*vA*uAlpha*(.6+.25*vBack)/(1.+2.2*vBlur);
   if(a<.004)discard;
-  // Sakura, pale (#ffe1ec), a little deeper at the base; lit by the key light, glowing against it.
+  // Sakura, pale (--sakura, #ffd1e3), a little deeper at the base; lit by the key light, glowing against it.
   vec3 col=mix(uColA,uColB,smoothstep(-1.,.75,y));
   col=mix(col,uColC,vTint*.7);
   // Small on screen, a petal reads as a petal when it is a full silhouette: no outline, no veins.
@@ -646,6 +656,7 @@ void main(){
 export const BFLY_VS = `
 attribute vec4 aWing; // x: 0 body → 1 tip, y: -1 tail → 1 head, z: side ±1, w: which butterfly
 uniform vec4 uB0[12],uB1[12]; // xyz position, w size · xyz heading, w phase
+uniform float uRest[12]; // 1: settled — wings open, breathing (the guide, world.js updateFlock)
 uniform mat4 uProj,uView;
 uniform float uTime;
 varying vec2 vUv;
@@ -660,6 +671,11 @@ void main(){
   float ph=b1.w,w=13.*(.85+.3*fract(ph*7.13));
   float cyc=fract(uTime/(2.6*(.9+.2*ph))+ph);
   float flap=mix(.35,sin(uTime*w+ph*6.2832)*.85+.2,1.-smoothstep(.5,.62,cyc));
+  // Settled (as on the Aether map): wings open, two partial closings at the start of each 6.4 s cycle, then still.
+  // The half-cycle offset puts the frozen clock of reduced motion (21 s) in the stillness: open wings.
+  float pc=fract(uTime/6.4+.5),bk=sin(3.1416*pc/.17);
+  float bask=pc<.34?1.-.55*bk*bk:1.;
+  flap=mix(flap,mix(1.05,.12,bask),uRest[i]);
   vec3 wing=(r*aWing.z*cos(flap)+u*sin(flap))*aWing.x+f*aWing.y*.82;
   gl_Position=uProj*uView*vec4(b0.xyz+wing*b0.w,1.);
   vUv=aWing.xy;vFlap=flap;vHue=b1.w;
@@ -668,16 +684,18 @@ export const BFLY_FS = PREC + `
 varying vec2 vUv;
 varying float vFlap,vHue;
 uniform sampler2D uWing;
-uniform vec3 uColA;
+uniform vec3 uColA,uColB; // petal pink, morpho blue
 uniform float uAlpha;
 void main(){
   // The sprite's wing (u: hinge to tip; v: head to tail over 213 of the texture's 256 rows), and a fine body.
   float a=texture2D(uWing,vec2(vUv.x,(1.-vUv.y)*.416)).a;
   a=max(a,.8*(1.-smoothstep(.015,.04,vUv.x))*(1.-smoothstep(.42,.55,abs(vUv.y))));
   if(a<.01)discard;
-  // Sakura, a touch brighter as the wing opens to the light; premultiplied, drawn over.
+  // Petal pink or morpho blue, each butterfly by its phase (vHue), a touch brighter as the wing opens to the light;
+  // premultiplied, drawn over.
   float shade=.62+.16*sin(vFlap);
-  gl_FragColor=vec4(uColA*shade*a*uAlpha,a*uAlpha);
+  vec3 col=mix(uColA,uColB,smoothstep(.60,.72,vHue));
+  gl_FragColor=vec4(col*shade*a*uAlpha,a*uAlpha);
 }`;
 
 export const MIST_VS = `
@@ -711,20 +729,23 @@ export const TREE_VS = `
 attribute vec3 aPos,aNrm;
 attribute float aV,aId;
 uniform mat4 uProj,uView,uModel;
-uniform float uLitK[5];
+uniform float uLitK[5],uRun[5];
 uniform vec3 uLitC[5];
 varying vec3 vWorld,vNrm,vGlowC;
-varying float vV,vGlow;
+varying float vV,vGlow,vRun,vRv;
 void main(){
   vec4 w=uModel*vec4(aPos,1.);
   vWorld=w.xyz;vNrm=mat3(uModel)*aNrm;vV=aV;
-  // The branch of the domain pointed at (index 4: trunk, roots, leader, never lit).
-  int i=int(aId+.5);vGlow=uLitK[i];vGlowC=uLitC[i];
+  // The branch of the domain pointed at (index 4: trunk, roots, leader, never lit). The fraction of aId is
+  // where a fork or a twig leaves its limb (world.js TREE): the sap's run reaches it there and splits.
+  float fid=floor(aId+.01),v0=aId-fid;
+  int i=int(fid);vGlow=uLitK[i];vGlowC=uLitC[i];
+  vRun=uRun[i];vRv=v0+aV*(1.-v0);
   gl_Position=uProj*uView*w;
 }`;
 export const TREE_FS = PREC + `
 varying vec3 vWorld,vNrm,vGlowC;
-varying float vV,vGlow;
+varying float vV,vGlow,vRun,vRv;
 uniform vec3 uCam,uHeart,uBark,uRim,uFill,uSap;
 uniform float uTime;
 void main(){
@@ -738,30 +759,38 @@ void main(){
   col+=uSap*smoothstep(.95,1.,fract(vV*3.-uTime*.22))*(1.-vV*.5)*.4;
   // Lit in its domain's tint: a glow on the wood, brightest along its edges.
   col+=vGlowC*vGlow*(.16+fres*1.3);
+  // The sap: a card aimed at sends one drop of light up its limb (vRun: the run's age in seconds, world.js RUN),
+  // from the trunk to the tips in .87 s, gone by 1.35 s; brighter than the lit wood, mostly on its edges.
+  float dd=(vRv-vRun*1.15)*5.5;
+  float run=step(0.,vRun)*(1.-smoothstep(.95,1.35,vRun))*exp(-dd*dd);
+  col+=vGlowC*run*(.4+fres*1.6);
   gl_FragColor=vec4(col,1.);
 }`;
 
 // Black water mirror under the tree's island: the reflection is rendered beforehand from the mirrored
-// camera; the slow swell and the rings of the neon rain bend it; grazing angles reflect more.
+// camera; the slow swell bends it, and the rings the pointer leaves (uRing, world.js: at most three, one every
+// half second, where its ray touches the water); grazing angles reflect more. The water is the one thing of the
+// world that keeps a gesture, and it does so slowly: a ring widens for ~2.5 s and fades.
 export const WATER_VS = `
 attribute vec2 aCorner;
 uniform mat4 uProj,uView;
 uniform vec3 uC;
 uniform float uR;
 varying vec3 vWorld;
-varying vec2 vRel;
+varying vec2 vRel,vLp; // vLp: from the water's centre, world units (the rings' frame)
 void main(){
-  vRel=aCorner;
+  vRel=aCorner;vLp=aCorner*uR;
   vWorld=vec3(uC.x+aCorner.x*uR,uC.y,uC.z+aCorner.y*uR);
   gl_Position=uProj*uView*vec4(vWorld,1.);
 }`;
 export const WATER_FS = PREC + `
 uniform sampler2D uNoise,uRefl;
 varying vec3 vWorld;
-varying vec2 vRel;
+varying vec2 vRel,vLp;
 uniform vec2 uRes;
 uniform vec3 uCam,uDeep,uNeonA,uNeonB;
-uniform float uTime,uRain,uHasRefl,uAlpha;
+uniform float uTime,uHasRefl,uAlpha;
+uniform vec4 uRing[3]; // x, y: centre from the water's centre (world xz); z: age in seconds (< 0: none); w: strength
 float hh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 void main(){
   float r=length(vRel);
@@ -769,21 +798,24 @@ void main(){
   if(edge<.003)discard;
   vec2 p=vWorld.xz;
   vec2 swell=vec2(texture2D(uNoise,p*.11+vec2(uTime*.012,0.)).r,texture2D(uNoise,p*.11+vec2(.5,uTime*.01)).b)-.5;
+  // The rings: a short wave packet at the front (radius .9 u/s), lingering (readable ~2.3 s) and gone in a fade
+  // by 3 s, only inside its front. Local coordinates (vLp, small) and an age the CPU made relative: safe in mediump.
   vec2 ring=vec2(0.);
-  for(int i=0;i<2;i++){
-    vec2 q=p*(4.+float(i)*2.3)+float(i)*7.1;
-    vec2 cell=floor(q),f=fract(q)-.5;
-    vec2 c=vec2(hh(cell),hh(cell+3.7))-.5;
-    float ph=fract(uTime*(.6+hh(cell+1.3)*.5)+hh(cell+9.1));
-    vec2 d=f-c*.6;float dl=length(d);
-    ring+=d/max(dl,.001)*sin((dl-ph*.45)*45.)*(1.-smoothstep(0.,.45,dl))*(1.-ph);
+  for(int i=0;i<3;i++){
+    vec4 R=uRing[i];
+    vec2 dv=vLp-R.xy;float d=length(dv),front=R.z*.9,dr=d-front;
+    float w=sin(dr*28.)*exp(-abs(dr)*6.)*exp(-R.z*.6)*(1.-smoothstep(2.4,3.,R.z))*step(d,front+.1)*step(0.,R.z);
+    ring+=dv/max(d,.001)*w*R.w;
   }
-  vec2 nrm=swell*.8+ring*.5*uRain;
+  vec2 nrm=swell*.8+ring*.5;
   vec3 refl=uHasRefl>.5?texture2D(uRefl,clamp(gl_FragCoord.xy/uRes+nrm*.02,0.,1.)).rgb:vec3(0.);
   vec3 v=normalize(uCam-vWorld);
   float fres=.22+.78*pow(1.-clamp(v.y,0.,1.),2.5);
   vec3 col=uDeep+refl*fres*.92;
-  col+=mix(uNeonA,uNeonB,hh(floor(p*3.)))*pow(clamp(length(nrm)*1.3,0.,1.),3.)*.3;
+  // The swell's neon crests (the tint of the cell), as before the rings. A ring adds no colour (RÉMANENCE: in
+  // the reflection only): its ridge bends the reflection (nrm above) and catches a little more of it.
+  col+=mix(uNeonA,uNeonB,hh(floor(p*3.)))*pow(clamp(length(swell)*1.04,0.,1.),3.)*.3;
+  col+=refl*pow(clamp(length(ring)*.8,0.,1.),2.)*.3;
   float a=edge*uAlpha;
   gl_FragColor=vec4(col*a,a);
 }`;
@@ -915,10 +947,13 @@ void main(){
   // ambient one) cuts thin bands, only a strong one (a gate) wide ones; none of them crosses the text.
   float step_=floor(uTime*6.);
   float bands=mix(24.,48.,h1(step_)),band=floor(uv.y*bands);
-  // One band only, for a change of page (the world never glitches at rest).
+  // One band only, when the channel locks (world.js lock(): arrival on a world of the index, the page opened under
+  // its lids, waking from a deep rest), for a quarter of a second: the world never glitches at rest. Its slide is
+  // .25 · uGlitch of the width at most (2.75 % at the lock's .22, 1 % typically: a tear one sees where it crosses
+  // a world; the old ambient .11 showed nothing on a nebula); the band's height (bands, above) is the other knob.
   float one=(1.-step(.5,abs(band-floor(h1(step_+2.)*bands))))*step(.001,uGlitch);
   float slice=one*(h1(band*1.3+step_)-.5)*calm;
-  uv.x+=slice*.11*uGlitch;
+  uv.x+=slice*.25*uGlitch;
   // Analogue line jitter: the scanlines wander by a fraction of a pixel, only while the signal glitches.
   float line=floor(vUv.y*uRes.y*.5);
   uv.x+=(h1(line+floor(uTime*30.))-.5)*uGlitch*.004*calm;
@@ -956,8 +991,8 @@ void main(){
   col*=mix(vec3(1.),mask*1.14,uMask);
   float g=texture2D(uNoise,gl_FragCoord.xy/256.+vec2(h1(floor(uTime*24.)),h1(floor(uTime*24.)+7.))).b;
   col+=(g-.5)*.03;
-  // Phosphor: blacks never reach black, and glow warm.
-  col=max(col,vec3(.014,.009,.008));
+  // Phosphor: blacks never reach black, and glow in the page's channel (uTint, the sky's third colour: +.003 to +.004).
+  col=max(col,vec3(.010,.007,.012)+uTint*.02);
   float vig=(1.-smoothstep(.32,1.2,length((vUv-.5)*vec2(1.12,1.))));
   col*=mix(.5,1.,vig);
   col*=1.-uScrim*(1.-smoothstep(.2,.72,vUv.y));
@@ -966,8 +1001,10 @@ void main(){
   col*=1.-uPool*.45*exp(-dot(qa*vec2(1.2,2.2),qa*vec2(1.2,2.2))*2.);
   // Behind the text the world never goes above a luminance of .04 (the ceiling for --muted text).
   col*=mix(1.,min(1.,.04/max(dot(col,vec3(.2126,.7152,.0722)),.0001)),zone);
-  // Glitch flashes lift the blacks for a frame or two, like a tube losing sync (not behind the text).
-  col+=uTint*uGlitch*.06*step(.7,h1(step_+9.))*calm;
+  // The lock lifts the blacks in the page's tint for a step or two, like a tube losing sync (not behind the text):
+  // uTint is the sky's third colour (a luminance of .13 to .2), so .34 · .22 of it is +.01 to +.015 — the lot's
+  // ceiling, far under a flash (.1, WCAG 2.3.1), and above the step of 8 bits that .06 never crossed.
+  col+=uTint*uGlitch*.34*step(.7,h1(step_+9.))*calm;
   col*=uFade*glass;
   // Phosphor persistence: what was brighter a frame ago fades out instead of vanishing, per channel (red the
   // slowest: whatever fades turns pink); the epsilon brings an 8-bit history back to black.

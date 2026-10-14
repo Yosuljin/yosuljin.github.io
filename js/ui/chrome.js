@@ -1,6 +1,6 @@
 // Shared page chrome: display-mode switch, reveal-on-scroll.
 import { $, $$ } from "../core/dom.js?v=20261007-r7";
-import { getMode, setMode, reducedMotion } from "../core/prefs.js?v=20261008-r9";
+import { getMode, setMode, reducedMotion } from "../core/prefs.js?v=20261014-r1";
 
 export function initModeSwitch() {
   const button = $("[data-mode-toggle]");

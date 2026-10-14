@@ -119,33 +119,37 @@
    touche, un cœur blanc de 120 ms, puis un halo rose qui lui survit ; la ligne garde un segment brûlé, rose, et le
    pétale reste couché sur elle. L'état de base est ce repos : mouvement réduit et LITE le montrent tel quel.
    Ici, pas de salve : le pétale est le seul geste. La chute a lieu dans la bande vide au-dessus du filet, elle ne
-   traverse aucun texte. Quatre calques, une animation chacun, transform et opacity seulement. */
+   traverse aucun texte. Quatre calques, une animation chacun, transform et opacity seulement. Le pétale a une face :
+   rotateY (|angle| < 90°) sous une perspective() portée par sa propre transformation, le pourquoi dans css/contenu.css
+   (A5). En loopback, ?qa=nofall (js/motifs.js) : filet au repos, comme LITE. */
 .lost-divider{--touch:68%;height:24px;margin-top:72px}
 .lost-burn{position:absolute;inset:0;background:radial-gradient(ellipse 15% 100% at var(--touch) 50%,rgba(var(--rgb-rose),.9),rgba(var(--rgb-rose),.3) 45%,transparent) center/100% 1px no-repeat;opacity:var(--glow-floor)}
 .lost-halo,.lost-core,.lost-petal{position:absolute;pointer-events:none}
 .lost-halo{left:calc(var(--touch) - 38px);top:calc(50% - 38px);width:76px;height:76px;border-radius:50%;background:radial-gradient(circle,rgba(var(--rgb-rose),.5),rgba(var(--rgb-accent),.12) 38%,transparent 70%);opacity:.22}
 .lost-core{left:calc(var(--touch) - 9px);top:calc(50% - 9px);width:18px;height:18px;border-radius:50%;background:radial-gradient(circle,#fff,rgba(var(--rgb-phosphor),.6) 40%,transparent 70%);opacity:0}
-/* Sous 32 px, une silhouette pleine (#ffe1ec à .9, sans contour) ; au repos couchée sur la ligne, la pointe à gauche. */
-.lost-petal{left:calc(var(--touch) - 9px);top:-5px;width:18px;height:24px;color:#ffe1ec;opacity:.9;transform:translate3d(0,0,0) rotate(-84deg) scale(.62,1)}
+/* Sous 32 px, une silhouette pleine (--sakura à .9, sans contour) ; au repos couchée sur la ligne, la pointe à gauche,
+   à trois quarts (cos 52° = .616, la silhouette de l'ancien scale(.62,1)). */
+.lost-petal{left:calc(var(--touch) - 9px);top:-5px;width:18px;height:24px;color:var(--sakura);opacity:.9;transform:perspective(160px) translate3d(0,0,0) rotate(-84deg) rotateY(52deg)}
 .lost-petal svg{display:block;width:100%;height:100%}
-html:not(.mode-lite) .lost-divider.is-seen .lost-petal{animation:lostFall 3.4s linear 1s both}
-html:not(.mode-lite) .lost-divider.is-seen .lost-core{animation:lostCore .6s linear 4.06s both}
-html:not(.mode-lite) .lost-divider.is-seen .lost-halo{animation:lostHalo 2.4s linear 4.06s both}
-html:not(.mode-lite) .lost-divider.is-seen .lost-burn{animation:lostBurn 2.6s linear 4.06s both}
+html:not(.mode-lite):not(.qa-nofall) .lost-divider.is-seen .lost-petal{animation:lostFall 3.4s linear 1s both}
+html:not(.mode-lite):not(.qa-nofall) .lost-divider.is-seen .lost-core{animation:lostCore .6s linear 4.06s both}
+html:not(.mode-lite):not(.qa-nofall) .lost-divider.is-seen .lost-halo{animation:lostHalo 2.4s linear 4.06s both}
+html:not(.mode-lite):not(.qa-nofall) .lost-divider.is-seen .lost-burn{animation:lostBurn 2.6s linear 4.06s both}
 /* Avant d'être vu, le filet est nu (le pétale n'apparaît pas couché pour retomber ensuite) ; l'écran de veille ouvert,
    la chute attend que le tube s'allume. */
 @media (prefers-reduced-motion:no-preference){
-  html.js:not(.mode-lite) .lost-divider:not(.is-seen) :is(.lost-petal,.lost-halo,.lost-burn){opacity:0}
+  html.js:not(.mode-lite):not(.qa-nofall) .lost-divider:not(.is-seen) :is(.lost-petal,.lost-halo,.lost-burn){opacity:0}
 }
 html.power-hold:not(.mode-lite) .lost-divider.is-seen :is(.lost-petal,.lost-core,.lost-halo,.lost-burn){animation-play-state:paused}
-/* Les mêmes fonctions à chaque étape (translate3d, rotate, scale) : l'interpolation ne passe jamais par une matrice.
-   Le pétale se balance, ralentit à chaque bout de balancier, et touche la ligne à 90 % (4,06 s). */
+/* Les mêmes fonctions à chaque étape (perspective, translate3d, rotate, rotateY) : l'interpolation ne passe jamais par
+   une matrice. Le pétale se balance, ralentit à chaque bout de balancier, montre puis dérobe sa face, et touche la
+   ligne à 90 % (4,06 s). */
 @keyframes lostFall{
-  0%{opacity:0;transform:translate3d(-40px,-66px,0) rotate(24deg) scale(1,1);animation-timing-function:var(--ease-fall)}
+  0%{opacity:0;transform:perspective(160px) translate3d(-40px,-66px,0) rotate(24deg) rotateY(0deg);animation-timing-function:var(--ease-fall)}
   14%{opacity:.9}
-  36%{transform:translate3d(-6px,-48px,0) rotate(-16deg) scale(.96,1);animation-timing-function:var(--ease-fall)}
-  64%{transform:translate3d(-26px,-24px,0) rotate(12deg) scale(.9,1);animation-timing-function:var(--ease-fall)}
-  90%,100%{opacity:.9;transform:translate3d(0,0,0) rotate(-84deg) scale(.62,1)}
+  36%{transform:perspective(160px) translate3d(-6px,-48px,0) rotate(-16deg) rotateY(-16deg);animation-timing-function:var(--ease-fall)}
+  64%{transform:perspective(160px) translate3d(-26px,-24px,0) rotate(12deg) rotateY(-26deg);animation-timing-function:var(--ease-fall)}
+  90%,100%{opacity:.9;transform:perspective(160px) translate3d(0,0,0) rotate(-84deg) rotateY(52deg)}
 }
 @keyframes lostCore{0%{opacity:0;animation-timing-function:ease-out}20%{opacity:1;animation-timing-function:var(--ease-decay)}100%{opacity:0}}
 @keyframes lostHalo{0%{opacity:0;animation-timing-function:ease-out}5%{opacity:1;animation-timing-function:var(--ease-decay)}100%{opacity:.22}}
