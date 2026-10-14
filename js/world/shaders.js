@@ -692,7 +692,11 @@ void main(){
   a=max(a,.8*(1.-smoothstep(.015,.04,vUv.x))*(1.-smoothstep(.42,.55,abs(vUv.y))));
   if(a<.01)discard;
   // Petal pink or morpho blue, each butterfly by its phase (vHue), a touch brighter as the wing opens to the light;
-  // premultiplied, drawn over.
+  // premultiplied, drawn over. The ramp is narrow on purpose — one wing is of one colour or the other, about an
+  // eighth of them in between: the highest tier flies five butterflies, and a washed-out middle would read as a
+  // fault rather than as variety. Seen at the size they are drawn (close-up at device pixel ratio 3, over the lit
+  // blossoms of Domaines) they read as silhouettes, so no shade of the middle is legible on screen: the ramp
+  // settles it, and that limit is a deliberate one.
   float shade=.62+.16*sin(vFlap);
   vec3 col=mix(uColA,uColB,smoothstep(.60,.72,vHue));
   gl_FragColor=vec4(col*shade*a*uAlpha,a*uAlpha);
