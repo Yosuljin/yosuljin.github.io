@@ -135,11 +135,16 @@ const jump=go=>{html.classList.add("is-diving");clearTimeout(diving);go();diving
 // Nodes are role="link" groups, not SVG <a>: the shared page scripts read a.href as a string,
 // which an SVG link does not provide. Activation goes to the project sheet: the page scrolls down to it
 // while the constellation dives toward the node (G2); a sheet already targeted is scrolled to again.
+// A sheet is an <article>, which no browser focuses when the fragment changes: the reader would scroll to it
+// while the keyboard stayed on the map, and a screen reader would say nothing of where it landed. It takes the
+// focus here, as the shared pages do for their own in-page links (js/ui/portal.js).
+const focusSheet=el=>{if(!el)return;if(!el.hasAttribute("tabindex"))el.setAttribute("tabindex","-1");el.focus({preventScroll:true});};
 const open=n=>{
   const t=n.dataset.target;
   if(!t)return;
   sky?.dive(n.dataset.node);
   jump(()=>{if(location.hash==="#"+t)document.getElementById(t)?.scrollIntoView();else location.hash=t;});
+  focusSheet(document.getElementById(t));
 };
 // « Sur la carte » (G2): each sheet with a node links back up to the map; the node takes the focus (its
 // ring, its impulses, the panel speaks once) and the butterfly flies to it from Lumina. A real link: without
