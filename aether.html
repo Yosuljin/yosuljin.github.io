@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="styles.css?v=20261014-r1">
   <link rel="stylesheet" href="css/motifs.css?v=20261009-r2">
   <link rel="stylesheet" href="css/aether.css?v=20261014-r1">
-  <script src="js/boot.js?v=20261014-r1"></script>
+  <script src="js/boot.js?v=20261018-r1"></script>
   <script src="js/ui/immersive-nav.js?v=20261014-r1" defer></script>
   <script src="js/ui/fullscreen.js?v=20261014-r1" defer></script>
   <script type="module" src="js/page.js?v=20261014-r1"></script>
@@ -98,7 +98,7 @@
         <p class="detail-index">AETHER / 00 — CARTOGRAPHIE VIVANTE</p>
         <h1 class="aether-big-title lit" id="aether-title">Voir le parc.<br><em>En mouvement.</em></h1>
         <p class="aether-hero-lead">Aether, c’est la sentience que le parc construit, et le dossier qui le tient lisible&nbsp;: on y lit ce qu’est un projet avant d’aller lire son code. Décisions, architecture, projets, recherches et frontières — ici, le parc devient lisible comme un monde.</p>
-        <div class="aether-live-readout"><span><b data-count="projects">16</b> PROJETS · <b data-count="inscrits">2</b> INSCRITS</span><span><b data-count="relations">12</b> RELATIONS</span><span><b>D107</b> REGISTRE</span><span><b>2026-10-15</b> CARTE VÉRIFIÉE</span></div>
+        <div class="aether-live-readout"><span><b data-count="projects">16</b> PROJETS · <b data-count="inscrits">5</b> INSCRITS</span><span><b data-count="relations">12</b> RELATIONS</span><span><b>D119</b> REGISTRE</span><span><b>2026-10-20</b> CARTE VÉRIFIÉE</span></div>
 
       </div>
 
@@ -245,10 +245,10 @@
           <a class="project-map" href="#carte" data-map-node="furu">Sur la carte<span class="aether-sr"> : furu</span><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg></a>
         </article>
         <article class="aether-project" id="projet-reminiscence">
-          <div class="project-head"><span class="project-state research">EN TRANSITION</span><span class="project-meta">D90 · API OUVERTE</span></div>
+          <div class="project-head"><span class="project-state research">EN TRANSITION</span><span class="project-meta">D111 · API SPÉCIFIÉE</span></div>
           <h4>reminiscence</h4>
           <p class="project-line">La mémoire propre, future, de Lumina.</p>
-          <p>Une implémentation de transition existe dans le langage, avec trois verbes&nbsp;: <i lang="la">memento</i>, <i lang="la">recordare</i>, <i lang="la">oblivisce</i>. Son architecture, son API finale et ses interfaces avec furu restent ouvertes&#8239;; ce qu’elle reprendra de Memoria aussi.</p>
+          <p>Une implémentation de transition existe dans le langage, avec trois verbes&nbsp;: <i lang="la">memento</i>, <i lang="la">recordare</i>, <i lang="la">oblivisce</i>. Ce qu’elle reprend de Memoria est tranché&nbsp;: les idées, pas le moteur. Ses trois verbes et huit garanties sont spécifiés&#8239;; son code propre, son format et son interface avec furu restent à faire.</p>
           <p class="project-not">Ce n’est pas Memoria, qui figure parmi les inscrits.</p>
           <p class="project-rel">Relié à <a href="#projet-lumina">Lumina</a> <a class="rel-inscrit" href="#projet-memoria">Memoria<span class="aether-sr"> (inscrit, pas un projet)</span></a></p>
           <a class="project-map" href="#carte" data-map-node="reminiscence">Sur la carte<span class="aether-sr"> : reminiscence</span><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg></a>
@@ -261,7 +261,7 @@
           <div class="project-head"><span class="project-state live">ACTIF</span><span class="project-meta">RUST · BANC D’ESSAI</span></div>
           <h4>AlmaS</h4>
           <p class="project-line">Reconstruction Rust de l’Alma d’origine — l’œuvre d’un autre auteur, portée avec son accord —, devenue banc d’essai des modules.</p>
-          <p>Trois qualités, dans cet ordre&nbsp;: la mieux documentée, la meilleure pour les épreuves d’intégration, la plus stable. La méthode&nbsp;: rénover fidèlement d’abord, simplifier et optimiser ensuite — le S d’AlmaS veut dire <i lang="en">Simplified</i>.</p>
+          <p>Trois qualités, dans cet ordre&nbsp;: la mieux documentée, la meilleure pour les épreuves d’intégration, la plus stable. La méthode&nbsp;: rénover fidèlement d’abord, simplifier et optimiser ensuite — le S d’AlmaS veut dire <i lang="en">Simplified</i>. Ses deux appuis&nbsp;: Net et Memoria&#8239;; Acropolis n’est pas son moteur (D116).</p>
           <p class="project-not">Sa mémoire n’est pas reminiscence.</p>
           <p class="project-rel">Relié à <a href="#projet-greffe">Greffe</a> <a href="#projet-lucarne">Lucarne</a></p>
           <a class="project-map" href="#carte" data-map-node="almas">Sur la carte<span class="aether-sr"> : AlmaS</span><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg></a>
@@ -285,10 +285,10 @@
           <a class="project-map" href="#carte" data-map-node="greffe">Sur la carte<span class="aether-sr"> : Greffe</span><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg></a>
         </article>
         <article class="aether-project" id="projet-lucarne">
-          <div class="project-head"><span class="project-state live">ACTIF</span><span class="project-meta">RUST · D103</span></div>
+          <div class="project-head"><span class="project-state live">ACTIF</span><span class="project-meta">RUST · D103 · D117</span></div>
           <h4>Lucarne</h4>
           <p class="project-line">La surface graphique hôte de la famille Alma — AlmaS, Alma, Rose, Linh et AlmaF —, avec AlmaS par défaut.</p>
-          <p>Une interface dont la surface est du SVG, engendrée en Rust et servie en local&#8239;; elle s’ouvre aujourd’hui dans une fenêtre d’application du navigateur, une fenêtre native est en chantier. Depuis D103, elle vise plusieurs sessions simultanées à très basse consommation mémoire — un objectif, pas encore une mesure. Les agents vivent dans la surface&#8239;; la surface ne vit pas dans un agent.</p>
+          <p>Une interface graphique vectorielle que Lucarne dessinera elle-même — ni serveur local, ni page, ni <i lang="en">WebView</i> (D117). Aujourd’hui, son SVG engendré en Rust est encore servi en local à une <i lang="en">WebView</i>&nbsp;: une étape, pas la forme. Depuis D103, elle vise plusieurs sessions simultanées à très basse consommation mémoire — un objectif, pas encore une mesure. Les agents vivent dans la surface&#8239;; la surface ne vit pas dans un agent.</p>
           <p class="project-not">Ce n’est pas une fenêtre d’AlmaS&nbsp;: AlmaS en est la première occupante, pas la propriétaire.</p>
           <p class="project-rel">Relié à <a href="#projet-almas">AlmaS</a> <a href="#projet-linh">Linh</a></p>
           <a class="project-map" href="#carte" data-map-node="lucarne">Sur la carte<span class="aether-sr"> : Lucarne</span><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg></a>
@@ -297,7 +297,7 @@
           <div class="project-head"><span class="project-state live">ACTIF</span><span class="project-meta">RUST · SESSIONS</span></div>
           <h4>Net</h4>
           <p class="project-line">Réutiliser proprement une session que j’ai ouverte moi-même, pour un client HTTP léger.</p>
-          <p>Un prototype pensé pour les IA de type AlmaS. Ses limites sont mesurées et documentées, pas supposées. Piste ouverte, non décidée&nbsp;: un moteur de recherche natif plus léger.</p>
+          <p>Un prototype pensé pour les IA de type AlmaS — pour elle, il remplace Sakaki et l’essentiel d’Acropolis (D116). Ses limites sont mesurées et documentées, pas supposées. Piste ouverte, non décidée&nbsp;: un moteur de recherche natif plus léger.</p>
           <p class="project-not">Ce n’est pas le réseau natif de Lumina, qui reste à spécifier à part.</p>
           <p class="project-rel">Relié à <a href="#projet-linh">Linh</a></p>
           <a class="project-map" href="#carte" data-map-node="net">Sur la carte<span class="aether-sr"> : Net</span><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg></a>
@@ -355,7 +355,7 @@
           <h4>Memoria</h4>
           <p class="project-line">La rénovation en Rust d’un moteur de mémoire existant, MEMORIA&nbsp;: réelle et mesurable.</p>
           <p>Segment en ajout, réouverture, scellement, rappel, révocation. Un seul critère, avant la vitesse et la richesse du rappel&nbsp;: être incapable de perdre en silence. Il s’appuie sur la durabilité mesurée de TheHive.</p>
-          <p class="project-not">Ni une création originale — c’est une rénovation —, ni reminiscence&nbsp;: ce qu’elle en reprendra reste ouvert.</p>
+          <p class="project-not">Ni une création originale — c’est une rénovation —, ni reminiscence, qui en reprend les idées et pas le moteur.</p>
           <a class="project-map" href="#carte" data-map-node="memoria">Sur la carte<span class="aether-sr"> : Memoria</span><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg></a>
         </article>
         <article class="aether-project is-inscrit" id="projet-ardupilot">
@@ -407,10 +407,10 @@
     </section>
 
     <section id="trajectoire" class="aether-section roadmap-section" aria-labelledby="trajectoire-title">
-      <div class="aether-section-head"><p class="detail-index">04 / TRAJECTOIRE</p><h2 id="trajectoire-title">Le prochain mouvement est <em>TheHive.</em></h2><span>FEUILLE DE ROUTE · 2026-10-15</span><div class="divider" aria-hidden="true"><span class="rule"></span></div></div>
+      <div class="aether-section-head"><p class="detail-index">04 / TRAJECTOIRE</p><h2 id="trajectoire-title">Le prochain mouvement est <em>TheHive.</em></h2><span>FEUILLE DE ROUTE · 2026-10-20</span><div class="divider" aria-hidden="true"><span class="rule"></span></div></div>
       <div class="aether-timeline">
         <article class="timeline-now"><span>MAINTENANT</span><b>TheHive</b><p>Déjà vus fonctionner en banc&nbsp;: la durabilité mesurée, la pose signée, le terminal en la lumina. Ensuite&nbsp;: démarrer Lumina cognitive, poursuivre les protections, construire la voie réseau décidée, rejouer les scénarios importants sur la machine réelle.</p></article>
-        <article><span>EN PARALLÈLE</span><b>la lumina · reminiscence</b><p>Le langage continue comme dépôt réel&#8239;; reminiscence est en transition, son API finale reste ouverte.</p></article>
+        <article><span>EN PARALLÈLE</span><b>la lumina · reminiscence</b><p>Le langage continue comme dépôt réel&#8239;; reminiscence est en transition&#8239;: sa spécification est écrite (D111), son code propre reste à faire.</p></article>
         <article><span>EN PARALLÈLE</span><b>furu</b><p>Des épreuves de conception à définir — mesuré, déclaré, inféré, simulé —&#8239;; un tunnel d’accès ou un moteur dédié, selon ce que l’environnement expose déjà&#8239;; langage, forme et emplacement du code non décidés.</p></article>
         <article><span>ENTRETENU</span><b>Le reste du parc</b><p>AlmaS, Linh, Greffe, Net, Lucarne, LinhMesh, Temoin&nbsp;: maintenus, sans être tous le chantier principal à la fois.</p></article>
         <article><span>PLUS TARD</span><b>Persona · organes · éditions</b><p>La persona complète de Lumina, reminiscence finale, ses organes — les lumens, la vision, la voix —, AlmaF et Rose, Libera, Réseau&#8239;; Constellation en recherche parallèle.</p></article>

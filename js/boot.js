@@ -53,4 +53,50 @@
     menu.classList.toggle("open", open);
     root.classList.toggle("menu-open", open);
   }, true);
+
+  // Between two pages of the site the browser may run a view transition over the arriving page (the afterimage,
+  // portal.js). While it runs, Chromium gives that page no pointer input: the root takes the press, whatever
+  // `::view-transition{pointer-events:none}` says. Measured on 2026-10-18 (Chromium 141): under the menu button
+  // the hit test found only <html> until the transition ended, and a click there was lost — a fraction of a
+  // second on a fast machine, seconds on a slow one. So the first press ends the transition, and the click it
+  // makes is handed to what is under the pointer once the page is back; nothing changes for whoever waits.
+  // The bench: _outils/qa/transition-2026-10-18 (menu opened by a click during the transition: 0/10 before, 12/12).
+  var transition = null, pressPending = 0;
+  window.addEventListener("pagereveal", function (e) {
+    if (!e.viewTransition) return;
+    transition = e.viewTransition;
+    var done = function () { transition = null; };
+    try { transition.finished.then(done, done); } catch (err) { transition = null; }
+  });
+  window.addEventListener("pointerdown", function (e) {
+    if (!transition || e.target !== root) return;
+    pressPending = Date.now();
+    try { transition.skipTransition(); } catch (err) {}
+  }, true);
+  window.addEventListener("keydown", function () {
+    if (transition) try { transition.skipTransition(); } catch (err) {}
+  }, true);
+  // The same click, given to what is under the pointer: every listener already in place takes it as it would
+  // have — the menu button, a link (portal.js), a node of the Aether map (an SVG group with role="link", which
+  // has no click() method). An open menu or a frame covers the page: the element found is theirs, never under them
+  // (an inert <main> is skipped by the hit test). Nothing under the pointer but the root: nothing to give.
+  var hand = function (x, y) {
+    var under = document.elementFromPoint(x, y);
+    if (!under || under === root || under === document.body) return false;
+    under.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, composed: true, view: window, detail: 1, button: 0, clientX: x, clientY: y }));
+    return true;
+  };
+  document.addEventListener("click", function (e) {
+    if (!pressPending) return;
+    var recent = Date.now() - pressPending < 1500;
+    pressPending = 0;
+    if (!recent || e.target !== root) return; // the browser found the element itself: nothing to redo
+    e.stopPropagation();
+    var x = e.clientX, y = e.clientY;
+    if (hand(x, y)) return;
+    // The click can come before the skipped transition is torn down (measured: 1 press in 12 under CPU x4): the hit
+    // test still finds the root. Once it is over and the next frame drawn, what is under the pointer answers.
+    var later = function () { requestAnimationFrame(function () { requestAnimationFrame(function () { hand(x, y); }); }); };
+    if (transition) transition.finished.then(later, later); else later();
+  }, true);
 })();
