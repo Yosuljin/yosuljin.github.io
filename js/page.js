@@ -4,12 +4,12 @@ import { $$ } from "./core/dom.js?v=20261007-r7";
 import { every, wake } from "./core/loop.js?v=20261014-r1";
 import { idleLevel } from "./core/idle.js?v=20261009-r2";
 import { getMode, onModeChange, reducedMotion } from "./core/prefs.js?v=20261014-r1";
-import { initGlitch } from "./ui/glitch.js?v=20261009-r2";
-import { initSpatialFX } from "./ui/fx.js?v=20261014-r1";
-import { initPortal } from "./ui/portal.js?v=20261014-r1";
-import { initMenu } from "./ui/menu.js?v=20261014-r1";
+import { initGlitch } from "./ui/glitch.js?v=20261019-r1";
+import { initSpatialFX } from "./ui/fx.js?v=20261019-r1";
+import { initPortal } from "./ui/portal.js?v=20261019-r1";
+import { initMenu } from "./ui/menu.js?v=20261019-r1";
 import { initModeSwitch, initReveal } from "./ui/chrome.js?v=20261009-r2";
-import { initSound, setScene as soundScene } from "./ui/sound.js?v=20261014-r1";
+import { initSound, setScene as soundScene } from "./ui/sound.js?v=20261019-r1";
 
 const root = document.documentElement;
 const kind = document.body.dataset.world;

@@ -3,7 +3,7 @@
 // rests on the current page's line and flies only when a line is chosen.
 import { $, $$ } from "../core/dom.js?v=20261007-r7";
 import { reducedMotion, getMode } from "../core/prefs.js?v=20261014-r1";
-import { sfx } from "./sound.js?v=20261014-r1";
+import { sfx } from "./sound.js?v=20261019-r1";
 
 const ZH = { dev: "開發", photo: "攝影", writing: "寫作", worlds: "世界" };
 // The sprite by this module's own address: the 404 page is served at any depth, where a path relative to the

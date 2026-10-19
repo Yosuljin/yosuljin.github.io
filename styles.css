@@ -1400,6 +1400,10 @@ html.immersive-nav{overflow:hidden!important}
 .signal-gate{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;overflow:hidden;color:var(--paper);
   background:linear-gradient(112deg,transparent 34%,rgba(255,255,255,.022) 44%,transparent 56%),repeating-linear-gradient(0deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px),radial-gradient(ellipse 120% 95% at 50% 50%,var(--bg-2) 0%,var(--bg) 52%,var(--ink) 100%)}
 .signal-gate::backdrop{background:var(--ink,#020103)}
+/* In the page before the scripts (html.gate-pending, js/boot.js): shown as a fixed layer over the dark tube, then made
+   modal by sound.js; without JavaScript it stays hidden. A screen pressed before sound.js is here fades at once. */
+html.gate-pending .signal-gate:not([open]){display:block;z-index:20002}
+.signal-gate.is-leaving{pointer-events:none}
 /* The whole glass is the switch. */
 .signal-gate-switch{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:0;background:none;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
 /* The bezel: the edge of the glass, brighter when the switch has the keyboard focus. */

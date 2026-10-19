@@ -1,7 +1,7 @@
 // The tube over every page, and the press of a control. Nothing glitches any more (RÉMANENCE §11): the page
 // change is portal.js's channel change, and the world keeps its own light.
 import { reducedMotion } from "../core/prefs.js?v=20261014-r1";
-import { sfx } from "./sound.js?v=20261014-r1";
+import { sfx } from "./sound.js?v=20261019-r1";
 
 const CONTROLS = "a[href], button";
 

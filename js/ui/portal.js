@@ -5,7 +5,7 @@
 // left turns rose and dies out over the next page (styles.css, 06). The first page of a visit powers the tube on.
 import { reducedMotion } from "../core/prefs.js?v=20261014-r1";
 import { wake } from "../core/loop.js?v=20261014-r1";
-import { sfx, revive } from "./sound.js?v=20261014-r1";
+import { sfx, revive } from "./sound.js?v=20261019-r1";
 
 const FLAG = "yosuljin-portal";
 const DEPART = 260;
@@ -118,8 +118,9 @@ export function initPortal({ samePage } = {}) {
     sessionStorage.removeItem(FLAG);
     if (crossed) {
       channelIn();
-    } else if (document.querySelector(".signal-gate")) {
-      // First page of a visit: the entry gate is open; the tube powers on when the reader enters.
+    } else if (root.classList.contains("gate-pending") || document.querySelector(".signal-gate[open]")) {
+      // First page of a visit: the standby screen is up (shown by boot.js, or already modal through sound.js);
+      // the tube powers on when the reader enters.
       root.classList.add("power-hold");
       addEventListener("yosuljin:enter", powerOn, { once: true });
     } else {

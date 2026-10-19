@@ -377,7 +377,8 @@ export function initSound() {
     if (!ctx) return;
     if (document.visibilityState === "hidden") ctx.suspend(); else if (enabled && !shuttingDown) ctx.resume();
   });
-  if (enabled) visited() ? tryAutostart() : showGate();
+  if (enabled && !visited()) showGate();
+  else { document.querySelector(".signal-gate")?.remove(); if (enabled) tryAutostart(); }
 }
 
 // ---------- Standby screen ----------
@@ -393,11 +394,18 @@ function switchOn() {
 }
 
 function showGate() {
-  if (document.querySelector(".signal-gate") || typeof HTMLDialogElement !== "function") return;
-  const gate = document.createElement("dialog");
-  gate.className = "signal-gate";
-  gate.setAttribute("aria-label", "Écran en veille");
-  gate.innerHTML =
+  const root = document.documentElement;
+  if (typeof HTMLDialogElement !== "function") { document.querySelector(".signal-gate")?.remove(); root.classList.remove("gate-pending"); return; }
+  // The page carries the screen (every page's <dialog class="signal-gate">, shown by js/boot.js before the first
+  // paint): it is adopted here. Built only when a page does not carry it.
+  let gate = document.querySelector(".signal-gate");
+  const built = !gate;
+  if (built) {
+    gate = document.createElement("dialog");
+    gate.className = "signal-gate";
+    gate.setAttribute("aria-label", "Écran en veille");
+  }
+  if (built) gate.innerHTML =
     '<button type="button" class="signal-gate-switch" data-gate="sound" aria-label="Allumer l’écran et le son" aria-describedby="signal-gate-note">' +
     '<span class="signal-gate-name" aria-hidden="true">YOSULJIN</span>' +
     '<span class="signal-gate-dot" aria-hidden="true"></span>' +
@@ -416,7 +424,7 @@ function showGate() {
     gone = true;
     if (mode === "sound") switchOn(); else if (mode === "quiet") setEnabled(false);
     gate.classList.add("is-leaving");
-    const done = () => { gate.close(); gate.remove(); };
+    const done = () => { if (gate.open) gate.close(); gate.remove(); };
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) done(); else setTimeout(done, 260);
     // The tube powers on underneath while the standby screen fades (portal.js).
     dispatchEvent(new Event("yosuljin:enter"));
@@ -431,7 +439,12 @@ function showGate() {
   });
   // Escape is not a user activation, so it cannot start the sound: it just lets the reader in.
   gate.addEventListener("cancel", e => { e.preventDefault(); leave("skip"); });
-  document.body.appendChild(gate);
+  if (built) document.body.appendChild(gate);
+  window.__yosuljinGateReady = true;
+  // A press that came before this module (js/boot.js kept the choice): acted on now, the screen already fading.
+  const early = window.__yosuljinGateChoice;
+  root.classList.remove("gate-pending");
+  if (early) { leave(early); return; }
   gate.showModal();
 }
 

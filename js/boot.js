@@ -16,6 +16,13 @@
     if (sessionStorage.getItem("yosuljin-portal")) root.classList.add("channel-pending");
     else if (!reduced) root.classList.add("power-pending");
   } catch (e) {}
+  // The tube in standby (the <dialog class="signal-gate"> of every page): the first page of a visit, unless the sound
+  // was turned off for good. Decided here, before the first paint, so it shows at once on a slow network instead of
+  // when the modules arrive (measured on 2026-10-19, Slow 4G: 1.9 s against 4.5 to 6.7 s). sound.js makes it modal and
+  // takes it down; portal.js holds the tube dark until the reader enters (power-hold).
+  var gate = false;
+  try { gate = typeof HTMLDialogElement === "function" && sessionStorage.getItem("yosuljin-signal") !== "1" && localStorage.getItem("yosuljin-sound") !== "off"; } catch (e) {}
+  if (gate) root.classList.add("gate-pending", "power-hold");
   // In the immersive frame (js/ui/immersive-nav.js): the owning page learns when this picture is first drawn.
   if (window.parent !== window) {
     try { requestAnimationFrame(function () { window.parent.postMessage({ type: "yosuljin-frame-shown" }, location.origin); }); } catch (e) {}
@@ -32,6 +39,25 @@
       document.head.appendChild(link);
     });
   }
+
+  // A press on the standby screen before sound.js is here: the choice is kept (and the screen fades at once), sound.js
+  // acts on it as soon as it runs. The press is a user activation of the page: the sound may start from it later.
+  // Should the modules never come, the tube's failsafe (styles.css, power-pending) uncovers the page 3 s after the press.
+  var early = function (mode) {
+    if (window.__yosuljinGateReady || !root.classList.contains("gate-pending")) return;
+    window.__yosuljinGateChoice = mode;
+    var gate = document.querySelector(".signal-gate");
+    if (gate) gate.classList.add("is-leaving");
+    root.classList.remove("power-hold");
+  };
+  document.addEventListener("click", function (e) {
+    var b = e.target && e.target.closest ? e.target.closest(".signal-gate [data-gate]") : null;
+    if (b) early(b.getAttribute("data-gate"));
+  }, true);
+  // The screen says « ou appuyez sur une touche »: before sound.js makes it modal, the focus is not inside it.
+  document.addEventListener("keydown", function (e) {
+    if (e.key && e.key.length === 1 && e.key !== " " && !e.ctrlKey && !e.metaKey && !e.altKey) early("sound");
+  }, true);
 
   // Capture the menu before the module graph finishes loading. This removes the
   // small post-load window where the button used to exist without a listener.

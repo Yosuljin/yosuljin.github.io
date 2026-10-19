@@ -5,12 +5,12 @@
 import { $, $$, clamp, smoothstep, setStyle } from "./js/core/dom.js?v=20261007-r7";
 import { every, wake } from "./js/core/loop.js?v=20261014-r1";
 import { getMode, isCinema, onModeChange, reducedMotion, finePointer } from "./js/core/prefs.js?v=20261014-r1";
-import { initGlitch } from "./js/ui/glitch.js?v=20261009-r2";
-import { initSpatialFX } from "./js/ui/fx.js?v=20261014-r1";
-import { initPortal } from "./js/ui/portal.js?v=20261014-r1";
-import { initMenu } from "./js/ui/menu.js?v=20261014-r1";
+import { initGlitch } from "./js/ui/glitch.js?v=20261019-r1";
+import { initSpatialFX } from "./js/ui/fx.js?v=20261019-r1";
+import { initPortal } from "./js/ui/portal.js?v=20261019-r1";
+import { initMenu } from "./js/ui/menu.js?v=20261019-r1";
 import { initModeSwitch, initReveal } from "./js/ui/chrome.js?v=20261009-r2";
-import { initSound, sfx, setScene as soundScene, setVelocity } from "./js/ui/sound.js?v=20261014-r1";
+import { initSound, sfx, setScene as soundScene, setVelocity } from "./js/ui/sound.js?v=20261019-r1";
 import { idleLevel } from "./js/core/idle.js?v=20261009-r2";
 
 const root = document.documentElement;
