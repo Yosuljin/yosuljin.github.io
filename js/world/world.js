@@ -596,6 +596,7 @@ export function createWorld(canvas, options = {}) {
   let ptrDir = [0, 0, -1];
   let eye = [0, 0, 3], lastEye = null, lastFwd = null, camR = [1, 0, 0], camU = [0, 1, 0], camF = [0, 0, -1], tanXY = [1, 1], streak = [0, 0, 0];
   const sky = { a: [0, 0, 0], b: [0, 0, 0], c: [0, 0, 0], deep: [0, 0, 0], sun: [0, 0, -1], sunCol: [0, 0, 0], glow: 0 };
+  const nebP = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]; // the sky's colours as sent to the sky pass (portrait gain, below)
   const t = () => state.time;
 
   // ---------- Annotations: world points the page labels in screen space ----------
@@ -1537,10 +1538,15 @@ export function createWorld(canvas, options = {}) {
 
     // Sky, at low resolution.
     gl.disable(gl.DEPTH_TEST); gl.disable(gl.BLEND);
+    // On a portrait screen the Entrée looks at a high, thin part of the sky, above the planet pushed under the row:
+    // the nebula's three colours gain up to +90 % and the deep sky +60 % there (the index only; landscape screens are unchanged), so the first
+    // screen of a phone carries the page's light. Behind the text the post pass still caps the luminance at .04.
+    const portraitK = kind === "index" ? portraitAmount() : 0, nebGain = 1 + 0.9 * portraitK, deepGain = 1 + 0.6 * portraitK;
+    for (let k = 0; k < 3; k++) { nebP[0][k] = sky.a[k] * nebGain; nebP[1][k] = sky.b[k] * nebGain; nebP[2][k] = sky.c[k] * nebGain; nebP[3][k] = sky.deep[k] * deepGain; }
     pass(skyRT, P.sky, u => {
       gl.uniform3fv(u.uRight, camR); gl.uniform3fv(u.uUp, camU); gl.uniform3fv(u.uFwd, camF); gl.uniform2f(u.uTan, tanXY[0], tanXY[1]);
       gl.uniform3fv(u.uSun, sky.sun); gl.uniform3fv(u.uSunCol, sky.sunCol); gl.uniform1f(u.uGlow, sky.glow);
-      gl.uniform3fv(u.uNebA, sky.a); gl.uniform3fv(u.uNebB, sky.b); gl.uniform3fv(u.uNebC, sky.c); gl.uniform3fv(u.uDeep, sky.deep); gl.uniform3fv(u.uBand, BAND);
+      gl.uniform3fv(u.uNebA, nebP[0]); gl.uniform3fv(u.uNebB, nebP[1]); gl.uniform3fv(u.uNebC, nebP[2]); gl.uniform3fv(u.uDeep, nebP[3]); gl.uniform3fv(u.uBand, BAND);
       gl.uniform1f(u.uTime, t());
     });
 

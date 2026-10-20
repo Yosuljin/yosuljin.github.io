@@ -21,7 +21,7 @@ let world = null, stop = null, recoveryTimer = 0, menuOpen = false, skipped = fa
 // pages without data-world and every page in LITE never download it.
 let createWorld = null, loadingWorld = null;
 function loadWorld() {
-  loadingWorld ??= import("./world/world.js?v=20261014-r1").then(m => { createWorld = m.createWorld; });
+  loadingWorld ??= import("./world/world.js?v=20261020-r2").then(m => { createWorld = m.createWorld; });
   return loadingWorld;
 }
 // The world follows the reading progress at every frame. The page height is measured when the page
