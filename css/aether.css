@@ -370,6 +370,11 @@ html.mode-lite .aether-shell :is(*,*::before,*::after){animation:none!important}
      constellation (its zoom, .965), so the edge labels keep their margin; the core's name stays inside
      its disc, a little smaller. */
   .aether-grand .aether-orbit-stage:not(.is-gl) .aether-graph{transform:scale(.965)}
+  /* Under a finger, a node's hit disc grows from 32 to 42 px (r as a CSS geometry property; the attribute's 44 units
+     stay the fallback). Measured on 2026-10-20 at 390 px over 5 s of constellation sway: the SVG is 360 px wide and the
+     closest two centres (the two visions) stay 42.5 px apart, so 58 units (≈ 42 px) is the largest disc that never
+     overlaps another one; 60 did, by a pixel. */
+  .aether-grand .a-node .node-hit{r:58}
   .aether-grand .a-node text{font-size:max(26px,calc(10px * var(--u,1)))}
   .aether-grand .a-node:not(.a-node-core) text{letter-spacing:0}
   .aether-grand .a-node-core text{font-size:max(22px,calc(10px * var(--u,1)))}
