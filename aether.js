@@ -172,7 +172,10 @@ rove(nodes.find(n=>n.getAttribute("tabindex")==="0")||nodes[0]);
 let lastX=NaN,lastY=NaN;
 addEventListener("pointermove",e=>{lastX=e.clientX;lastY=e.clientY;},{capture:true,passive:true});
 nodes.forEach(n=>{
-  n.addEventListener("pointerenter",e=>{if(e.pointerType!=="touch"&&e.clientX===lastX&&e.clientY===lastY)return;show(n.dataset.node);});
+  // A finger does not hover: on touch, a node is chosen by the tap (click, focus), never by a finger passing over it
+  // while the page scrolls — measured on 2026-10-20 (Android emulated, CPU ×4): each node crossed selected itself,
+  // the panel spoke, and the forced style (the sheet's --hue) made 50 ms frames.
+  n.addEventListener("pointerenter",e=>{if(e.pointerType==="touch"||(e.clientX===lastX&&e.clientY===lastY))return;show(n.dataset.node);});
   n.addEventListener("pointerleave",()=>show(graph.contains(focusedNode())?focusedNode().dataset.node:null));
   n.addEventListener("focus",()=>{rove(n);show(n.dataset.node);});
   n.addEventListener("click",()=>open(n));
