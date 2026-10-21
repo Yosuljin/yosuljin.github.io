@@ -24,14 +24,14 @@
   <meta property="og:image:alt" content="Yosuljin&nbsp;: développement, photographie, écriture, mondes.">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/contenu.css?v=20261021-r1">
+  <link rel="stylesheet" href="css/contenu.css?v=20261014-r1">
   <link rel="preload" href="fonts/instrument-serif-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css?v=20261019-r1">
   <link rel="stylesheet" href="css/motifs.css?v=20261009-r2">
-  <script src="js/boot.js?v=20261021-r1"></script>
+  <script src="js/boot.js?v=20261020-r2"></script>
   <script src="js/ui/immersive-nav.js?v=20261014-r1" defer></script>
   <script src="js/ui/fullscreen.js?v=20261014-r1" defer></script>
-  <script type="module" src="js/page.js?v=20261021-r1"></script>
+  <script type="module" src="js/page.js?v=20261020-r2"></script>
   <!-- The modules the entry module imports, announced here so they download with the page instead of after it
        (measured on 2026-10-19, Slow 4G: they left at 2.5 s and arrived up to 4.2 s). Low priority: the stylesheet and
        the fonts of the first paint go first. Same versions as the imports (verifier.py checks; bump.py keeps them). -->
@@ -45,7 +45,7 @@
   <link rel="modulepreload" href="js/ui/chrome.js?v=20261009-r2" fetchpriority="low">
   <link rel="modulepreload" href="js/ui/glitch.js?v=20261019-r1" fetchpriority="low">
   <link rel="modulepreload" href="js/ui/fx.js?v=20261019-r1" fetchpriority="low">
-  <script type="module" src="js/motifs.js?v=20261021-r1"></script>
+  <script type="module" src="js/motifs.js?v=20261014-r1"></script>
 </head>
 <body class="detail-page domain-dev" data-world="dev">
   <!-- The tube in standby (the first page of a visit): in the page itself so it shows at the first paint, long before the
@@ -87,7 +87,7 @@
           <a href="developpement.html" data-accent="dev"><small>01</small><b>Développement</b><em>systèmes · Rust · <span lang="en">from scratch</span></em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
           <a href="photographie.html" data-accent="photo"><small>02</small><b>Photographie</b><em>lumière · lieux · fragments</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
           <a href="ecriture.html" data-accent="writing"><small>03</small><b>Écriture</b><em>corps · regard · existence</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
-          <a href="mondes.html" data-accent="worlds"><small>04</small><b>Mondes</b><em>Libera · ce site · futurs</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="mondes.html" data-accent="worlds"><small>04</small><b>Mondes</b><em>Constellation · Libera · futurs</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
         </div>
         <div class="menu-aether">
           <div class="menu-block-head"><span>DOSSIER CENTRAL</span><span>01</span></div>
@@ -125,12 +125,13 @@
   <section class="detail-grid">
     <article class="detail-block wide"><h2 class="write"><span class="write-win"><span class="write-ink">Construire <em>pour comprendre.</em></span></span><i class="write-beam" aria-hidden="true"></i></h2><p>Je préfère reconstruire que reproduire&nbsp;: un moteur réécrit depuis zéro apprend plus qu’un moteur emprunté. Chaque pièce garde son propre code, son propre rythme et ses propres épreuves.</p></article>
     <article class="detail-block"><h2>Chantiers</h2><ul>
-      <li><b>01</b><span><strong><a href="aether.html#projet-almas">AlmaS</a></strong> — le premier agent de Lumina et l’outil pour la construire&#8239;; à l’origine, la reconstruction Rust d’Alma, une première IA écrite par un autre auteur.</span><i>IA</i></li>
-      <li><b>02</b><span><strong><a href="aether.html#projet-la-lumina">la lumina</a></strong> — le langage de Lumina, <code>.lum</code>, son interpréteur et son shell.</span><i>LANGAGE</i></li>
-      <li><b>03</b><span><strong><a href="aether.html#projet-greffe">Greffe</a></strong> — le contrat qui permet à un module de s’ajouter sans s’incruster.</span><i>SOCLE</i></li>
-      <li><b>04</b><span><strong><a href="aether.html#projet-lucarne">Lucarne</a></strong> — une plateforme vectorielle où vivent les agents, dessinée par elle-même en Rust&#8239;; la forme native est la cible, son installation est à faire.</span><i>INTERFACE</i></li>
-      <li><b>05</b><span><strong><a href="aether.html#projet-net">Net</a></strong> — ce qui permet à AlmaS de travailler en ligne.</span><i>ACCÈS</i></li>
-      <li><b>06</b><span><strong><a href="aether.html#projet-furu">furu</a></strong> — le moteur fondamental qui rend mesurables le corps et les limites de Lumina&#8239;; un premier moteur, éprouvé dans AlmaS.</span><i>MOTEUR</i></li>
+      <li><b>01</b><span><strong><a href="aether.html#projet-almas">AlmaS</a></strong> — reconstruction Rust propre d’Alma, une première IA écrite par un autre auteur&#8239;; aujourd’hui banc d’essai.</span><i>IA</i></li>
+      <li><b>02</b><span><strong><a href="aether.html#projet-linh">Linh</a></strong> — agent portable de terrain, réécrit <em lang="en">from scratch</em> en <code>vAlpha1.0</code>.</span><i>AGENT</i></li>
+      <li><b>03</b><span><strong><a href="aether.html#projet-la-lumina">la lumina</a></strong> — le langage de Lumina, <code>.lum</code>, son interpréteur et son shell.</span><i>LANGAGE</i></li>
+      <li><b>04</b><span><strong><a href="aether.html#projet-greffe">Greffe</a></strong> — le contrat qui permet à un module de s’ajouter sans s’incruster.</span><i>SOCLE</i></li>
+      <li><b>05</b><span><strong><a href="aether.html#projet-lucarne">Lucarne</a></strong> — une interface graphique vectorielle (SVG) engendrée en Rust.</span><i>INTERFACE</i></li>
+      <li><b>06</b><span><strong><a href="aether.html#projet-net">Net</a></strong> — réutiliser proprement une session que j’ai ouverte moi-même, pour un client HTTP léger.</span><i>ACCÈS</i></li>
+      <li><b>07</b><span><strong><a href="aether.html#projet-furu">furu</a></strong> — le moteur fondamental qui rend mesurables les contraintes et les limites de Lumina&#8239;; spécification, sans code attribué.</span><i>MOTEUR</i></li>
     </ul></article>
     <article class="detail-block"><h2>Principes</h2><p><b>La doc peut mentir.</b> Une affirmation que le code dément est une faute&nbsp;: on vérifie contre les fichiers, pas l’inverse.</p><p><b>Un module s’ajoute.</b> Retirez-le et lancez le produit&nbsp;: ce dont le cœur ne peut pas se passer n’est pas un module.</p><p><b>Ce qui se compte s’engendre.</b> Les recensements sont produits depuis le code, jamais recopiés à la main.</p></article>
     <article class="detail-block wide"><h2 class="write"><span class="write-win"><span class="write-ink">Ce site, <em>aussi.</em></span></span><i class="write-beam" aria-hidden="true"></i></h2><p>Ces pages suivent la même méthode&nbsp;: tout ce qu’elles chargent vient du site lui-même.</p><ul>

@@ -28,10 +28,10 @@
   <link rel="stylesheet" href="styles.css?v=20261019-r1">
   <link rel="stylesheet" href="css/legal.css?v=20261014-r1">
   <link rel="stylesheet" href="css/motifs.css?v=20261009-r2">
-  <script src="js/boot.js?v=20261021-r1"></script>
+  <script src="js/boot.js?v=20261020-r2"></script>
   <script src="js/ui/immersive-nav.js?v=20261014-r1" defer></script>
   <script src="js/ui/fullscreen.js?v=20261014-r1" defer></script>
-  <script type="module" src="js/page.js?v=20261021-r1"></script>
+  <script type="module" src="js/page.js?v=20261020-r2"></script>
   <!-- The modules the entry module imports, announced here so they download with the page instead of after it
        (measured on 2026-10-19, Slow 4G: they left at 2.5 s and arrived up to 4.2 s). Low priority: the stylesheet and
        the fonts of the first paint go first. Same versions as the imports (verifier.py checks; bump.py keeps them). -->
@@ -45,7 +45,7 @@
   <link rel="modulepreload" href="js/ui/chrome.js?v=20261009-r2" fetchpriority="low">
   <link rel="modulepreload" href="js/ui/glitch.js?v=20261019-r1" fetchpriority="low">
   <link rel="modulepreload" href="js/ui/fx.js?v=20261019-r1" fetchpriority="low">
-  <script type="module" src="js/motifs.js?v=20261021-r1"></script>
+  <script type="module" src="js/motifs.js?v=20261014-r1"></script>
 </head>
 <body class="legal">
   <!-- The tube in standby (the first page of a visit): in the page itself so it shows at the first paint, long before the
@@ -85,7 +85,7 @@
           <a href="developpement.html" data-accent="dev"><small>01</small><b>Développement</b><em>systèmes · Rust · <span lang="en">from scratch</span></em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
           <a href="photographie.html" data-accent="photo"><small>02</small><b>Photographie</b><em>lumière · lieux · fragments</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
           <a href="ecriture.html" data-accent="writing"><small>03</small><b>Écriture</b><em>corps · regard · existence</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
-          <a href="mondes.html" data-accent="worlds"><small>04</small><b>Mondes</b><em>Libera · ce site · futurs</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          <a href="mondes.html" data-accent="worlds"><small>04</small><b>Mondes</b><em>Constellation · Libera · futurs</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
         </div>
         <div class="menu-aether">
           <div class="menu-block-head"><span>DOSSIER CENTRAL</span><span>01</span></div>
@@ -117,7 +117,7 @@
     <p class="legal-kicker">DOCUMENT JURIDIQUE · VERSION 3</p>
     <h1>Politique de confidentialité</h1>
     <p class="legal-intro">Le site est conçu selon un principe de minimisation. Son code ne crée ni compte, ni formulaire, ni outil publicitaire ou de mesure d’audience&#8239;; l’hébergement GitHub Pages reste toutefois un traitement distinct, réalisé par l’hébergeur.</p>
-    <div class="legal-meta"><span>DONNÉES · TRACEURS · LIENS TIERS</span><span>MISE À JOUR · <time datetime="2026-10-21">21.10.2026</time></span></div>
+    <div class="legal-meta"><span>DONNÉES · TRACEURS · LIENS TIERS</span><span>MISE À JOUR · <time datetime="2026-10-09">09.10.2026</time></span></div>
     <nav class="legal-toc" aria-label="Sommaire">
       <ol>
         <li><a href="#collecte">Ce que le site ne collecte pas</a></li>
@@ -141,9 +141,9 @@
       <h2 id="stockage">2. Ce que votre navigateur garde en mémoire</h2>
       <p>L’interface enregistre au plus quatre valeurs dans le stockage de votre navigateur. Elles restent sur votre appareil, ne sont transmises à personne et ne permettent pas de suivre votre navigation sur d’autres sites.</p>
       <dl class="legal-facts">
-        <div><dt><code>yosuljin-display-mode</code></dt><dd>Mode d’affichage&nbsp;: <code>full</code> (FULL 3D) ou <code>lite@2026-10-13</code> (LITE, daté pour qu’un choix plus ancien ne s’applique plus), enregistré seulement quand vous changez ce réglage. Stockage local&nbsp;: conservé jusqu’à ce que vous effaciez les données du site.</dd></div>
-        <div><dt><code>yosuljin-sound</code></dt><dd>Son activé ou coupé (<code>on</code> ou <code>off</code>), enregistré seulement quand vous changez ce réglage&nbsp;: le bouton SON, ou «&nbsp;Allumer sans le son&nbsp;» sur l’écran de veille. Stockage local, même durée.</dd></div>
-        <div><dt><code>yosuljin-signal</code></dt><dd>Retient (<code>1</code>), pour la durée de la visite, que vous avez déjà interagi avec une page (clic, touche ou toucher)&nbsp;: les pages suivantes peuvent ainsi reprendre le son sans repasser par l’écran de veille. Stockage de session&nbsp;: effacé à la fermeture de l’onglet.</dd></div>
+        <div><dt><code>yosuljin-display-mode</code></dt><dd>Mode d’affichage (FULL 3D ou LITE), enregistré seulement si vous changez ce réglage. Stockage local&nbsp;: conservé jusqu’à ce que vous effaciez les données du site.</dd></div>
+        <div><dt><code>yosuljin-sound</code></dt><dd>Son activé ou coupé, enregistré seulement si vous changez ce réglage. Stockage local, même durée.</dd></div>
+        <div><dt><code>yosuljin-signal</code></dt><dd>Retient, pour la durée de la visite, que vous avez déjà interagi avec une page (clic, touche ou toucher)&nbsp;: les pages suivantes peuvent ainsi reprendre le son sans repasser par l’écran de veille. Stockage de session&nbsp;: effacé à la fermeture de l’onglet.</dd></div>
         <div><dt><code>yosuljin-portal</code></dt><dd>Signale une transition entre deux pages du site. Stockage de session, effacé à l’arrivée sur la page suivante du site, au plus tard à la fermeture de l’onglet.</dd></div>
       </dl>
       <p>Ces traceurs servent uniquement au fonctionnement de l’interface que vous utilisez&nbsp;: ils relèvent des exceptions au consentement prévues par l’article 82 de la loi Informatique et Libertés.</p>
@@ -200,7 +200,7 @@
       <a class="a1" href="contact.html">CONTACT<svg class="ico-arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></a>
       <a class="a1" href="index.html"><svg class="ico-arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-w"/></svg>RETOUR À L’ESPACE</a>
     </nav>
-    <p class="legal-date">Dernière mise à jour&nbsp;: <time datetime="2026-10-21">21&nbsp;octobre 2026</time>.</p>
+    <p class="legal-date">Dernière mise à jour&nbsp;: <time datetime="2026-10-09">9&nbsp;octobre 2026</time>.</p>
   </main>
 </body>
 </html>

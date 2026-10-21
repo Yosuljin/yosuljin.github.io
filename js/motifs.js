@@ -1,7 +1,7 @@
 // Content-page motifs (direction RÉMANENCE): a divider's sweep plays once, the first time it enters the view.
 // Without IntersectionObserver (or without this script) the line simply rests: nothing depends on it.
 // Local QA only (loopback, as in world.js): ?qa=nowrite keeps the written titles at rest, ?qa=nofall the petal on
-// its line (css/legal.css), so the bench can isolate each one's cost. Nothing in production.
+// its line (css/contenu.css, css/legal.css), so the bench can isolate each one's cost. Nothing in production.
 try {
   if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
     for (const f of (new URLSearchParams(location.search).get("qa") || "").split(",")) {

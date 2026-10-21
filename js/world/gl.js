@@ -147,26 +147,9 @@ export function indexBuffer(gl, data) {
   return b;
 }
 
-/**
- * Binds interleaved float attributes: layout = [[location, size], ...]. Under WebGL2 each (buffer, layout) keeps a
- * vertex array, set up once: a draw then costs one bind, not a bind, an enable and a pointer per attribute (a third
- * of a flight's GL calls on the phone). Under WebGL1 turns off the ones it does not use. The index buffer each
- * drawElements binds after it lands in that vertex array, which is why it stays bound right before the draw.
- */
+/** Binds interleaved float attributes: layout = [[location, size], ...]; turns off the ones it does not use. */
 let enabledAttribs = 0;
-const arrays = new WeakMap();
 export function attribs(gl, buf, layout) {
-  if (gl.bindVertexArray) {
-    let key = 0;
-    for (const [loc, size] of layout) key = key * 128 + ((loc ?? -1) + 1) * 5 + size;
-    let byLayout = arrays.get(buf);
-    if (!byLayout) arrays.set(buf, byLayout = new Map());
-    let vao = byLayout.get(key);
-    if (vao) { gl.bindVertexArray(vao); return; }
-    vao = gl.createVertexArray();
-    gl.bindVertexArray(vao);
-    byLayout.set(key, vao);
-  }
   gl.bindBuffer(gl.ARRAY_BUFFER, buf);
   const stride = layout.reduce((s, [, n]) => s + n, 0) * 4;
   let offset = 0, mask = 0;
@@ -174,7 +157,6 @@ export function attribs(gl, buf, layout) {
     if (loc >= 0) { gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, size, gl.FLOAT, false, stride, offset); mask |= 1 << loc; }
     offset += size * 4;
   }
-  if (gl.bindVertexArray) return;
   for (let i = 0; i < 16; i++) if ((enabledAttribs & (1 << i)) && !(mask & (1 << i))) gl.disableVertexAttribArray(i);
   enabledAttribs = mask;
 }
