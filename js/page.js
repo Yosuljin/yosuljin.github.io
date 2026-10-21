@@ -21,7 +21,7 @@ let world = null, stop = null, recoveryTimer = 0, menuOpen = false, skipped = fa
 // pages without data-world and every page in LITE never download it.
 let createWorld = null, loadingWorld = null;
 function loadWorld() {
-  loadingWorld ??= import("./world/world.js?v=20261020-r2").then(m => { createWorld = m.createWorld; });
+  loadingWorld ??= import("./world/world.js?v=20261021-r1").then(m => { createWorld = m.createWorld; });
   return loadingWorld;
 }
 // The world follows the reading progress at every frame. The page height is measured when the page
@@ -35,11 +35,13 @@ const measureScroll = () => {
   measureZones();
 };
 // The world dims itself behind the text it must keep readable (its safe zones, world.js packZones): the hero with
-// the back link above it (zone 0) and the foot (zone 1), measured in page coordinates like the index's flow layout
-// (main.js boxes(): one box per line fragment of the text itself, fragments closer than a word gap or a line gap
-// merged, largest first), so the world shifts them by the scroll at each frame (setScrollY) and never measures in
-// the frame callback. Measured with the page's size, 100 ms after the fonts are in (.booted), and once the world is.
-const ZONE_TEXT = [".detail-hero :is(.detail-index,.detail-title,.detail-lead,.domain-state,.detail-aside b,.detail-aside p), .detail-top", ".detail-foot :is(p,a,.detail-motto)"];
+// the back link above it (zone 0), the foot (zone 1) and the text set on the sky without a plate (zone 2: the section
+// heads of Photographie and its filter status, which cross a phone's horizon, its brightest light), measured
+// in page coordinates like the index's flow layout (main.js boxes(): one box per line fragment of the text itself,
+// fragments closer than a word gap or a line gap merged, largest first), so the world shifts them by the scroll at each
+// frame (setScrollY) and never measures in the frame callback. Measured with the page's size, 100 ms after the fonts are in (.booted), and once the world is.
+const ZONE_TEXT = [".detail-hero :is(.detail-index,.detail-title,.detail-lead,.domain-state,.detail-aside b,.detail-aside p), .detail-top", ".detail-foot :is(p,a,.detail-motto)",
+  ".photo-section-head :is(.detail-index,h2,.photo-count), .photo-filter-status"];
 function boxes(els) {
   const rects = [], range = document.createRange(), y = scrollY;
   for (const el of els) {

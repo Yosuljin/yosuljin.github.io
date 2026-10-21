@@ -32,7 +32,7 @@
   // after its own module graph has run. Announce the three modules now so they download in parallel.
   // Same URLs and versions as the import in main.js / js/page.js and in world.js, or they download twice.
   if (mode === "full" && root.hasAttribute("data-cinema")) {
-    ["js/world/world.js?v=20261020-r2", "js/world/gl.js?v=20261009-r2", "js/world/shaders.js?v=20261014-r1"].forEach(function (href) {
+    ["js/world/world.js?v=20261021-r1", "js/world/gl.js?v=20261020-r5", "js/world/shaders.js?v=20261020-r4"].forEach(function (href) {
       var link = document.createElement("link");
       link.rel = "modulepreload";
       link.href = href;

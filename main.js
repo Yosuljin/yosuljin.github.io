@@ -70,7 +70,7 @@ let world = null, worldStop = null, lastRoute = -1, lastScene = -1, worldRecover
 // (modulepreload), so the import does not wait for the rest of this module graph.
 let createWorld = null, loadingWorld = null;
 function loadWorld() {
-  loadingWorld ??= import("./js/world/world.js?v=20261020-r2").then(m => { createWorld = m.createWorld; });
+  loadingWorld ??= import("./js/world/world.js?v=20261021-r1").then(m => { createWorld = m.createWorld; });
   return loadingWorld;
 }
 

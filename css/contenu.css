@@ -49,7 +49,7 @@
 .detail-block li:has(strong a:hover,strong a:focus-visible)::before{opacity:1;transition-duration:var(--t-on);transition-timing-function:ease-out}
 
 /* Thèse → projets (mondes). Le petit texte violet prend la teinte lisible des Mondes (--acc-text, styles.css 11). */
-.domain-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;max-width:1040px;margin:26px 0 0;background:var(--line-2);border:1px solid var(--line-2)}
+.domain-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;max-width:1040px;margin:26px 0 0;background:var(--line-2);border:1px solid var(--line-2)}
 .domain-strip>div{position:relative;display:flex;flex-direction:column;gap:8px;padding:16px 18px;background:rgba(6,4,11,.9)}
 .domain-strip dt a::after{content:"";position:absolute;inset:0}
 .domain-strip dt{font:500 var(--label) var(--mono);letter-spacing:var(--label-ls);text-transform:uppercase;color:var(--dim)}
@@ -82,45 +82,6 @@ html.booted:not(.power-hold):not(.power-pending):not(.mode-lite):not(.qa-nowrite
 /* Mouvement réduit : la section 16 de styles.css raccourcit les durées mais garde les délais, qui cacheraient le titre. */
 @media (prefers-reduced-motion:reduce){.detail-block h2.write :is(.write-win,.write-ink,.write-beam){animation:none!important}}
 
-/* Mondes, une fois : un pétale tombe sur le filet sous « Garde-fou », et sa lumière reste là où il a touché (A5).
-   Un cœur blanc de 120 ms, un halo rose qui lui survit, un segment rose brûlé dans le filet ; le pétale, silhouette
-   pleine (--sakura à .9, sans contour), finit couché sur la ligne. L'état de base est ce repos : LITE, mouvement
-   réduit et absence de script le montrent tel quel. Il tombe quand le filet entre dans la vue (.is-seen,
-   js/motifs.js), à 72 % du filet, dans le vide à droite du titre : jamais à travers un texte. Quatre calques,
-   une animation chacun, transform et opacity seulement. Le pétale a une face : il tourne sur son axe long (rotateY,
-   |angle| < 90° : jamais de chant ni de dos) sous une perspective() portée par sa propre transformation, un
-   « perspective » sur le filet lui vaudrait une couche de plus ; sur 14 px la déformation reste sous le pixel, la
-   silhouette est celle de l'ancien scale. En loopback, ?qa=nofall (js/motifs.js) : filet au repos. */
-.divider.fall-line{--x:72%;margin:4px 0 24px}
-.fall-line .rule .burn{position:absolute;inset:0;background:radial-gradient(ellipse 12% 100% at calc(var(--x) - 9px) 50%,rgba(var(--rgb-rose),.9),rgba(var(--rgb-rose),.3) 45%,transparent) center/100% 1px no-repeat;opacity:var(--glow-floor)}
-.fall-halo,.fall-core,.fall-petal{position:absolute;pointer-events:none}
-.fall-halo{left:calc(var(--x) - 63px);top:50%;width:108px;height:34px;margin-top:-17px;border-radius:50%;background:radial-gradient(closest-side,rgba(var(--rgb-rose),.45),rgba(var(--rgb-accent),.1) 60%,transparent);opacity:.22}
-.fall-core{left:calc(var(--x) - 18px);top:50%;width:18px;height:18px;margin-top:-9px;border-radius:50%;background:radial-gradient(closest-side,#fff,rgba(var(--rgb-phosphor),.5) 45%,transparent);opacity:0}
-/* Au repos, couché à trois quarts : cos 52° = .616, la silhouette de l'ancien scale(.62,1), au pixel près. */
-.fall-petal{left:calc(var(--x) - 7px);bottom:50%;width:14px;height:18px;color:var(--sakura);transform-origin:50% 97%;transform:perspective(160px) translate3d(0,-3px,0) rotate(-84deg) rotateY(52deg)}
-.fall-petal svg{display:block;width:100%;height:100%;opacity:.9}
-@media (prefers-reduced-motion:no-preference){
-  /* Avant d'être vu, le filet est nu : le pétale n'apparaît pas couché pour retomber ensuite. */
-  html.js:not(.mode-lite):not(.qa-nofall) .fall-line:not(.is-seen) :is(.fall-petal,.fall-halo,.burn){opacity:0}
-  html.js:not(.mode-lite):not(.qa-nofall) .fall-line.is-seen .fall-petal{animation:fallPetal 2.8s linear .6s both}
-  html.js:not(.mode-lite):not(.qa-nofall) .fall-line.is-seen .fall-core{animation:fallCore .6s linear 3.4s both}
-  html.js:not(.mode-lite):not(.qa-nofall) .fall-line.is-seen .fall-halo{animation:fallHalo 2.4s linear 3.4s both}
-  html.js:not(.mode-lite):not(.qa-nofall) .fall-line.is-seen .burn{animation:fallBurn 2.6s linear 3.4s both}
-}
-/* Les mêmes fonctions à chaque étape (perspective, translate3d, rotate, rotateY) : l'interpolation ne passe jamais par
-   une matrice. Le pétale se balance, ralentit à chaque bout du balancier, montre puis dérobe sa face et se couche en
-   touchant le filet. */
-@keyframes fallPetal{
-  0%{opacity:0;transform:perspective(160px) translate3d(-30px,-80px,0) rotate(22deg) rotateY(0deg);animation-timing-function:var(--ease-fall)}
-  14%{opacity:1}
-  38%{transform:perspective(160px) translate3d(-6px,-52px,0) rotate(-14deg) rotateY(-34deg);animation-timing-function:var(--ease-fall)}
-  68%{transform:perspective(160px) translate3d(-22px,-22px,0) rotate(10deg) rotateY(0deg);animation-timing-function:var(--ease-fall)}
-  100%{opacity:1;transform:perspective(160px) translate3d(0,-3px,0) rotate(-84deg) rotateY(52deg)}
-}
-@keyframes fallCore{0%{opacity:0;animation-timing-function:ease-out}20%{opacity:1;animation-timing-function:var(--ease-decay)}100%{opacity:0}}
-@keyframes fallHalo{0%{opacity:0;animation-timing-function:ease-out}5%{opacity:1;animation-timing-function:var(--ease-decay)}100%{opacity:.22}}
-@keyframes fallBurn{0%{opacity:0;animation-timing-function:ease-out}5%{opacity:1;animation-timing-function:var(--ease-decay)}100%{opacity:var(--glow-floor)}}
-
 /* Parcours : les quatre domaines dans l'ordre de l'index, qui boucle sur l'index. Des plaques de verre éteintes au
    repos ; visée ou au focus, une plaque s'allume (A1, css/motifs.css) dans la couleur du canal visé, qui s'éteint la
    première et laisse une trace rose. --tint suit la cible pour que la lueur du tube la suive aussi. */
@@ -149,9 +110,6 @@ html.booted:not(.power-hold):not(.power-pending):not(.mode-lite):not(.qa-nowrite
 .detail-foot .a1:is(:hover,:focus-visible){color:var(--acc-text);transition-duration:var(--t-on);transition-timing-function:ease-out}
 .detail-foot .detail-motto{margin:0;font:400 var(--label)/1.6 var(--mono);letter-spacing:.32em;text-transform:uppercase;color:var(--muted)}
 
-@media(max-width:900px){
-  .domain-strip{grid-template-columns:1fr 1fr}
-}
 @media(max-width:700px){
   .domain-strip{grid-template-columns:1fr}
   .domain-strip>div{padding:14px 16px}
@@ -180,6 +138,5 @@ html:not(.mode-lite) .detail-hero :is(.detail-index,.detail-lead,.domain-state,.
 
 /* Couleurs forcées : le filet dessiné en dégradé disparaîtrait, une vraie bordure le remplace ; plus de halo. */
 @media (forced-colors:active){.detail-shell .divider .rule{height:0;border-top:1px solid CanvasText;background:none}}
-@media (forced-colors:active),(prefers-contrast:more){.fall-halo,.fall-core{display:none}}
 /* The scope aside sits on the same glass plate on every domain page (the world's planet may pass behind it). */
 :is(.domain-dev,.domain-write,.domain-worlds) .detail-aside{padding:22px 24px 24px;border:1px solid var(--line-2);background:linear-gradient(120deg,rgba(var(--tint),.075),transparent 46%),var(--plate)}
