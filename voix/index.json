@@ -1,0 +1,63 @@
+{
+ "_voix": "Kokoro-82M, zf_xiaoxiao, vitesse 0.95",
+ "bienvenue": {
+  "fichier": "bienvenue.mp3",
+  "zh": "欢迎来到 Yosuljin 的博物馆。我是 AlmaS，你的向导。"
+ },
+ "commandes": {
+  "fichier": "commandes.mp3",
+  "zh": "用 ZQSD 或 WASD 键，或方向键走路，用鼠标看四周。按 M 打开平面图。"
+ },
+ "commandes.tactile": {
+  "fichier": "commandes.tactile.mp3",
+  "zh": "用左边的摇杆走路，在右边滑动看四周。平面图一直在上面。"
+ },
+ "hall": {
+  "fichier": "hall.mp3",
+  "zh": "前面是 Aether，Yosuljin 目前唯一的 Sentience 项目。右边是 Game Development 和 Mondes，左边是 Photographie 和 Écriture。"
+ },
+ "aether": {
+  "fichier": "aether.mp3",
+  "zh": "这里是 Aether。中间是 Lumina 的地图：Lumina 还没有被点亮。走近展柜，按 E 看看里面。"
+ },
+ "aether.tactile": {
+  "fichier": "aether.tactile.mp3",
+  "zh": "这里是 Aether。中间是 Lumina 的地图：Lumina 还没有被点亮。走近展柜，点出现的按钮。"
+ },
+ "jeux": {
+  "fichier": "jeux.mp3",
+  "zh": "这里是 Game Development。Frame 是 Yosuljin 的第一个游戏，还没开始做。坐到电脑前，看看它的页面。"
+ },
+ "mondes": {
+  "fichier": "mondes.mp3",
+  "zh": "这里是 Mondes，Yosuljin 的其他项目。中间是这座博物馆的模型：那个小光点就是你。"
+ },
+ "photographie": {
+  "fichier": "photographie.mp3",
+  "zh": "这里是暗房。照片还没有来，墙上的相框在等它们。"
+ },
+ "ecriture": {
+  "fichier": "ecriture.mp3",
+  "zh": "这里是图书馆。书架上只有一本书：拿起它，放到阅读台上读。"
+ },
+ "livre": {
+  "fichier": "livre.mp3",
+  "zh": "把它放到阅读台上。"
+ },
+ "range": {
+  "fichier": "range.mp3",
+  "zh": "我把书放回书架上了。"
+ },
+ "suivre": {
+  "fichier": "suivre.mp3",
+  "zh": "跟我来。"
+ },
+ "arrive": {
+  "fichier": "arrive.mp3",
+  "zh": "到了。"
+ },
+ "retour": {
+  "fichier": "retour.mp3",
+  "zh": "欢迎回来。"
+ }
+}

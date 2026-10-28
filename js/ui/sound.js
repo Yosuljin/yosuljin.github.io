@@ -12,7 +12,7 @@ const KEY = "yosuljin-sound";
 const LEVEL = 0.68;
 const BUS = 0.72;   // the bus's gain: set when the context is made and again when the sound comes back
 const level = () => getMode() === "lite" ? 0.0001 : LEVEL;
-let ctx = null, master = null, bus = null, limiter = null, enabled = true, unlocked = false, shuttingDown = false;
+let ctx = null, master = null, bus = null, limiter = null, voixOut = null, enabled = true, unlocked = false, shuttingDown = false;
 let bed = null, scene = 0, lastVel = 0;
 // The hard mute (SON button, hidden tab): true from couper() to rallumer(); the context is suspended a little later.
 let coupe = false, suspendTimer = 0;
@@ -47,6 +47,15 @@ const activated = () => navigator.userActivation ? navigator.userActivation.hasB
 
 export const isEnabled = () => enabled;
 export function onSoundChange(fn) { listeners.add(fn); }
+
+/** AlmaS's recorded voice (js/musee/almas.js): her own gain, into the master — so the master's fades, the SON button and a hidden
+ *  tab govern her as they govern the rest. Null while the site's sound is off or not yet opened by a gesture. */
+export function sortieVoix() {
+  if (!ctx || !master || !unlocked || !enabled || shuttingDown) return null;
+  // The recordings are normalised to -1 dBFS (about -16 dBFS rms): 0.4 sits her about 18 dB over the ambience, under the master.
+  if (!voixOut) { voixOut = ctx.createGain(); voixOut.gain.value = 0.4; voixOut.connect(master); }
+  return { ctx, noeud: voixOut };
+}
 
 // The sound button's equaliser moves only while the sound really plays: .is-playing while the context runs and is
 // not being muted (styles.css also keeps it still in LITE).
@@ -177,6 +186,7 @@ function unlock() {
 function createContext() {
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) return;
+  voixOut = null;
   ctx = new AC({ latencyHint: "interactive" });
   ctx.addEventListener("statechange", paintPlaying);
   const comp = ctx.createDynamicsCompressor();
@@ -232,7 +242,7 @@ function tryAutostart() {
     clearTimeout(suspendTimer);
     suspendTimer = 0;
     suspendEn = null;
-    ctx = master = bus = limiter = null;
+    ctx = master = bus = limiter = voixOut = null;
   }, 140);
 }
 
