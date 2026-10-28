@@ -57,6 +57,10 @@ html.mode-lite .photo-section.reveal{opacity:1;transform:none;transition:none}
 /* Small labels laid on the live world (FULL) keep the dark halo of the hero's and the footer's (css/contenu.css):
    the domain pages have no protected reading zones yet. */
 html:not(.mode-lite) .domain-photo :is(.photo-section-head .detail-index,.photo-count,.photo-filter-status,.photo-filter-hint){text-shadow:0 0 14px rgba(6,4,11,.92),0 0 3px rgba(6,4,11,.85)}
+/* On a phone the world's brightest light (its horizon) passes behind these labels and the halo is not enough
+   (01 / SÉQUENCES read 2.6:1 at 390 px): they sit on the glass plate the blocks' text stands on. */
+html:not(.mode-lite) .domain-photo :is(.photo-section-head .detail-index,.photo-count,.photo-filter-status:not(:empty),.photo-filter-hint){
+  justify-self:start;width:fit-content;padding:3px 8px;margin-left:-8px;background:var(--plate);-webkit-box-decoration-break:clone;box-decoration-break:clone}
 
 /* Empty states, honest: a frame waiting for its picture, and words saying that nothing is published yet. */
 .domain-photo .photo-empty-series{min-height:0;border:1px solid var(--line-2);background:var(--ph-glass)}
@@ -74,7 +78,8 @@ html:not(.mode-lite) .domain-photo :is(.photo-section-head .detail-index,.photo-
 .domain-photo .photo-theme{min-height:148px;padding:22px 24px;border:0;background:var(--ph-glass)}
 .domain-photo .photo-theme:is(:hover,:focus-visible){transform:none;background:var(--ph-glass)}
 .domain-photo .photo-theme::after{content:none}
-.domain-photo .photo-theme span,.domain-photo .photo-theme i{color:var(--dim)}
+.domain-photo .photo-theme span{color:var(--muted)}
+.domain-photo .photo-theme i{color:var(--dim)}
 .domain-photo .photo-theme b{font-size:clamp(26px,2.6vw,40px)}
 .domain-photo button.photo-theme{width:100%;margin:0;color:var(--paper);font:inherit;text-align:left;cursor:pointer;appearance:none}
 /* The lit layer, over the circle styles.css (13) used to draw in this corner. */
@@ -102,7 +107,7 @@ html:not(.mode-lite) .domain-photo :is(.photo-section-head .detail-index,.photo-
 /* Published, the singles stay on their glass plate: their captions are text, and text is never laid on the world. */
 .domain-photo .photo-single-stage.has-photos{display:block;min-height:0;padding:clamp(16px,2.4vw,28px);overflow:visible}
 ul.photo-single-grid{margin:0;padding:0;list-style:none;row-gap:28px}
-.photo-single-item[hidden]{display:none}
+.photo-single-item[hidden],.photo-portfolio[hidden],.domain-state[hidden]{display:none}
 .photo-single-item figure{margin:0}
 .photo-single-item figcaption{gap:12px;font-size:10px;letter-spacing:.12em}
 .photo-single-item figcaption b{font-weight:400;color:var(--paper);transition:color var(--t-off) var(--ease-decay)}

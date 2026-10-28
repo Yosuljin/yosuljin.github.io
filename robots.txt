@@ -4,7 +4,7 @@
 # y compris pour l'entraînement de systèmes d'intelligence artificielle :
 # https://yosuljin.github.io/mentions-legales.html — même réserve au format TDMRep :
 # https://yosuljin.github.io/.well-known/tdmrep.json
-# Les robots d'IA ci-dessous n'ont accès à aucune page. Les moteurs de recherche et les robots d'aperçu de liens
+# Les robots d'IA ci-dessous sont priés de n'accéder à aucune page. Les moteurs de recherche et les robots d'aperçu de liens
 # (facebookexternalhit, Twitterbot, LinkedInBot, Discordbot, Slackbot…) restent autorisés.
 # Un bloc par robot : c'est la forme que lisent aussi les analyseurs les plus anciens.
 

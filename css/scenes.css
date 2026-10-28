@@ -1,0 +1,158 @@
+/* Project scenes (D147, js/scenes/scene.js): a scene spans its grid, its drawing above its legend.
+   Without JS the legend and the still drawing are the whole scene; the buttons and the goal come with the script
+   (.is-ready); the WebGL canvas covers the still drawing once it has drawn (.is-live). */
+.aether-scene{--hue:var(--rgb-gold);position:relative;grid-column:1/-1;margin:0;display:grid;grid-template-columns:minmax(0,1fr);
+  background:radial-gradient(90% 70% at 50% 45%,rgba(var(--hue),.06),transparent 70%),rgba(10,7,13,.95);box-shadow:inset 0 0 0 1px rgba(var(--hue),.24)}
+.scene-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;padding:24px 22px 0}
+.scene-kicker{flex-basis:100%;font:400 10px var(--mono);letter-spacing:.14em;color:var(--dim)}
+.scene-head h4{margin:0;font:400 34px/1 var(--serif);letter-spacing:-.01em;color:var(--paper)}
+.scene-line{margin:0;color:var(--muted)}
+.scene-goal{display:none;margin:0 0 0 auto;font:400 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.scene-goal b{font-weight:400;color:var(--paper)}
+.scene-goal .scene-done{display:none;color:var(--acc-aether)}
+.aether-scene.is-ready .scene-goal{display:block}
+.aether-scene.is-complete .scene-goal .scene-done{display:inline}
+.aether-scene.is-complete .scene-goal .scene-todo{display:none}
+
+/* The stage: wide on a desk, nearly square on a phone. Horizontal drags turn the drawing; vertical swipes scroll. */
+.scene-stage{position:relative;aspect-ratio:2.1/1;min-height:300px;overflow:hidden;touch-action:pan-y;contain:layout paint}
+.scene-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity .6s ease-out}
+.aether-scene.is-live .scene-canvas{opacity:1}
+.scene-still{position:absolute;inset:0;width:100%;height:100%;transition:opacity .6s ease-out}
+.aether-scene.is-live .scene-still{opacity:0;visibility:hidden}
+@media(pointer:fine){.aether-scene.is-live .scene-stage{cursor:grab}.aether-scene.is-turning .scene-stage{cursor:grabbing;user-select:none}}
+.scene-hint{display:none;position:absolute;right:18px;bottom:14px;font:400 10px var(--mono);letter-spacing:.14em;color:var(--dim);pointer-events:none}
+.aether-scene.is-live .scene-hint{display:block}
+
+/* The still drawing: the same shapes, flat (forced colours take the system's). */
+.scene-still .s-shell{fill:none;stroke:var(--acc-aether);stroke-width:1.4;opacity:.75}
+.scene-still .s-shell-faint{fill:none;stroke:var(--acc-aether);stroke-width:.8;opacity:.28}
+.scene-still .s-glow{fill:rgba(var(--rgb-gold),.05)}
+.scene-still .s-filament{fill:none;stroke:var(--acc-dev);stroke-width:.8;opacity:.32}
+.scene-still .s-far{fill:var(--acc-dev);opacity:.5}
+.scene-still .s-core{fill:var(--acc-dev)}
+.scene-still .s-core-halo{fill:rgba(var(--rgb-cyan),.16)}
+.scene-still .s-cloud circle{fill:var(--acc-worlds-text);opacity:.7}
+.scene-still .s-lens{fill:none;stroke:var(--acc-worlds-text);stroke-width:1;stroke-dasharray:2 5;opacity:.6}
+.scene-still .s-anchor{fill:none;stroke:none}
+.scene-still [data-shape].is-found{opacity:1}
+.scene-still [data-shape="miscellaneous"].is-found .s-shell{opacity:1;stroke-width:2}
+.scene-still [data-shape="net"].is-found .s-filament{opacity:.6}
+.scene-still [data-shape="lara"].is-found .s-lens{opacity:1}
+
+/* The parts: a 44 px target on each shape, its name beside it; one Tab stop (scene.js). */
+.scene-parts{display:none}
+.aether-scene.is-ready .scene-parts{display:block}
+.scene-part{position:absolute;left:0;top:0;z-index:2;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:44px;min-height:44px;
+  padding:6px 8px;border:0;background:none;color:var(--paper);cursor:pointer;font:400 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  text-shadow:0 0 4px var(--bg),0 0 10px var(--bg),0 0 2px var(--bg);transform:translate(-200px,-200px);
+  transition:opacity .3s}
+/* In 3D the names are drawn by the scene (kit.js labels): the buttons stay, transparent, where the names are. */
+.aether-scene.is-live .scene-part{color:transparent;text-shadow:none}
+/* Transparent, not hidden: a hidden name would leave the accessibility tree with it. */
+.aether-scene.is-live .scene-part[data-part] *{color:transparent}
+.aether-scene.is-live .scene-part::before{opacity:0}
+.scene-part-state{font-size:10px;color:var(--muted)}
+.scene-part[data-part="net"] .scene-part-state{color:var(--acc-dev)}
+.scene-part[data-part="lara"] .scene-part-state{color:var(--acc-worlds-text)}
+.scene-part::before{content:"";width:7px;height:7px;border:1px solid currentColor;transform:rotate(45deg);opacity:.7}
+.scene-part.is-found::before{background:var(--acc-aether);border-color:var(--acc-aether);opacity:1}
+.scene-part.is-behind{opacity:.8}
+.scene-part:focus-visible{outline:1px solid var(--acc-aether);outline-offset:2px}
+.scene-part .scene-part-found{display:none}
+.scene-part.is-found .scene-part-found{display:block}
+
+/* The legend: one entry per part, the one touched or focused lit. */
+.scene-legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin:0;border-top:1px solid rgba(var(--hue),.18)}
+.scene-legend>div{padding:16px 22px 20px;border-left:2px solid transparent;transition:border-color .3s,background-color .3s}
+.scene-legend dt{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font:400 22px/1.1 var(--serif);color:var(--paper)}
+.scene-legend dt span{font:400 10px var(--mono);letter-spacing:.14em;color:var(--muted)}
+.scene-legend [data-legend="net"] dt span{color:var(--acc-dev)}
+.scene-legend [data-legend="lara"] dt span{color:var(--acc-worlds-text)}
+.scene-legend dd{margin:8px 0 0;color:var(--muted)}
+.scene-legend>div.is-current{border-left-color:var(--acc-aether);background:rgba(var(--rgb-gold),.04)}
+
+@media(max-width:700px){
+  .scene-head{padding:20px 18px 0}
+  .scene-head h4{font-size:30px}
+  .scene-goal{margin:4px 0 0}
+  .scene-stage{aspect-ratio:1/1.02;min-height:0}
+  .scene-legend{grid-template-columns:1fr}
+  .scene-legend>div{padding:14px 18px 16px}
+}
+@media(prefers-reduced-motion:reduce){
+  .scene-canvas,.scene-still,.scene-part,.scene-legend>div{transition:none}
+}
+@media(forced-colors:active){
+  .aether-scene{box-shadow:none;border:1px solid CanvasText}
+  .scene-still :is(.s-shell,.s-shell-faint,.s-filament,.s-lens){stroke:CanvasText}
+  .scene-still :is(.s-far,.s-core,.s-cloud circle){fill:CanvasText}
+  .scene-still :is(.s-glow,.s-core-halo){fill:none}
+  .scene-part{text-shadow:none;color:ButtonText}
+  .scene-part.is-found::before{background:Highlight;border-color:Highlight}
+  .scene-legend>div.is-current{border-left-color:Highlight}
+}
+
+/* furu (D105, D127): four quantities, one per regime — measured (the core), declared (a steady ring), inferred (a
+   point drawn from its two sources by dotted lines), unknown (the cloud) — in the glass of the body they belong to. */
+.scene-still .s-furu-declare-ring{fill:none;stroke:var(--sakura);stroke-width:1.2;opacity:.7}
+.scene-still .s-furu-declare-halo{fill:rgba(var(--rgb-sakura),.07)}
+.scene-still .s-furu-declare{fill:var(--sakura);opacity:.85}
+.scene-still .s-furu-infer-dots circle{fill:var(--acc-photo);opacity:.55}
+.scene-still .s-furu-infer-halo{fill:rgba(var(--rgb-photo),.14)}
+.scene-still .s-furu-infer{fill:var(--acc-photo)}
+.scene-still [data-shape="furu"].is-found .s-shell{opacity:1;stroke-width:2}
+.scene-still [data-shape="libre"].is-found .s-filament{opacity:.6}
+.scene-still [data-shape="totale"].is-found .s-furu-declare-ring{opacity:1;stroke-width:1.8}
+.scene-still [data-shape="utilisee"].is-found .s-furu-infer-dots circle{opacity:.9}
+.scene-still [data-shape="vibrations"].is-found .s-lens{opacity:1}
+.scene-part[data-part="libre"] .scene-part-state,.scene-legend [data-legend="libre"] dt span{color:var(--acc-dev)}
+.scene-part[data-part="totale"] .scene-part-state,.scene-legend [data-legend="totale"] dt span{color:var(--sakura)}
+.scene-part[data-part="utilisee"] .scene-part-state,.scene-legend [data-legend="utilisee"] dt span{color:var(--acc-photo)}
+.scene-part[data-part="vibrations"] .scene-part-state,.scene-legend [data-legend="vibrations"] dt span{color:var(--acc-worlds-text)}
+@media(forced-colors:active){
+  .scene-still :is(.s-furu-declare-ring){stroke:CanvasText}
+  .scene-still :is(.s-furu-declare,.s-furu-infer,.s-furu-infer-dots circle){fill:CanvasText}
+  .scene-still :is(.s-furu-declare-halo,.s-furu-infer-halo){fill:none}
+}
+
+/* Scene Lumina (js/scenes/lumina.js): the glass in gold, the Lumens in violet around the ego (rose), the conscious
+   above it (sakura), Furu (cyan) and reminiscence (amber) at its sides, the Sigil (magenta) at the ego's level, among
+   the Lumens. Classes s-lumina-*, this block only. */
+.scene-still .s-lumina-shell{fill:none;stroke:var(--acc-aether);stroke-width:1.4;opacity:.75}
+.scene-still .s-lumina-shell-faint{fill:none;stroke:var(--acc-aether);stroke-width:.8;opacity:.28}
+.scene-still .s-lumina-glow{fill:rgba(var(--rgb-gold),.05)}
+.scene-still .s-lumina-lumens-points circle{fill:var(--acc-worlds-text);opacity:.55}
+.scene-still .s-lumina-lumens-ring{fill:none;stroke:var(--acc-worlds-text);stroke-width:1;stroke-dasharray:2 5;opacity:.6}
+.scene-still .s-lumina-ego-fil{fill:none;stroke:var(--accent);stroke-width:.8;opacity:.32}
+.scene-still .s-lumina-ego{fill:var(--accent)}
+.scene-still .s-lumina-ego-halo{fill:rgba(var(--rgb-accent),.16)}
+.scene-still .s-lumina-conscient-fil{fill:none;stroke:var(--sakura);stroke-width:.8;opacity:.32}
+.scene-still .s-lumina-conscient-far{fill:var(--sakura);opacity:.5}
+.scene-still .s-lumina-conscient{fill:var(--sakura)}
+.scene-still .s-lumina-conscient-halo{fill:rgba(var(--rgb-sakura),.16)}
+.scene-still .s-lumina-furu-fil{fill:none;stroke:var(--acc-dev);stroke-width:.8;opacity:.32}
+.scene-still .s-lumina-furu-far{fill:var(--acc-dev);opacity:.5}
+.scene-still .s-lumina-furu{fill:var(--acc-dev)}
+.scene-still .s-lumina-furu-halo{fill:rgba(var(--rgb-cyan),.16)}
+.scene-still .s-lumina-sigil-fil{fill:none;stroke:var(--acc-writing);stroke-width:.8;opacity:.32}
+.scene-still .s-lumina-sigil{fill:var(--acc-writing)}
+.scene-still .s-lumina-sigil-halo{fill:rgba(var(--rgb-magenta),.16)}
+.scene-still .s-lumina-reminiscence-points circle{fill:var(--acc-photo);opacity:.7}
+.scene-still .s-lumina-reminiscence-ring{fill:none;stroke:var(--acc-photo);stroke-width:1;stroke-dasharray:2 4;opacity:.6}
+#scene-lumina [data-shape="lumina"].is-found .s-lumina-shell{opacity:1;stroke-width:2}
+#scene-lumina [data-shape="lumens"].is-found .s-lumina-lumens-ring,
+#scene-lumina [data-shape="reminiscence"].is-found .s-lumina-reminiscence-ring{opacity:1}
+#scene-lumina :is([data-shape="ego"],[data-shape="sigil"],[data-shape="conscient"],[data-shape="furu"]).is-found [class$="-fil"]{opacity:.6}
+#scene-lumina .scene-part[data-part="lumens"] .scene-part-state,#scene-lumina [data-legend="lumens"] dt span{color:var(--acc-worlds-text)}
+#scene-lumina .scene-part[data-part="ego"] .scene-part-state,#scene-lumina [data-legend="ego"] dt span{color:var(--accent)}
+#scene-lumina .scene-part[data-part="sigil"] .scene-part-state,#scene-lumina [data-legend="sigil"] dt span{color:var(--acc-writing)}
+#scene-lumina .scene-part[data-part="conscient"] .scene-part-state,#scene-lumina [data-legend="conscient"] dt span{color:var(--sakura)}
+#scene-lumina .scene-part[data-part="furu"] .scene-part-state,#scene-lumina [data-legend="furu"] dt span{color:var(--acc-dev)}
+#scene-lumina .scene-part[data-part="reminiscence"] .scene-part-state,#scene-lumina [data-legend="reminiscence"] dt span{color:var(--acc-photo)}
+#scene-lumina .scene-part[data-part="lumina"] .scene-part-state,#scene-lumina [data-legend="lumina"] dt span{color:var(--acc-aether)}
+@media(forced-colors:active){
+  #scene-lumina .scene-still :is(.s-lumina-shell,.s-lumina-shell-faint,.s-lumina-lumens-ring,.s-lumina-reminiscence-ring,[class$="-fil"]){stroke:CanvasText}
+  .scene-still :is(.s-lumina-ego,.s-lumina-sigil,.s-lumina-conscient,.s-lumina-furu,.s-lumina-conscient-far,.s-lumina-furu-far,.s-lumina-lumens-points circle,.s-lumina-reminiscence-points circle){fill:CanvasText}
+  .scene-still :is(.s-lumina-glow,.s-lumina-ego-halo,.s-lumina-sigil-halo,.s-lumina-conscient-halo,.s-lumina-furu-halo){fill:none}
+}

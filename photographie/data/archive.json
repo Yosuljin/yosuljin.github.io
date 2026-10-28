@@ -1,12 +1,12 @@
 {
   "version": 1,
   "themes": [
-    {"id":"ville","label":"VILLE","note":"rues · rythme · traces"},
-    {"id":"nuit","label":"NUIT","note":"ombres · lumière · silence"},
-    {"id":"architecture","label":"ARCHITECTURE","note":"formes · matières · structures"},
-    {"id":"nature","label":"NATURE","note":"terrain · végétal · respiration"},
-    {"id":"presences","label":"PRÉSENCES","note":"gestes · silhouettes · fragments"},
-    {"id":"autres","label":"AUTRES","note":"ce qui ne rentre pas encore"}
+    {"id":"ville","label":"VILLE","note":""},
+    {"id":"nuit","label":"NUIT","note":""},
+    {"id":"architecture","label":"ARCHITECTURE","note":""},
+    {"id":"nature","label":"NATURE","note":""},
+    {"id":"presences","label":"PRÉSENCES","note":""},
+    {"id":"autres","label":"AUTRES","note":""}
   ],
   "series": [],
   "singles": []

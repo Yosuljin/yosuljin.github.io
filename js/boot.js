@@ -5,24 +5,69 @@
   // LITE is a dated choice (js/core/prefs.js): a bare "lite" left by a visit before 2026-10-13 no longer applies.
   try { if (localStorage.getItem("yosuljin-display-mode") === "lite@2026-10-13") mode = "lite"; } catch (e) {}
   var reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // In FULL the home is the museum's hall (D169 (b) 2): the page goes there before anything is drawn — wherever the
+  // museum can open (motion not reduced, colours not forced, a browser that draws in 3D); elsewhere the home stays as
+  // it is, and in LITE it is the site of today. The museum is a page of its own (musee.html): its address says so.
+  if (mode === "full" && root.hasAttribute("data-accueil-musee") && !reduced &&
+      !(window.matchMedia && matchMedia("(forced-colors: active)").matches) && (window.WebGL2RenderingContext || window.WebGLRenderingContext)) {
+    root.classList.add("vers-musee");
+    location.replace("musee.html" + location.search + location.hash);
+    return;
+  }
   root.classList.add("js", "mode-" + mode);
   // FULL mode keeps the cinema composition on touch/mobile too; the input method changes, not the scene.
   if (mode === "full" && root.hasAttribute("data-cinema")) root.classList.add("cinema");
   if (reduced) root.classList.add("reduced-motion");
-  // Launch: the screen starts dark and portal.js powers the tube on (a bright line that opens onto the page).
-  // A page reached from a link of the site arrives covered too, and opens from the line (a change of channel,
-  // portal.js). CSS reveals the page by itself if no script runs.
+  // The site opens in the browser's fullscreen, on a computer as on a phone (D165): wherever the browser lets a page
+  // take it — not on iPhone, where Safari keeps it for videos — the press that switches the tube on takes it too, and
+  // js/ui/immersive-nav.js keeps it from page to page. The visit remembers where it stands (yosuljin-immersive):
+  // "asked" by that press, "on" once the fullscreen came, "off" once the reader left it or passed the standby screen
+  // with Escape — the site then leaves the reader outside until the visit ends. A press that never brought it ("asked"
+  // still there when the next page opens) counts as "off": no standby screen comes back for a fullscreen refused.
+  // Only the page that owns the fullscreen counts: a page framed under it (immersive-nav.js) has nothing to ask.
+  var IMM = "yosuljin-immersive", owner = window.parent === window, immersive = false;
+  var remember = function (state) { try { sessionStorage.setItem(IMM, state); } catch (e) {} };
   try {
-    if (sessionStorage.getItem("yosuljin-portal")) root.classList.add("channel-pending");
-    else if (!reduced) root.classList.add("power-pending");
+    var said = sessionStorage.getItem(IMM);
+    if (owner && said === "asked") { remember("off"); said = "off"; }
+    immersive = owner && !!document.fullscreenEnabled && typeof root.requestFullscreen === "function" && said !== "off";
   } catch (e) {}
   // The tube in standby (the <dialog class="signal-gate"> of every page): the first page of a visit, unless the sound
-  // was turned off for good. Decided here, before the first paint, so it shows at once on a slow network instead of
-  // when the modules arrive (measured on 2026-10-19, Slow 4G: 1.9 s against 4.5 to 6.7 s). sound.js makes it modal and
-  // takes it down; portal.js holds the tube dark until the reader enters (power-hold).
-  var gate = false;
-  try { gate = typeof HTMLDialogElement === "function" && sessionStorage.getItem("yosuljin-signal") !== "1" && localStorage.getItem("yosuljin-sound") !== "off"; } catch (e) {}
-  if (gate) root.classList.add("gate-pending", "power-hold");
+  // was turned off for good; and, since only a press opens the fullscreen, any page that opens outside the fullscreen
+  // it should have (a reload, a sound turned off for good). Decided here, before the first paint, so it shows at once on
+  // a slow network instead of when the modules arrive (measured on 2026-10-19, Slow 4G: 1.9 s against 4.5 to 6.7 s).
+  // sound.js makes it modal and takes it down; portal.js holds the tube dark until the reader enters (power-hold). Its
+  // note says what the press does (styles.css): gate-mute, the sound stays off; gate-full, in fullscreen.
+  var gate = false, mute = false;
+  try { mute = localStorage.getItem("yosuljin-sound") === "off"; } catch (e) {}
+  try { gate = typeof HTMLDialogElement === "function" && (immersive || (sessionStorage.getItem("yosuljin-signal") !== "1" && !mute)); } catch (e) {}
+  if (gate) {
+    root.classList.add("gate-pending", "power-hold");
+    if (mute) root.classList.add("gate-mute");
+    if (immersive) root.classList.add("gate-full");
+  }
+  // Launch: the screen starts dark and portal.js powers the tube on (a bright line that opens onto the page), behind
+  // the standby screen whenever it is up. A page reached from a link of the site arrives covered too, and opens from
+  // the line (a change of channel, portal.js). CSS reveals the page by itself if no script runs.
+  try {
+    if (!gate && sessionStorage.getItem("yosuljin-portal")) root.classList.add("channel-pending");
+    else if (!reduced) root.classList.add("power-pending");
+  } catch (e) {}
+  // Where the fullscreen stands for the visit (above). Left while the page shows — Escape, the SORTIR control, the back
+  // gesture — it is the reader's choice. Lost while the page is hidden (another tab, another app) or unloading (a
+  // reload: Chromium sends no event then, measured on 2026-10-25), it is not: the standby screen comes back with the
+  // next page that opens outside it.
+  if (owner) {
+    var unloading = false;
+    addEventListener("pagehide", function () { unloading = true; });
+    addEventListener("pageshow", function () { unloading = false; });
+    document.addEventListener("fullscreenchange", function () {
+      if (document.fullscreenElement) remember("on");
+      else if (!unloading && document.visibilityState === "visible") remember("off");
+    });
+    // Escape on the standby screen (sound.js, « skip ») lets the reader in without a press: outside, for the visit.
+    addEventListener("yosuljin:enter", function (e) { if (e.detail === "skip") remember("off"); });
+  }
   // In the immersive frame (js/ui/immersive-nav.js): the owning page learns when this picture is first drawn.
   if (window.parent !== window) {
     try { requestAnimationFrame(function () { window.parent.postMessage({ type: "yosuljin-frame-shown" }, location.origin); }); } catch (e) {}
@@ -32,7 +77,7 @@
   // after its own module graph has run. Announce the three modules now so they download in parallel.
   // Same URLs and versions as the import in main.js / js/page.js and in world.js, or they download twice.
   if (mode === "full" && root.hasAttribute("data-cinema")) {
-    ["js/world/world.js?v=20261020-r2", "js/world/gl.js?v=20261009-r2", "js/world/shaders.js?v=20261014-r1"].forEach(function (href) {
+    ["js/world/world.js?v=20261025-r28", "js/world/gl.js?v=20261025-r28", "js/world/shaders.js?v=20261025-r28"].forEach(function (href) {
       var link = document.createElement("link");
       link.rel = "modulepreload";
       link.href = href;
@@ -50,13 +95,31 @@
     if (gate) gate.classList.add("is-leaving");
     root.classList.remove("power-hold");
   };
+  // The same press asks for the fullscreen, in the press itself — a browser grants it to nothing else —, whether
+  // sound.js is here yet or not. Refused, it is "off" for the visit: the site does not ask again.
+  var immerse = function () {
+    if (!immersive || document.fullscreenElement) return;
+    immersive = false;
+    var refused = function () { remember("off"); };
+    remember("asked");
+    try {
+      var asked = root.requestFullscreen({ navigationUI: "hide" });
+      if (asked && typeof asked.then === "function") asked.then(null, refused);
+    } catch (e) { refused(); }
+  };
   document.addEventListener("click", function (e) {
     var b = e.target && e.target.closest ? e.target.closest(".signal-gate [data-gate]") : null;
-    if (b) early(b.getAttribute("data-gate"));
+    if (!b) return;
+    immerse();
+    early(b.getAttribute("data-gate"));
   }, true);
   // The screen says « ou appuyez sur une touche »: before sound.js makes it modal, the focus is not inside it.
   document.addEventListener("keydown", function (e) {
-    if (e.key && e.key.length === 1 && e.key !== " " && !e.ctrlKey && !e.metaKey && !e.altKey) early("sound");
+    if (!e.key || e.key.length !== 1 || e.key === " " || e.ctrlKey || e.metaKey || e.altKey) return;
+    var g = document.querySelector(".signal-gate");
+    if (!g || g.classList.contains("is-leaving") || !(g.open || root.classList.contains("gate-pending"))) return;
+    immerse();
+    early("sound");
   }, true);
 
   // Capture the menu before the module graph finishes loading. This removes the

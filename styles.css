@@ -19,13 +19,13 @@
   --paper:#f6eef2;--muted:#c4abbb;--dim:#a48d9e;--faint:#4f3d52;   /* --muted 9.6:1, --dim 6.7:1 on --bg (5.9:1 on a plate over a bright world); --faint is never text */
   --phosphor:#fff4f8;--sakura:#ffd1e3;--led:#ff2f62;   /* the beam's core and the lit title; petals and Chinese words; the standby LED only */
   /* Signature colours: one vivid hue per domain, a hot pink accent for the space itself. */
-  --accent:#ff5fa2;--acc-dev:#2ee8ff;--acc-photo:#ff9d3a;--acc-writing:#e86bff;--acc-worlds:#7a6cff;--acc-aether:#ffd25a;
+  --accent:#ff5fa2;--acc-dev:#2ee8ff;--acc-photo:#ff9d3a;--acc-writing:#e86bff;--acc-worlds:#7a6cff;--acc-aether:#ffd25a;--acc-games:#5cf0bd;
   --acc-worlds-text:#a89cff;   /* the violet of Mondes for small text (8.6:1); --acc-worlds itself never carries small text */
   /* Second hue of each channel's atmosphere (sky, mist, reflections, deep materials): light, never text. */
   --acc-dev-2:#4d7dff;--acc-photo-2:#ffe9b8;--acc-writing-2:#5a48e6;--acc-worlds-2:#5cf0bd;
   --rgb-dev-2:77,125,255;--rgb-photo-2:255,233,184;--rgb-writing-2:90,72,230;--rgb-worlds-2:92,240,189;
   --rgb-phosphor:255,244,248;--rgb-sakura:255,209,227;--rgb-rose:255,140,192;
-  --rgb-accent:255,95,162;--rgb-cyan:46,232,255;--rgb-photo:255,157,58;--rgb-magenta:232,107,255;--rgb-violet:122,108,255;--rgb-gold:255,210,90;
+  --rgb-accent:255,95,162;--rgb-cyan:46,232,255;--rgb-photo:255,157,58;--rgb-magenta:232,107,255;--rgb-violet:122,108,255;--rgb-gold:255,210,90;--rgb-games:92,240,189;
   --rose:#ff8cc0;--rose-2:#e0569a;--plum:#5a1734;--ice:#86ecff;
   --bark:90,45,51;   /* cherry wood: the menu's halos and the frame of its dossier */
   /* The tube's three phosphors (scanlines, grille): a grain, never a band of colour; alpha stays at or under .035. */
@@ -87,6 +87,8 @@ svg.arrow{display:inline-block;flex:none;width:12px;height:12px;vertical-align:-
 :is(.mode-toggle,.sound-toggle,.fullscreen-toggle,.menu-toggle,.brand)::before{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%)}
 /* Scrolling documents slide under a solid band so the chrome never sits on text. */
 html:not(.cinema) .topbar{background:linear-gradient(rgba(6,4,11,.97) 74%,rgba(6,4,11,0))}
+/* The home in FULL leaves for the museum's hall at once (js/boot.js): nothing of it shows meanwhile. */
+html.vers-musee body{visibility:hidden}
 .brand-cluster{display:flex;align-items:center;gap:10px}
 .brand{display:flex;align-items:center;gap:12px}
 .brand-mark{display:grid;place-items:center;width:32px;height:32px;border:1px solid var(--line);font:18px/1 var(--serif);color:var(--rose);transition:background var(--t-off) var(--ease-decay),color var(--t-off) var(--ease-decay)}
@@ -154,7 +156,7 @@ html:not(.mode-lite) .sound-toggle.is-on.is-playing .sound-bars::before{animatio
    the one under the pointer or the keyboard focus. Its light is painted once, in two layers (a 2 px tube on the
    left, a faint wash) whose opacity alone moves: on in 120 ms, out in 900 ms, never back to black at once. */
 .menu-domains a{--acc:var(--rose);--acc-rgb:var(--rgb-rose);position:relative;display:grid;grid-template-columns:56px minmax(0,1fr) auto 32px;align-items:baseline;column-gap:18px;min-height:clamp(72px,12.5vh,112px);padding:clamp(10px,1.8vh,18px) 0;border-bottom:1px solid var(--line-3)}
-.menu-domains a[data-accent="dev"]{--acc:var(--acc-dev);--acc-rgb:var(--rgb-cyan)}.menu-domains a[data-accent="photo"]{--acc:var(--acc-photo);--acc-rgb:var(--rgb-photo)}.menu-domains a[data-accent="writing"]{--acc:var(--acc-writing);--acc-rgb:var(--rgb-magenta)}.menu-domains a[data-accent="worlds"]{--acc:var(--acc-worlds-text);--acc-rgb:var(--rgb-violet)}
+.menu-domains a[data-accent="dev"]{--acc:var(--acc-dev);--acc-rgb:var(--rgb-cyan)}.menu-domains a[data-accent="photo"]{--acc:var(--acc-photo);--acc-rgb:var(--rgb-photo)}.menu-domains a[data-accent="writing"]{--acc:var(--acc-writing);--acc-rgb:var(--rgb-magenta)}.menu-domains a[data-accent="games"]{--acc:var(--acc-games);--acc-rgb:var(--rgb-games)}.menu-domains a[data-accent="worlds"]{--acc:var(--acc-worlds-text);--acc-rgb:var(--rgb-violet)}
 .menu-domains a small{font:400 var(--label) var(--mono);letter-spacing:.14em;color:var(--dim)}
 .menu-domains a b{font:400 clamp(38px,min(4.4vw,7.6vh),78px)/.95 var(--serif);letter-spacing:-.015em;color:var(--paper);transition:color var(--t-off) var(--ease-decay)}
 /* Chinese (Traditional) labels beside the numbers: decoration, hidden from assistive technology (empty
@@ -192,7 +194,7 @@ html:not(.mode-lite) .sound-toggle.is-on.is-playing .sound-bars::before{animatio
 .menu-aether-sigil .menu-node{display:block;width:100%;height:100%;overflow:visible}
 .menu-project-main small{font:400 var(--label) var(--mono);letter-spacing:.22em;color:var(--dim)}
 .menu-project-main b{grid-area:name;font:400 clamp(52px,min(5.4vw,9vh),96px)/.86 var(--serif);letter-spacing:.02em;color:var(--paper);transition:color var(--t-off) var(--ease-decay)}
-.menu-project-main>span:not(.menu-aether-sigil,.menu-num){grid-area:desc;font:400 var(--label) var(--mono);letter-spacing:.14em;color:var(--muted)}
+.menu-project-main>span:not(.menu-aether-sigil,.menu-frame-sigil,.menu-num){grid-area:desc;font:400 var(--label) var(--mono);letter-spacing:.14em;color:var(--muted)}
 .menu-project-main i{grid-area:go;margin-top:10px;font:500 10px var(--mono);font-style:normal;letter-spacing:.2em;color:var(--rose);transition:color var(--t-off) var(--ease-decay)}
 .menu-project-main:is(:hover,:focus-visible,.is-lit)::before,.menu-project-main:is(:hover,:focus-visible,.is-lit)::after{opacity:1;transition-duration:var(--t-on);transition-timing-function:ease-out}
 .menu-project-main:is(:hover,:focus-visible,.is-lit) b{color:color-mix(in srgb,var(--acc) 55%,var(--phosphor));text-shadow:0 0 .2em rgba(var(--acc-rgb),.3);transition-duration:var(--t-on);transition-timing-function:ease-out}
@@ -421,6 +423,9 @@ html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .colophon .writ
 html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .colophon .write-beam{animation:beamDown .8s var(--ease-scan) 1.85s both}
 /* Reduced motion: written at once (section 16 shortens durations but keeps the delays, which would hide them). */
 @media (prefers-reduced-motion:reduce){.hero-title .write-win,.hero-title .write-ink,.hero-title .write-beam,.colophon,.colophon *{animation:none!important}}
+/* Les autres panneaux de l'accueil : un mot chacun, dans la marge, pour ne jamais toucher le texte. */
+.colophon.side{right:-38px}
+.panel-aether .colophon.side{top:118px;margin-top:0}
 @media (max-width:899px){.colophon{display:none}}
 .hero-lead{margin:clamp(18px,3.6vh,36px) 0 0;font:400 clamp(17px,min(1.5vw,2.6vh),24px)/1.45 var(--sans);color:var(--muted)}
 .home-bottom{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;font-size:var(--label);color:var(--dim)}
@@ -496,7 +501,9 @@ html.booted:not(.power-hold):not(.power-pending):not(.mode-lite) .colophon .writ
 .aether-bottom strong{font-size:var(--label);font-weight:400;color:var(--rose)}
 /* The Aether scene is in gold, the source (§9.3): its italic, its labels, its one call to action; no vivid rose. */
 .panel-aether .display-title em{color:var(--acc-aether)}
-.panel-aether .aether-module-strip{background:rgba(var(--rgb-gold),.12)}
+.panel-aether .aether-module-strip{grid-template-columns:repeat(2,minmax(0,1fr));background:rgba(var(--rgb-gold),.12)}
+/* Three categories in two columns (D150 b 7 and 8): the odd last one takes the whole row, no empty cell. */
+.panel-aether .aether-module-strip>:last-child:nth-child(odd){grid-column:1/-1}
 .panel-aether .aether-module-strip span:hover{background:rgba(8,5,14,.62)}
 .panel-aether .aether-module-strip b,.panel-aether .aether-bottom strong{color:var(--acc-aether)}
 .panel-aether .primary-link{border-color:rgba(var(--rgb-gold),.4);background:rgba(var(--rgb-gold),.05)}
@@ -593,7 +600,7 @@ html.cinema .scenes .panel-inner,html.cinema .scenes .panel-inner::after,html.ci
    divider carries its salve, the blocks are glass plates. Labels stay --dim, overlines --muted; the tint marks the
    second-line italic, links, focus and lit states. --acc-text is that tint where it must read as small text. */
 .detail-page{--acc:var(--rose);--acc-text:var(--acc);min-height:100svh}
-.domain-dev{--acc:var(--acc-dev);--tint:var(--rgb-cyan);--tint-2:var(--rgb-dev-2)}.domain-photo{--acc:var(--acc-photo);--tint:var(--rgb-photo);--tint-2:var(--rgb-photo-2)}.domain-write{--acc:var(--acc-writing);--tint:var(--rgb-magenta);--tint-2:var(--rgb-writing-2)}.domain-worlds{--acc:var(--acc-worlds);--acc-text:var(--acc-worlds-text);--tint:var(--rgb-violet);--tint-2:var(--rgb-worlds-2)}.domain-aether{--acc:var(--acc-aether);--tint:var(--rgb-gold);--tint-2:var(--rgb-gold)}
+.domain-dev{--acc:var(--acc-dev);--tint:var(--rgb-cyan);--tint-2:var(--rgb-dev-2)}.domain-photo{--acc:var(--acc-photo);--tint:var(--rgb-photo);--tint-2:var(--rgb-photo-2)}.domain-write{--acc:var(--acc-writing);--tint:var(--rgb-magenta);--tint-2:var(--rgb-writing-2)}.domain-worlds{--acc:var(--acc-worlds);--acc-text:var(--acc-worlds-text);--tint:var(--rgb-violet);--tint-2:var(--rgb-worlds-2)}.domain-games{--acc:var(--acc-games);--acc-text:var(--acc-games);--tint:var(--rgb-games);--tint-2:var(--rgb-worlds-2)}.domain-aether{--acc:var(--acc-aether);--tint:var(--rgb-gold);--tint-2:var(--rgb-gold)}
 .detail-page .world-canvas{z-index:0}
 .detail-shell{position:relative;z-index:2;width:min(1240px,calc(100% - 2 * var(--gutter)));margin:0 auto;padding:124px 0 70px}
 .detail-top{display:flex;justify-content:space-between;align-items:center;gap:20px;border-bottom:1px solid var(--line)}
@@ -636,7 +643,7 @@ html.mode-lite .detail-hero .colophon.write,html.mode-lite .detail-hero .colopho
 .detail-block p{max-width:62ch;margin:0 0 12px;color:var(--muted);font-size:15px;line-height:1.75}
 .detail-block ul{margin:0;padding:0;list-style:none}
 .detail-block li{display:grid;grid-template-columns:44px 1fr auto;gap:16px;padding:14px 0;border-top:1px solid var(--line-2);font-size:14px;line-height:1.55}
-.detail-block li b{font:400 var(--label) var(--mono);letter-spacing:.14em;color:var(--dim)}
+.detail-block li b{font:400 var(--label) var(--mono);letter-spacing:.14em;color:color-mix(in srgb,var(--dim) 45%,var(--muted))}   /* a notch brighter than --dim: "05" of developpement.html read 4.43:1 over a bright patch of the world */
 .detail-block li span{color:var(--muted)}
 .detail-block li strong{color:var(--paper);font-weight:500}
 .detail-block li i{font:400 var(--label) var(--mono);font-style:normal;letter-spacing:.12em;color:var(--dim)}
@@ -719,7 +726,7 @@ html.mode-lite :is(.detail-grid .detail-block,.detail-foot).reveal{opacity:1;tra
 .legal-page h2{margin:0 0 10px;font:400 clamp(24px,2.4vw,32px)/1.1 var(--serif);color:var(--paper)}
 .legal-page p,.legal-page li{margin:0 0 10px}
 .legal-page ul{padding-left:20px}
-.legal-page a{color:var(--rose);text-decoration:underline;text-decoration-color:rgba(var(--tint),.4);text-underline-offset:3px}
+.legal-page a{color:var(--rose);text-decoration:underline;text-decoration-color:rgba(var(--tint),.25);text-underline-offset:3px}
 .legal-page .legal-back{text-decoration:none}
 .legal-page .legal-warning{margin:10px 0;padding:22px 20px;border:1px solid var(--line);background:rgba(var(--tint),.04)}
 .legal-date{margin-top:30px;font:400 var(--label) var(--mono);letter-spacing:var(--label-ls);color:var(--dim)}
@@ -899,6 +906,15 @@ html.mode-lite :is(.detail-grid .detail-block,.detail-foot).reveal{opacity:1;tra
   .menu-legal a,.footer-links a{min-width:44px;justify-content:flex-start}
   .menu-presence{gap:0 20px}
   .menu-legal{gap:0 20px}
+}
+/* A mouse too: they get a hit area of at least 24 px high (WCAG 2.5.8), still without changing their look. */
+@media (pointer:fine){
+  :is(.menu-presence a,.menu-legal a,.footer-links a,.return-home,.about-footer a,.channels-footer a,.scroll-cue){padding-block:6px;margin-block:-6px}
+  :is(.menu-legal a,.footer-links a){min-width:24px}
+}
+/* Under 700px these links already take their height from the layout (footer padding 6px, menu min-height 44px in css/menu-categories.css): cancel the negative margin so nothing moves. */
+@media (pointer:fine) and (max-width:700px){
+  :is(.footer-links a,.menu-presence a,.menu-legal a){margin-block:0}
 }
 @media(max-width:700px){
   .menu-top span:last-child{display:none}
@@ -1098,7 +1114,7 @@ html.mode-lite :is(.detail-grid .detail-block,.detail-foot).reveal{opacity:1;tra
   html.cinema .menu-project-main{padding:20px 17px;gap:8px}
   html.cinema .menu-aether-sigil{width:30px}
   html.cinema .menu-project-main b{font-size:clamp(42px,12vw,56px)}
-  html.cinema .menu-project-main>span:not(.menu-aether-sigil,.menu-num){line-height:1.45}
+  html.cinema .menu-project-main>span:not(.menu-aether-sigil,.menu-frame-sigil,.menu-num){line-height:1.45}
   html.cinema .menu-note{font-size:10px;line-height:1.55;margin:13px 0 0;max-width:34ch}
   html.cinema .menu-bottom{display:grid;grid-template-columns:1fr;gap:14px;padding-top:16px}
   html.cinema .menu-presence{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
@@ -1425,6 +1441,11 @@ html.gate-pending .signal-gate:not([open]){display:block;z-index:20002}
 .signal-gate-top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;gap:16px;margin:0;padding:clamp(26px,5vmin,48px) clamp(28px,6vmin,64px);font:400 var(--label) var(--mono);letter-spacing:.3em;text-transform:uppercase;color:var(--dim);pointer-events:none}
 .signal-gate-top i{font-style:normal;color:rgb(var(--rgb-accent))}
 .signal-gate-note{position:absolute;left:0;right:0;bottom:calc(clamp(64px,11vmin,96px) + env(safe-area-inset-bottom,0px));margin:0;padding:0 var(--gutter);text-align:center;font-size:13px;color:var(--muted);pointer-events:none}
+/* The note says what the press does (js/boot.js): the sound with the picture, or not (gate-mute); in fullscreen where
+   the browser allows it (gate-full). With the sound already off, there is no « sans le son » to offer. */
+.signal-gate-note>span{display:none}
+html:not(.gate-full):not(.gate-mute) .note-loud,html.gate-full:not(.gate-mute) .note-loud-full,html.gate-mute .note-mute-full{display:inline}
+html.gate-mute .signal-gate-quiet{display:none}
 .signal-gate-quiet{position:absolute;left:50%;bottom:calc(clamp(22px,5vmin,44px) + env(safe-area-inset-bottom,0px));z-index:1;transform:translateX(-50%);min-height:44px;padding:12px 16px;border:0;background:none;color:var(--dim);font:400 var(--label) var(--mono);letter-spacing:.2em;text-transform:uppercase;text-decoration:underline;text-underline-offset:4px;white-space:nowrap;cursor:pointer}
 .signal-gate-quiet:hover,.signal-gate-quiet:focus-visible{color:var(--paper)}
 .signal-gate-quiet:focus-visible{outline-offset:0}
@@ -1500,4 +1521,64 @@ html.channel-pending::after{bottom:0;background:linear-gradient(to bottom,#fff 0
 @media(prefers-reduced-motion:reduce){
   .crt-channel,html.channel-pending::before{display:none}
   html.channel-pending::after{top:0;bottom:0;height:auto;background:var(--ink);animation:powerFailsafe .24s linear forwards;animation-duration:.24s!important}
+}
+
+/* Téléphone : une échelle plus petite pour les titres, pour que le premier écran respire et que le texte suive
+   sans être écrasé par eux. Placé en dernier, aux mêmes sélecteurs que les règles qu'il remplace. */
+@media (max-width:480px){
+  .hero-title,html.cinema .hero-title{font-size:clamp(50px,15.5vw,66px)}
+  .display-title,html.cinema .display-title{font-size:clamp(34px,10.4vw,44px)}
+  .detail-title{font-size:clamp(40px,12.5vw,52px)}
+  .aether-big-title,.aether-grand .aether-big-title{font-size:clamp(40px,11.5vw,48px)}
+  .contact-hero h1{font-size:clamp(42px,12vw,50px)}
+  .contact-card h2{margin-top:44px;font-size:40px}
+  .legal-page h1{font-size:clamp(36px,10.5vw,42px)}
+}
+
+/* 20 · COULEURS FORCÉES — Windows' contrast themes draw an opaque plate behind every line of text, as tall as the font.
+   The giant title of the home, set tight (line-height .8), would lay its plate over the line above it and the line
+   below: it keeps its own colours there — the theme's — and no plate. The map of Aether keeps its colours too: its
+   nodes and names in the theme's ink. */
+@media (forced-colors:active){
+  .hero-title{forced-color-adjust:none;color:CanvasText;text-shadow:none}
+  .hero-title :is(.write-win,.write-ink){animation:none!important}
+  .hero-title .write-beam{display:none}
+  /* (the dossier's own colours, css/aether.css, are more specific: the theme's ink wins with !important) */
+  .aether-graph .a-node circle:not(.node-hit){fill:Canvas!important;stroke:CanvasText!important;filter:none!important}
+  .aether-graph .a-node.is-focus circle:not(.node-hit){stroke:Highlight!important;stroke-width:3}
+  .aether-graph .a-node :is(text,.node-sub){fill:CanvasText!important}
+  .aether-graph .aether-links path{stroke:CanvasText!important}
+  .aether-graph :is(.core-halo,.aether-pulses){display:none}
+}
+
+/* 21 · PAPIER — printed, a page is ink on white. What only works on a screen stays there (the bar and the menu, the
+   tube and its standby screen, the worlds, the museum); every text is black and every reveal done; a link to another
+   site says where it leads. Nothing breaks inside a card, a list item or a quotation, no title is left alone at the
+   foot of a page. */
+@media print{
+  @page{margin:16mm 15mm}
+  html,body{background:#fff!important;color:#000!important}
+  html::before,html::after,body::before,body::after{display:none!important}
+  :is(.skip-link,.noise,.topbar,.progress,.site-menu,.crt,.world-canvas,.world-fallback,.hud,.marks,.presence-dock,
+     .signal-gate,.crt-power,.crt-channel,.immersive-frame,.scroll-cue,.colophon,.write-beam,canvas,video,audio,
+     .musee-scene,.musee-hud,.musee-entree,.musee-tourner){display:none!important}
+  body *{color:#000!important;background-color:transparent!important;background-image:none!important;
+    text-shadow:none!important;box-shadow:none!important;filter:none!important;animation:none!important;transition:none!important}
+  :is(.reveal,.aether-section){opacity:1!important;transform:none!important}
+  html.cinema .scenes{position:static!important;transform:none!important}
+  html.cinema,html.cinema body{height:auto!important;overflow:visible!important}
+  html.cinema .panel{position:static!important;visibility:visible!important;opacity:1!important;transform:none!important;overflow:visible!important}
+  html.cinema [data-depth]{transform:none!important;translate:none!important}
+  html.cinema :is(.panel-inner,.aether-module-strip){perspective:none!important}
+  .hero-title .write-win{visibility:visible!important}
+  .musee .musee-lisible{display:block!important}   /* the museum prints as its readable page: its title and the list of its rooms */
+  :is(section,.panel,.hero,.detail-hero){min-height:0!important}
+  svg text{fill:#000!important}
+  .aether-graph .a-node circle:not(.node-hit){fill:#fff!important;stroke:#000!important}
+  .aether-graph .aether-links path{stroke:#000!important}
+  a{text-decoration:underline}
+  a[href^="http"]::after{content:" (" attr(href) ")";font-size:.82em;overflow-wrap:anywhere}
+  :is(h1,h2,h3,h4){break-after:avoid}
+  :is(li,figure,blockquote,dl>div,tr,.detail-block,.detail-foot,.contact-card,.domain-card,.aether-arch-card,.aether-project,.aether-scene){break-inside:avoid}
+  .detail-foot{margin-top:14px}   /* the foot of a page that ends near the bottom of a sheet spilled a few pixels onto a blank one */
 }

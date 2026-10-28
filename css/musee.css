@@ -1,0 +1,233 @@
+/* The museum (D168): a 3D place one walks in, full screen under the top bar; around it, what keeps one's bearings —
+   the room one is in, the rooms' chips, the plan in its corner (always in view), what is within reach, AlmaS's words.
+   js/musee/musee.js plays it; LITE, reduced motion, forced colours or no WebGL show .musee-lisible instead. */
+.musee-page{overflow:hidden;overscroll-behavior:none}
+.musee{position:fixed;inset:0;z-index:1;--t:var(--accent)}
+.musee-scene{position:absolute;inset:0;touch-action:none;background:radial-gradient(ellipse at 50% 60%,var(--bg-2),var(--bg) 70%)}
+.musee-canvas{position:absolute;inset:0;display:block;width:100%;height:100%;cursor:crosshair}
+.musee.est-verrouille .musee-canvas{cursor:none}
+
+/* ---------- Bearings ---------- */
+.musee-hud{position:absolute;inset:0;pointer-events:none;font-family:var(--mono)}
+/* A shade under the site's bar, the chips and the hint: they read over any wall, even a room's title seen from up close. */
+.musee-hud::before{content:"";position:absolute;left:0;right:0;top:0;height:calc(150px + env(safe-area-inset-top,0px));background:linear-gradient(rgba(6,4,11,.88),rgba(6,4,11,.6) 55%,rgba(6,4,11,0))}
+.musee-hud :is(button,a){pointer-events:auto}
+.musee-ici{position:absolute;left:var(--gutter);top:calc(76px + env(safe-area-inset-top,0px));margin:0;display:grid;gap:4px}
+.musee-ici span{font-size:10px;letter-spacing:.24em;color:var(--dim)}
+.musee-ici b{font:400 clamp(26px,3vw,38px)/1 var(--serif);letter-spacing:0;color:var(--paper);text-shadow:0 0 18px rgba(var(--rgb-accent),.35)}
+.musee-puces{position:absolute;left:50%;top:calc(78px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;gap:6px;max-width:calc(100% - 2 * var(--gutter) - 200px);overflow-x:auto;scrollbar-width:none;pointer-events:auto}
+.musee-puces::-webkit-scrollbar{display:none}
+.musee-puce{--t:var(--accent);flex:none;display:inline-flex;align-items:center;min-height:34px;padding:0 12px;text-decoration:none;border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(6,4,11,.82);backdrop-filter:blur(6px);color:var(--muted);font:500 10px/1 var(--mono);letter-spacing:.18em;cursor:pointer;transition:border-color .2s,color .2s,box-shadow .2s}
+.musee-puce:is(:hover,:focus-visible){border-color:var(--t);color:var(--paper)}
+.musee-puce.is-ici{border-color:var(--t);color:var(--paper);box-shadow:0 0 14px color-mix(in srgb,var(--t) 45%,transparent)}
+[data-teinte="accent"]{--t:var(--accent)}[data-teinte="aether"]{--t:var(--acc-aether)}[data-teinte="games"]{--t:var(--acc-games)}
+[data-teinte="worlds"]{--t:var(--acc-worlds-text)}[data-teinte="photo"]{--t:var(--acc-photo)}[data-teinte="writing"]{--t:var(--acc-writing)}
+.musee-mini{position:absolute;right:var(--gutter);top:calc(76px + env(safe-area-inset-top,0px));display:grid;justify-items:end;gap:6px;padding:8px;border:1px solid rgba(255,255,255,.12);background:rgba(6,4,11,.6);backdrop-filter:blur(6px);color:var(--dim);font:500 10px var(--mono);letter-spacing:.2em;cursor:pointer}
+.musee-mini:is(:hover,:focus-visible){border-color:rgba(var(--rgb-accent),.6);color:var(--paper)}
+.musee-mini i{font-style:normal;padding:1px 5px;border:1px solid currentColor;margin-left:4px}
+.musee-mini .musee-plan-svg{width:150px;height:154px}
+.musee-souris{position:absolute;left:50%;top:calc(126px + env(safe-area-inset-top,0px));transform:translateX(-50%);margin:0;font-size:10px;letter-spacing:.2em;color:var(--dim);display:none;white-space:nowrap}
+.musee.est-entre:not(.est-verrouille) .musee-souris{display:block}
+/* In fullscreen where Escape cannot give the mouse back alone (musee.js), a drag looks: said until the first one. */
+.souris-glisse,.musee.regard-glisse .souris-verrou{display:none}
+.musee.regard-glisse .souris-glisse{display:inline}
+.musee.regard-glisse.a-regarde .musee-souris{display:none}
+@media (pointer:coarse){.musee-souris,.musee-mini i{display:none!important}}
+/* What is within reach: one button; its key on a keyboard. */
+/* The action stands above the tallest subtitles (two lines of each language): AlmaS speaking never covers it. */
+.musee-action{position:absolute;left:50%;bottom:calc(192px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;align-items:center;gap:10px;min-height:46px;padding:8px 16px 8px 8px;border:1px solid rgba(var(--rgb-accent),.55);background:rgba(6,4,11,.72);backdrop-filter:blur(8px);color:var(--paper);font:500 11px var(--mono);letter-spacing:.18em;cursor:pointer;box-shadow:0 0 22px rgba(var(--rgb-accent),.18)}
+.musee-action b{font:400 20px/1 var(--serif);letter-spacing:0;color:var(--paper)}
+.musee-touche{display:grid;place-items:center;min-width:30px;height:30px;border:1px solid currentColor;color:var(--rose)}
+.musee-touche:empty{display:none}
+.musee-action[hidden]{display:none}
+/* Firefox composes a blur over a canvas that changes every frame at the cost of the whole frame: with these three
+   backdrop-filters the museum drew 8 to 11 images a second at 1440x900 (90 to 109 without them; headless, 2026-10-28).
+   There the blur is a deeper plate of the same tint: the chips, the hint and the plan keep their text above 5.7:1, even
+   over a white wall. The other engines keep the blur (the test is Firefox's own prefixed property). */
+@supports (-moz-appearance:none){
+  .musee-puce,.musee-action{background:rgba(6,4,11,.94);backdrop-filter:none}
+  .musee-mini{background:rgba(6,4,11,.92);backdrop-filter:none}
+}
+/* AlmaS's words: Mandarin, simplified characters, and the English subtitle under them. */
+.musee-soustitres{position:absolute;left:50%;bottom:calc(26px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(760px,calc(100% - 2 * var(--gutter)));display:grid;justify-items:center;gap:4px;padding:10px 18px 12px;background:rgba(4,3,8,.74);border-top:1px solid rgba(var(--rgb-accent),.35);text-align:center;transition:opacity .35s}
+.musee-soustitres.is-out{opacity:0}
+.musee-soustitres[hidden]{display:none}
+.musee-qui{font-size:9px;letter-spacing:.3em;color:var(--rose)}
+.musee-soustitres .zh{font:400 clamp(17px,1.9vw,22px)/1.45 "Noto Sans SC","Noto Sans CJK SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Source Han Sans SC",sans-serif;color:var(--sakura)}
+.musee-soustitres .en{font:400 clamp(14px,1.4vw,16px)/1.45 var(--sans);color:var(--paper)}
+/* The stick, under the thumb that holds it. */
+.musee-stick{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .15s}
+.musee-stick::before{content:"";position:absolute;left:-52px;top:-52px;width:104px;height:104px;border-radius:50%;border:1px solid rgba(var(--rgb-sakura),.35);background:radial-gradient(circle,rgba(var(--rgb-accent),.12),transparent 70%)}
+.musee-stick i{position:absolute;left:-22px;top:-22px;width:44px;height:44px;border-radius:50%;background:rgba(var(--rgb-sakura),.28);box-shadow:0 0 16px rgba(var(--rgb-accent),.5)}
+.musee-stick.is-on{opacity:1}
+
+/* ---------- The entrance ---------- */
+.musee-entree{position:absolute;inset:0;display:grid;place-items:center;padding:96px var(--gutter) 24px;background:radial-gradient(ellipse at 50% 55%,rgba(6,4,11,.35),rgba(6,4,11,.86));z-index:2}
+.musee-entree[hidden]{display:none}
+.musee-entree-carte{width:min(620px,100%);display:grid;gap:14px;padding:clamp(22px,4vw,40px);border:1px solid rgba(var(--rgb-accent),.3);background:rgba(10,7,14,.86);box-shadow:0 30px 90px rgba(0,0,0,.5),inset 0 0 60px rgba(var(--rgb-accent),.05)}
+.musee-entree-carte h2{margin:0;font:400 clamp(34px,5vw,56px)/1 var(--serif)}
+.musee-entree-carte h2 em{color:var(--rose)}
+.musee-entree-carte p{margin:0;color:var(--muted);font:400 15px/1.6 var(--sans)}
+.musee-entree-carte b{color:var(--paper);font-weight:500}
+.musee-note{font-size:13px!important;color:var(--dim)!important}
+.musee-tactile{display:none}
+@media (pointer:coarse){.musee-clavier{display:none}.musee-tactile{display:block}}
+.musee-bouton{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 20px;border:1px solid var(--rose);background:rgba(var(--rgb-accent),.12);color:var(--paper);font:500 11px var(--mono);letter-spacing:.22em;text-decoration:none;cursor:pointer;transition:background .2s,box-shadow .2s}
+.musee-bouton:is(:hover,:focus-visible){background:rgba(var(--rgb-accent),.24);box-shadow:0 0 22px rgba(var(--rgb-accent),.3)}
+/* Not yet ready (the entrance waits for the museum to be built): dimmed, and it does not answer. */
+.musee-bouton:disabled{opacity:.45;cursor:default;pointer-events:none}
+.musee-scene:focus{outline:none}
+.musee-bouton.faible{border-color:rgba(255,255,255,.2);background:none;color:var(--muted)}
+.musee-lien{justify-self:start;display:inline-flex;align-items:center;gap:8px;min-height:32px;padding:0;border:0;background:none;color:var(--dim);font:500 10px var(--mono);letter-spacing:.2em;text-decoration:none;cursor:pointer}
+.musee-lien:is(:hover,:focus-visible){color:var(--paper)}
+.musee-lien .arrow{width:12px;height:12px}
+.musee-tourner .musee-lien{justify-self:center;min-height:44px}
+
+/* ---------- Without the museum: the readable site ---------- */
+.musee-lisible{display:block;position:absolute;inset:0;overflow:auto;padding:120px var(--gutter) 48px;max-width:760px;margin:0 auto}
+html.js .musee-lisible{display:none}
+.musee.sans-3d .musee-lisible{display:block}
+.musee.sans-3d :is(.musee-scene,.musee-hud,.musee-entree){display:none}
+/* Without script, nothing of the museum can move: only the readable site. */
+html:not(.js) .musee :is(.musee-scene,.musee-hud,.musee-entree){display:none}
+.musee-lisible h2{font:400 clamp(36px,6vw,64px)/1 var(--serif);margin:10px 0 18px}
+.musee-lisible h2 em{color:var(--rose)}
+.musee-lisible p{color:var(--muted);font:400 16px/1.6 var(--sans)}
+.musee-raison{display:none}
+.musee-titre-ailleurs{display:none}
+.musee[data-raison="mouvement"] .musee-titre-ailleurs,.musee[data-raison="couleurs"] .musee-titre-ailleurs,.musee[data-raison="webgl"] .musee-titre-ailleurs,.musee[data-raison="chargement"] .musee-titre-ailleurs,.musee[data-raison="perdue"] .musee-titre-ailleurs{display:inline}
+.musee[data-raison="mouvement"] .musee-titre-full,.musee[data-raison="couleurs"] .musee-titre-full,.musee[data-raison="webgl"] .musee-titre-full,.musee[data-raison="chargement"] .musee-titre-full,.musee[data-raison="perdue"] .musee-titre-full{display:none}
+.musee-lisible .musee-bouton{margin:4px 0 20px}
+.musee[data-raison="lite"] [data-raison-lite],.musee[data-raison="mouvement"] [data-raison-mouvement],.musee[data-raison="couleurs"] [data-raison-couleurs],.musee[data-raison="webgl"] [data-raison-webgl],.musee[data-raison="chargement"] [data-raison-chargement],.musee[data-raison="perdue"] [data-raison-perdue]{display:block}
+.musee-salles-lisibles{display:grid;gap:8px;margin:12px 0 0;padding:0;list-style:none}
+.musee-salles-lisibles a{display:flex;min-height:44px;align-items:center;border-bottom:1px solid var(--line-2);color:var(--paper);font:400 24px var(--serif);text-decoration:none}
+
+/* ---------- Dialogs: the plan, a showcase ---------- */
+.musee-dialog{width:min(1120px,calc(100% - 2 * var(--gutter)));max-height:calc(100dvh - 48px);margin:auto;padding:0;border:1px solid rgba(var(--rgb-accent),.3);background:rgba(8,5,12,.96);color:var(--paper);overflow:auto;box-shadow:0 40px 120px rgba(0,0,0,.6)}
+.musee-dialog::backdrop{background:rgba(3,2,6,.7);backdrop-filter:blur(3px)}
+.musee-dialog-tete{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px clamp(16px,3vw,28px);background:rgba(8,5,12,.96);border-bottom:1px solid rgba(255,255,255,.08)}
+.musee-dialog-tete h2{margin:0;font:400 clamp(26px,3vw,36px)/1 var(--serif)}
+.musee-fermer{display:grid;place-items:center;width:44px;height:44px;border:1px solid rgba(255,255,255,.2);background:none;color:var(--paper);font:300 26px/1 var(--sans);cursor:pointer}
+.musee-fermer:is(:hover,:focus-visible){border-color:var(--rose)}
+.musee-plan-corps{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;padding:clamp(16px,3vw,28px)}
+.musee-plan-svg.grand{width:100%;height:auto;max-height:62dvh;aspect-ratio:30/36}
+.musee-plan-liste{display:grid;align-content:start;gap:10px;margin:0;padding:0;list-style:none}
+.musee-plan-liste li{display:grid;gap:8px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.musee-plan-liste b{font:400 26px/1 var(--serif)}
+.musee-plan-liste span{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.musee-plan-liste em{font:500 10px var(--mono);font-style:normal;letter-spacing:.2em;color:var(--dim)}
+.musee-plan-liste [data-teinte-salle="aether"] b{color:var(--acc-aether)}
+.musee-plan-liste [data-teinte-salle="hall"] b{color:var(--rose)}
+.musee-plan-liste [data-teinte-salle="jeux"] b{color:var(--acc-games)}
+.musee-plan-liste [data-teinte-salle="mondes"] b{color:var(--acc-worlds-text)}
+.musee-plan-liste [data-teinte-salle="photographie"] b{color:var(--acc-photo)}
+.musee-plan-liste [data-teinte-salle="ecriture"] b{color:var(--acc-writing)}
+@media (max-width:760px){.musee-plan-corps{grid-template-columns:1fr}}
+/* The plan itself: rooms in their hue, the ones to come dashed, the showcases, the visitor, AlmaS, the way. */
+.plan-salle{fill:rgba(255,255,255,.025);stroke:var(--teinte);stroke-width:1.2px;vector-effect:non-scaling-stroke}
+.plan-nom{font:500 1.15px var(--mono);letter-spacing:.12px;fill:var(--teinte);text-anchor:middle;dominant-baseline:middle;opacity:.9}
+.plan-oeuvre{fill:var(--teinte,var(--acc-aether));opacity:.6}
+.plan-oeuvre:is(.carte,.maquette){fill:none;stroke:var(--teinte,var(--acc-aether));stroke-width:.12}
+.plan-moi{fill:var(--paper);filter:drop-shadow(0 0 .4px var(--rose))}
+.plan-almas{fill:var(--accent)}
+.plan-route{fill:none;stroke:var(--accent);stroke-width:.22;stroke-dasharray:.45 .45}
+/* On the big plan a room is touched to go there (musee.js); the names, exhibits and marks let the touch through to it. */
+.plan-nom,.plan-oeuvre,.plan-moi,.plan-almas,.plan-route{pointer-events:none}
+.musee-plan-svg.grand .plan-salle{cursor:pointer;transition:fill .2s}
+.musee-plan-svg.grand .plan-salle:hover{fill:color-mix(in srgb,var(--teinte) 14%,transparent)}
+.musee-mini .plan-nom{font-size:1.3px}
+/* A showcase: the Aether page's own sheets and scenes, staged. */
+.musee-vitrine-corps{padding:clamp(16px,3vw,28px)}
+.musee-contenu{display:grid;gap:18px}
+.musee-contenu>.aether-scene{min-height:min(520px,70dvh)}
+.musee-erreur{color:var(--muted)}
+/* An exhibit speaks in its room's hue: the accent and tint its page has (styles.css, the domain classes). */
+.musee-vitrine[data-salle="jeux"]{--acc:var(--acc-games);--acc-text:var(--acc-games);--tint:var(--rgb-games);--tint-2:var(--rgb-worlds-2)}
+.musee-vitrine[data-salle="mondes"]{--acc:var(--acc-worlds);--acc-text:var(--acc-worlds-text);--tint:var(--rgb-violet);--tint-2:var(--rgb-worlds-2)}
+.musee-vitrine[data-salle="photographie"]{--acc:var(--acc-photo);--acc-text:var(--acc-photo);--tint:var(--rgb-photo);--tint-2:var(--rgb-photo-2)}
+.musee-vitrine[data-salle="ecriture"]{--acc:var(--acc-writing);--acc-text:var(--acc-writing);--tint:var(--rgb-magenta);--tint-2:var(--rgb-writing-2)}
+/* Frame's screen (Game Development): the dialog is the screen one sat down at — its bezel, its light. */
+.musee-vitrine[data-oeuvre="pc"]{border:10px solid #0b0910;outline:1px solid rgba(92,240,189,.45);box-shadow:0 0 0 1px rgba(92,240,189,.18),0 40px 120px rgba(0,0,0,.6),0 0 80px rgba(92,240,189,.12)}
+.musee-vitrine[data-oeuvre="pc"] .musee-dialog-tete h2{color:var(--acc-games)}
+/* A theme's frame (Photographie): the empty frame, and what it waits for. */
+.musee-cadre{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(18px,3vw,36px);align-items:center}
+.musee-cadre-vide{aspect-ratio:3/2;border:1px solid rgba(255,58,42,.55);outline:10px solid rgba(255,58,42,.06);outline-offset:-22px;background:radial-gradient(ellipse at 50% 40%,rgba(255,58,42,.1),rgba(6,4,11,.9) 70%)}
+.musee-cadre-texte{display:grid;gap:10px}
+.musee-cadre-texte h3{margin:0;font:400 clamp(36px,5vw,58px)/1 var(--serif)}
+.musee-cadre-mots{margin:0;font:500 12px var(--mono);letter-spacing:.2em;color:var(--acc-photo);text-transform:uppercase}
+@media (max-width:640px){.musee-cadre{grid-template-columns:1fr}}
+/* The book, open on the lectern (Écriture): two pages. */
+.musee-livre{display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(232,107,255,.3);background:linear-gradient(90deg,rgba(246,238,242,.035),rgba(246,238,242,.06) 49.6%,rgba(0,0,0,.4) 50%,rgba(246,238,242,.06) 50.4%,rgba(246,238,242,.035));box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.musee-feuillet{display:grid;min-width:0;align-content:center;gap:14px;min-height:min(420px,60dvh);padding:clamp(22px,4vw,48px)}
+.musee-feuillet.gauche{justify-items:start;border-right:1px solid rgba(232,107,255,.18)}
+.musee-livre-titre{margin:0;font:400 clamp(38px,5vw,64px)/1.02 var(--serif)}
+.musee-livre-titre cite{font-style:italic}
+.musee-livre-quoi{margin:0;color:var(--muted);font:400 18px/1.5 var(--sans)}
+.musee-livre-etat{margin:6px 0 0;font:500 11px var(--mono);letter-spacing:.24em;color:var(--acc-writing)}
+.musee-feuillet.droite blockquote{margin:0}
+.musee-feuillet.droite blockquote p{margin:0;font:italic 400 clamp(24px,2.6vw,32px)/1.3 var(--serif);color:var(--paper)}
+.musee-feuillet.droite figcaption{margin-top:10px;font:500 11px var(--mono);letter-spacing:.2em;color:var(--dim)}
+.musee-feuillet.droite figure{margin:0}
+.musee-feuillet.droite>p{margin:0;color:var(--muted);font:400 15px/1.6 var(--sans)}
+@media (max-width:640px){.musee-livre{grid-template-columns:1fr;background:rgba(246,238,242,.04)}.musee-feuillet.gauche{border-right:0;border-bottom:1px solid rgba(232,107,255,.18)}.musee-feuillet{min-height:0}}
+
+@media (max-width:700px){
+  .musee-souris{top:auto;bottom:calc(252px + env(safe-area-inset-bottom,0px));width:calc(100% - 2 * var(--gutter));white-space:normal;text-align:center;line-height:1.6}
+  .musee-ici{top:calc(118px + env(safe-area-inset-top,0px))}
+  .musee-ici b{font-size:24px}
+  .musee-puces{left:var(--gutter);right:var(--gutter);transform:none;max-width:none;top:calc(70px + env(safe-area-inset-top,0px))}
+  .musee-mini{top:calc(116px + env(safe-area-inset-top,0px));padding:6px}
+  .musee-mini .musee-plan-svg{width:84px;height:86px}
+  .musee-soustitres{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+}
+@media (prefers-reduced-motion:reduce){.musee-soustitres{transition:none}}
+
+/* ---------- A phone (D169 (b) 1): the museum is visited held sideways ---------- */
+/* Upright, the museum waits: only the message, the site's bar above it. */
+.musee-tourner{display:none}
+@media (pointer:coarse) and (orientation:portrait) and (max-width:600px){
+  .musee.est-pret:not(.sans-3d) :is(.musee-scene,.musee-hud,.musee-entree){visibility:hidden}
+  .musee.est-pret:not(.sans-3d) .musee-tourner{position:absolute;inset:0;z-index:3;display:grid;place-content:center;justify-items:center;gap:26px;padding:96px var(--gutter) 40px;text-align:center;background:radial-gradient(ellipse at 50% 45%,rgba(var(--rgb-accent),.1),rgba(6,4,11,.96) 70%)}
+}
+.musee-tourner p{margin:0;max-width:300px;color:var(--muted);font:400 17px/1.55 var(--sans)}
+.musee-tourner b{display:block;margin-bottom:4px;color:var(--paper);font:400 34px/1.05 var(--serif)}
+.musee-tourner-tel{position:relative;width:62px;height:108px;border:2px solid var(--rose);border-radius:12px;box-shadow:0 0 26px rgba(var(--rgb-accent),.35);animation:musee-tourne 2.6s var(--ease) infinite}
+.musee-tourner-tel i{position:absolute;left:50%;bottom:8px;width:16px;height:3px;margin-left:-8px;border-radius:2px;background:var(--rose)}
+@keyframes musee-tourne{0%,30%{transform:rotate(0)}55%,85%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
+@media (prefers-reduced-motion:reduce){.musee-tourner-tel{animation:none;transform:rotate(-90deg)}}
+
+/* Sideways, the screen is wide and very short: the bearings shrink into its corners, the chips join the site's bar. */
+@media (max-height:520px) and (orientation:landscape){
+  /* The site's bar lets the museum show through: the chips sit in it. */
+  html .musee-page .topbar{background:none}
+  .musee-hud::before{height:calc(92px + env(safe-area-inset-top,0px))}
+  .musee-ici{top:calc(58px + env(safe-area-inset-top,0px));gap:2px}
+  .musee-ici span{font-size:8px}
+  .musee-ici b{font-size:20px}
+  .musee-puces{left:auto;right:calc(var(--gutter) + 104px);top:calc(12px + env(safe-area-inset-top,0px));transform:none;max-width:calc(100% - 2 * var(--gutter) - 380px);gap:4px}
+  .musee-puce{min-height:30px;padding:0 9px;font-size:9px;letter-spacing:.14em}
+  .musee-mini{top:calc(58px + env(safe-area-inset-top,0px));padding:4px;gap:2px}
+  .musee-mini .musee-plan-svg{width:96px;height:99px}
+  .musee-mini>span{display:none}
+  .musee-soustitres{bottom:calc(6px + env(safe-area-inset-bottom,0px));width:min(560px,56%);gap:2px;padding:6px 12px 8px}
+  .musee-soustitres .zh{font-size:15px;line-height:1.35}
+  .musee-soustitres .en{font-size:12px;line-height:1.35}
+  .musee-qui{display:none}
+  .musee-action{left:auto;right:calc(var(--gutter) + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:none;min-height:40px;padding:6px 12px 6px 6px}
+  .musee-action b{font-size:17px}
+  .musee-souris{top:auto;bottom:calc(50% - 60px)}
+  .musee-entree{padding:62px var(--gutter) 10px;place-items:start center;overflow:auto}
+  .musee-entree-carte{gap:8px;padding:14px 22px;width:min(640px,100%)}
+  .musee-entree-carte h2{font-size:30px}
+  .musee-entree-carte p{font-size:13px;line-height:1.45}
+  .musee-note{font-size:12px!important}
+  .musee-bouton{min-height:40px}
+  .musee-dialog{max-height:calc(100dvh - 16px);width:calc(100% - 2 * var(--gutter))}
+  .musee-dialog-tete{padding:8px 16px}
+  .musee-dialog-tete h2{font-size:24px}
+  .musee-fermer{width:38px;height:38px}
+  .musee-plan-corps{grid-template-columns:minmax(0,.8fr) minmax(0,1fr);padding:12px 16px;gap:14px}
+  .musee-plan-svg.grand{max-height:calc(100dvh - 90px)}
+  .musee-plan-liste li{padding:6px 0;gap:4px}
+  .musee-plan-liste b{font-size:20px}
+}

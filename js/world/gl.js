@@ -113,6 +113,10 @@ export function program(gl, vs, fs, defines = "") {
  * the value a location already holds is skipped (most of a frame's colours and constants). No allocation.
  */
 export function cacheUniforms(gl) {
+  // A restored context is the same object: wrapped twice, the outer cache would write before the inner one, which would
+  // then see « already set » and send nothing to the GPU, leaving the world black after a lost context.
+  if (gl.__cu) return;
+  gl.__cu = true;
   const u1f = gl.uniform1f.bind(gl), u2f = gl.uniform2f.bind(gl), u3f = gl.uniform3f.bind(gl), u3fv = gl.uniform3fv.bind(gl);
   const u1fv = gl.uniform1fv.bind(gl), u4fv = gl.uniform4fv.bind(gl), m4 = gl.uniformMatrix4fv.bind(gl);
   const same = (l, v, n) => {

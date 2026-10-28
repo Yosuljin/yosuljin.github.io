@@ -6,8 +6,21 @@ const KEY = "yosuljin-display-mode";
 const LITE = "lite@2026-10-13";
 const listeners = new Set();
 
-export const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-export const finePointer = matchMedia("(pointer: fine)");
+// One list to read and another to listen to. Chromium refreshes the answer of a MediaQueryList when it is read, and tells its
+// listeners only of a change it has not already given away: the home's frame loop reads `reducedMotion.matches` every frame,
+// so the first frame after the setting changed took the news and the event never came (the home stayed in cinema; measured
+// on 2026-10-28, Edge 155, front page with the cinema). The list that is listened to is never read.
+function query(text) {
+  const read = matchMedia(text), watch = matchMedia(text);
+  return {
+    get matches() { return read.matches; },
+    media: read.media,
+    addEventListener: typeof watch.addEventListener === "function" ? (type, fn, options) => watch.addEventListener(type, fn, options) : undefined,
+    removeEventListener: typeof watch.removeEventListener === "function" ? (type, fn, options) => watch.removeEventListener(type, fn, options) : undefined,
+  };
+}
+export const reducedMotion = query("(prefers-reduced-motion: reduce)");
+export const finePointer = query("(pointer: fine)");
 
 function read() {
   try { return localStorage.getItem(KEY) === LITE ? "lite" : "full"; } catch { return "full"; }

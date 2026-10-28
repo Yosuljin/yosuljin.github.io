@@ -25,36 +25,37 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="fonts/instrument-serif-400.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=20261019-r1">
-  <link rel="stylesheet" href="css/legal.css?v=20261014-r1">
+  <link rel="stylesheet" href="styles.css?v=20261025-r28">
+  <link rel="stylesheet" href="css/menu-categories.css?v=20261025-r28">
+  <link rel="stylesheet" href="css/legal.css?v=20261025-r28">
   <link rel="stylesheet" href="css/motifs.css?v=20261009-r2">
-  <script src="js/boot.js?v=20261020-r2"></script>
-  <script src="js/ui/immersive-nav.js?v=20261014-r1" defer></script>
-  <script src="js/ui/fullscreen.js?v=20261014-r1" defer></script>
-  <script type="module" src="js/page.js?v=20261020-r2"></script>
+  <script src="js/boot.js?v=20261025-r28"></script>
+  <script src="js/ui/immersive-nav.js?v=20261025-r28" defer></script>
+  <script src="js/ui/fullscreen.js?v=20261025-r28" defer></script>
+  <script type="module" src="js/page.js?v=20261025-r28"></script>
   <!-- The modules the entry module imports, announced here so they download with the page instead of after it
        (measured on 2026-10-19, Slow 4G: they left at 2.5 s and arrived up to 4.2 s). Low priority: the stylesheet and
        the fonts of the first paint go first. Same versions as the imports (verifier.py checks; bump.py keeps them). -->
   <link rel="modulepreload" href="js/core/dom.js?v=20261007-r7" fetchpriority="low">
   <link rel="modulepreload" href="js/core/loop.js?v=20261014-r1" fetchpriority="low">
-  <link rel="modulepreload" href="js/core/prefs.js?v=20261014-r1" fetchpriority="low">
+  <link rel="modulepreload" href="js/core/prefs.js?v=20261025-r28" fetchpriority="low">
   <link rel="modulepreload" href="js/core/idle.js?v=20261009-r2" fetchpriority="low">
-  <link rel="modulepreload" href="js/ui/sound.js?v=20261019-r1" fetchpriority="low">
-  <link rel="modulepreload" href="js/ui/portal.js?v=20261019-r1" fetchpriority="low">
-  <link rel="modulepreload" href="js/ui/menu.js?v=20261019-r1" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/sound.js?v=20261025-r28" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/portal.js?v=20261025-r28" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/menu.js?v=20261025-r28" fetchpriority="low">
   <link rel="modulepreload" href="js/ui/chrome.js?v=20261009-r2" fetchpriority="low">
-  <link rel="modulepreload" href="js/ui/glitch.js?v=20261019-r1" fetchpriority="low">
-  <link rel="modulepreload" href="js/ui/fx.js?v=20261019-r1" fetchpriority="low">
-  <script type="module" src="js/motifs.js?v=20261014-r1"></script>
+  <link rel="modulepreload" href="js/ui/glitch.js?v=20261025-r28" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/fx.js?v=20261025-r28" fetchpriority="low">
+  <script type="module" src="js/motifs.js?v=20261021-r1"></script>
 </head>
 <body class="detail-page contact-page">
-  <!-- The tube in standby (the first page of a visit): in the page itself so it shows at the first paint, long before the
+  <!-- The tube in standby (the first page of a visit, and any page that opens outside the fullscreen it should have): in the page itself so it shows at the first paint, long before the
        scripts arrive on a slow network. js/boot.js shows it before the first paint when it is wanted; js/ui/sound.js
        makes it modal and takes it down. Without JavaScript it stays hidden. -->
   <dialog class="signal-gate" aria-label="Écran en veille">
-    <button type="button" class="signal-gate-switch" data-gate="sound" aria-label="Allumer l’écran et le son" aria-describedby="signal-gate-note"><span class="signal-gate-name" aria-hidden="true">YOSULJIN</span><span class="signal-gate-dot" aria-hidden="true"></span><span class="signal-gate-hint" aria-hidden="true"><span class="hint-fine">Cliquez pour allumer</span><span class="hint-coarse">Touchez l’écran pour allumer</span></span><span class="signal-gate-keys" aria-hidden="true">ou appuyez sur une touche</span></button>
+    <button type="button" class="signal-gate-switch" data-gate="sound" aria-label="Allumer l’écran" aria-describedby="signal-gate-note"><span class="signal-gate-name" aria-hidden="true">YOSULJIN</span><span class="signal-gate-dot" aria-hidden="true"></span><span class="signal-gate-hint" aria-hidden="true"><span class="hint-fine">Cliquez pour allumer</span><span class="hint-coarse">Touchez l’écran pour allumer</span></span><span class="signal-gate-keys" aria-hidden="true">ou appuyez sur une touche</span></button>
     <p class="signal-gate-top" aria-hidden="true"><span>Yosuljin <i>·</i> entre les mondes</span><span>Canal 00</span></p>
-    <p class="signal-gate-note" id="signal-gate-note">L’image et le son s’allument ensemble.</p>
+    <p class="signal-gate-note" id="signal-gate-note"><span class="note-loud">L’image et le son s’allument ensemble.</span><span class="note-loud-full">L’image et le son s’allument ensemble, en plein écran.</span><span class="note-mute-full">L’image s’allume en plein écran, sans le son.</span></p>
     <button type="button" class="signal-gate-quiet" data-gate="quiet">Allumer sans le son</button>
     <span class="signal-gate-led" aria-hidden="true">Veille</span>
   </dialog>
@@ -65,7 +66,7 @@
 
   <header class="topbar">
     <div class="brand-cluster">
-      <a class="brand" href="index.html" aria-label="Yosuljin — retour à l'entrée">
+      <a class="brand" href="index.html" aria-label="Yosuljin — retour à l’entrée">
         <span class="brand-mark">Y</span>
         <span class="brand-copy"><b>YOSULJIN</b><small>ENTRE LES MONDES</small></span>
       </a>
@@ -81,24 +82,40 @@
   <nav id="site-menu" class="site-menu" aria-label="Index du site" aria-hidden="true" inert>
     <div class="menu-inner">
       <div class="menu-top"><span>INDEX</span><span class="menu-top-mid">CONTACT</span><span>Y / 2026</span></div>
-      <div class="menu-structure">
-        <div class="menu-block menu-domains">
-          <div class="menu-block-head"><span>DOMAINES</span><span>04 ANGLES</span></div>
-          <a href="developpement.html" data-accent="dev"><small>01</small><b>Développement</b><em>systèmes · Rust · <span lang="en">from scratch</span></em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
-          <a href="photographie.html" data-accent="photo"><small>02</small><b>Photographie</b><em>lumière · lieux · fragments</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
-          <a href="ecriture.html" data-accent="writing"><small>03</small><b>Écriture</b><em>corps · regard · existence</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
-          <a href="mondes.html" data-accent="worlds"><small>04</small><b>Mondes</b><em>Constellation · Libera · futurs</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
-        </div>
-        <div class="menu-aether">
-          <div class="menu-block-head"><span>DOSSIER CENTRAL</span><span>01</span></div>
+      <div class="menu-structure menu-categories">
+        <div class="menu-sentience">
+          <div class="menu-block-head"><span>SENTIENCES</span><span>01</span></div>
           <a class="menu-project-main" href="aether.html">
             <span class="menu-aether-sigil" aria-hidden="true"><i></i><i></i><i></i><b></b></span>
-            <small>DOSSIER 01</small>
+            <small>PROJET SENTIENCE</small>
             <b>AETHER</b>
-            <span>documentation · Lumina · TheHive · furu</span>
+            <span>Lumina, et tout ce qui la construit</span>
             <i>OUVRIR LE DOSSIER<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i>
           </a>
-          <p class="menu-note">Le seul dossier présenté comme tel. Les domaines sont des angles&#8239;; Aether est un dossier.</p>
+          <p class="menu-note">Un projet Sentience, c’est un être entier&nbsp;: un système qui pense, perçoit, agit et a un corps. Pour l’instant, Aether est le seul.</p>
+        </div>
+        <div class="menu-side">
+          <div class="menu-block menu-games">
+            <div class="menu-block-head"><span>GAME DEVELOPMENT</span><span>02</span></div>
+            <a class="menu-project-main menu-project-game" href="jeux.html" data-accent="games">
+              <span class="menu-frame-sigil" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>
+              <small>JEU VIDÉO · TITRE PROVISOIRE</small>
+              <b>FRAME</b>
+              <span>pas encore commencé, il sortira sur Steam</span>
+              <i>VOIR LE JEU<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i>
+            </a>
+          </div>
+          <div class="menu-block menu-others">
+            <div class="menu-block-head"><span>MONDES</span><span>03</span></div>
+            <div class="menu-domains">
+              <a href="mondes.html" data-accent="worlds"><small>01</small><b>Mondes</b><em>Libera et ce site</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+            </div>
+          </div>
+          <div class="menu-block menu-domains menu-angles">
+            <div class="menu-block-head"><span>DOMAINES</span><span>04</span></div>
+            <a href="photographie.html" data-accent="photo"><small>01</small><b>Photographie</b><em>la lumière, des lieux, des fragments</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+            <a href="ecriture.html" data-accent="writing"><small>02</small><b>Écriture</b><em>le corps, le regard, l’existence</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          </div>
         </div>
       </div>
       <div class="menu-bottom">
@@ -119,7 +136,7 @@
     <section class="contact-hero" aria-labelledby="contact-title">
       <p class="detail-index">CONTACT / PRÉSENCE DIRECTE</p>
       <h1 id="contact-title">Me <em>contacter.</em></h1>
-      <p>Deux portes&nbsp;: Element X aujourd’hui, Réseau demain.</p>
+      <p>Pour m’écrire, c’est Element X. Le réseau de Lumina est à venir.</p>
     </section>
     <div class="divider plain" aria-hidden="true"><span class="rule"></span></div>
     <section class="contact-grid" aria-label="Canaux de contact">
@@ -127,7 +144,7 @@
         <span class="contact-state">ACTIF · DIRECT</span>
         <span class="contact-number" aria-hidden="true">01</span>
         <h2>Element X</h2>
-        <p>Le canal direct déjà en place&nbsp;: une messagerie Matrix, ouverte depuis Element X ou depuis n’importe quel autre client Matrix.</p>
+        <p>Le plus simple pour m’écrire. C’est une messagerie Matrix&nbsp;: Element X marche, et n’importe quelle autre application Matrix aussi.</p>
         <p class="contact-handle">Identifiant Matrix <code>@yosuljin:matrix.org</code></p>
         <p class="contact-cta"><a href="https://matrix.to/#/@yosuljin:matrix.org" target="_blank" rel="noopener noreferrer">OUVRIR ELEMENT X<svg class="ico-arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="visually-hidden"> (nouvel onglet)</span></a></p>
       </article>
@@ -135,8 +152,8 @@
         <span class="contact-state">À VENIR</span>
         <span class="contact-number" aria-hidden="true">02</span>
         <h2>Réseau</h2>
-        <p>Le futur réseau social personnel. Le nom, l’architecture et l’adresse seront décidés quand le projet sera suffisamment défini.</p>
-        <p class="contact-cta"><span class="contact-cta-note">PAS ENCORE DE CODE</span><a href="mondes.html">LE PROJET DANS MONDES<svg class="ico-arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></a></p>
+        <p>Le futur réseau de Lumina, l’esprit d’Aether. Il sera maillé et privé, pour échanger du code. Des gens pourraient s’en servir aussi. Il reste à concevoir, et son nom n’est pas encore choisi.</p>
+        <p class="contact-cta"><span class="contact-cta-note">À CONCEVOIR</span><a href="aether.html#projet-reseau">SA FICHE DANS AETHER<svg class="ico-arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></a></p>
       </article>
     </section>
     <section class="contact-signature" aria-labelledby="presence-title">
@@ -146,7 +163,7 @@
         <a class="a1" href="https://www.instagram.com/myli.beral/" target="_blank" rel="noopener noreferrer">INSTAGRAM<svg class="ico-arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="visually-hidden"> (nouvel onglet)</span></a>
       </div>
     </section>
-    <p class="contact-note">Pas de formulaire ni d’adresse e-mail publiée&nbsp;: le site est statique et son code ne collecte rien&#8239;; l’hébergeur, GitHub, enregistre toutefois l’adresse IP des visiteurs. Les messages passent par les services ci-dessus, selon leurs propres règles — voir la <a href="confidentialite.html">politique de confidentialité</a>.</p>
+    <p class="contact-note">Il n’y a ni formulaire ni adresse e-mail. Le site ne collecte rien. Son hébergeur, GitHub, garde toutefois l’adresse IP des visiteurs. Vos messages suivent les règles des services ci-dessus&nbsp;: tout est expliqué dans la <a href="confidentialite.html">politique de confidentialité</a>.</p>
   </main>
 </body>
 </html>

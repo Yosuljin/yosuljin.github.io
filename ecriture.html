@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests; frame-src 'self'; child-src 'self'; worker-src 'self'; media-src 'self'; manifest-src 'self'">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
-  <meta name="description" content="Écriture&nbsp;: la voix, le corps, la perception et la mémoire — L’Œil de Linh, romans et fragments en cours.">
+  <meta name="description" content="Écriture&nbsp;: le corps, le regard, l’existence — L’Œil de Linh, un récit en réécriture.">
   <meta name="theme-color" content="#06040b">
   <meta name="color-scheme" content="dark">
   <title>Écriture — Yosuljin</title>
@@ -15,7 +15,7 @@
   <meta property="og:site_name" content="Yosuljin — Entre les mondes">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:title" content="Écriture — Yosuljin">
-  <meta property="og:description" content="Écriture&nbsp;: la voix, le corps, la perception et la mémoire — L’Œil de Linh, romans et fragments en cours.">
+  <meta property="og:description" content="Écriture&nbsp;: L’Œil de Linh, un récit en réécriture.">
   <meta property="og:url" content="https://yosuljin.github.io/ecriture.html">
   <meta property="og:image" content="https://yosuljin.github.io/og/yosuljin.png">
   <meta property="og:image:type" content="image/png">
@@ -24,37 +24,38 @@
   <meta property="og:image:alt" content="Yosuljin&nbsp;: développement, photographie, écriture, mondes.">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/contenu.css?v=20261014-r1">
+  <link rel="stylesheet" href="css/contenu.css?v=20261025-r28">
   <link rel="preload" href="fonts/instrument-serif-400.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=20261019-r1">
+  <link rel="stylesheet" href="styles.css?v=20261025-r28">
+  <link rel="stylesheet" href="css/menu-categories.css?v=20261025-r28">
   <link rel="stylesheet" href="css/motifs.css?v=20261009-r2">
-  <script src="js/boot.js?v=20261020-r2"></script>
-  <script src="js/ui/immersive-nav.js?v=20261014-r1" defer></script>
-  <script src="js/ui/fullscreen.js?v=20261014-r1" defer></script>
-  <script type="module" src="js/page.js?v=20261020-r2"></script>
+  <script src="js/boot.js?v=20261025-r28"></script>
+  <script src="js/ui/immersive-nav.js?v=20261025-r28" defer></script>
+  <script src="js/ui/fullscreen.js?v=20261025-r28" defer></script>
+  <script type="module" src="js/page.js?v=20261025-r28"></script>
   <!-- The modules the entry module imports, announced here so they download with the page instead of after it
        (measured on 2026-10-19, Slow 4G: they left at 2.5 s and arrived up to 4.2 s). Low priority: the stylesheet and
        the fonts of the first paint go first. Same versions as the imports (verifier.py checks; bump.py keeps them). -->
   <link rel="modulepreload" href="js/core/dom.js?v=20261007-r7" fetchpriority="low">
   <link rel="modulepreload" href="js/core/loop.js?v=20261014-r1" fetchpriority="low">
-  <link rel="modulepreload" href="js/core/prefs.js?v=20261014-r1" fetchpriority="low">
+  <link rel="modulepreload" href="js/core/prefs.js?v=20261025-r28" fetchpriority="low">
   <link rel="modulepreload" href="js/core/idle.js?v=20261009-r2" fetchpriority="low">
-  <link rel="modulepreload" href="js/ui/sound.js?v=20261019-r1" fetchpriority="low">
-  <link rel="modulepreload" href="js/ui/portal.js?v=20261019-r1" fetchpriority="low">
-  <link rel="modulepreload" href="js/ui/menu.js?v=20261019-r1" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/sound.js?v=20261025-r28" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/portal.js?v=20261025-r28" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/menu.js?v=20261025-r28" fetchpriority="low">
   <link rel="modulepreload" href="js/ui/chrome.js?v=20261009-r2" fetchpriority="low">
-  <link rel="modulepreload" href="js/ui/glitch.js?v=20261019-r1" fetchpriority="low">
-  <link rel="modulepreload" href="js/ui/fx.js?v=20261019-r1" fetchpriority="low">
-  <script type="module" src="js/motifs.js?v=20261014-r1"></script>
+  <link rel="modulepreload" href="js/ui/glitch.js?v=20261025-r28" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/fx.js?v=20261025-r28" fetchpriority="low">
+  <script type="module" src="js/motifs.js?v=20261021-r1"></script>
 </head>
 <body class="detail-page domain-write" data-world="writing">
-  <!-- The tube in standby (the first page of a visit): in the page itself so it shows at the first paint, long before the
+  <!-- The tube in standby (the first page of a visit, and any page that opens outside the fullscreen it should have): in the page itself so it shows at the first paint, long before the
        scripts arrive on a slow network. js/boot.js shows it before the first paint when it is wanted; js/ui/sound.js
        makes it modal and takes it down. Without JavaScript it stays hidden. -->
   <dialog class="signal-gate" aria-label="Écran en veille">
-    <button type="button" class="signal-gate-switch" data-gate="sound" aria-label="Allumer l’écran et le son" aria-describedby="signal-gate-note"><span class="signal-gate-name" aria-hidden="true">YOSULJIN</span><span class="signal-gate-dot" aria-hidden="true"></span><span class="signal-gate-hint" aria-hidden="true"><span class="hint-fine">Cliquez pour allumer</span><span class="hint-coarse">Touchez l’écran pour allumer</span></span><span class="signal-gate-keys" aria-hidden="true">ou appuyez sur une touche</span></button>
+    <button type="button" class="signal-gate-switch" data-gate="sound" aria-label="Allumer l’écran" aria-describedby="signal-gate-note"><span class="signal-gate-name" aria-hidden="true">YOSULJIN</span><span class="signal-gate-dot" aria-hidden="true"></span><span class="signal-gate-hint" aria-hidden="true"><span class="hint-fine">Cliquez pour allumer</span><span class="hint-coarse">Touchez l’écran pour allumer</span></span><span class="signal-gate-keys" aria-hidden="true">ou appuyez sur une touche</span></button>
     <p class="signal-gate-top" aria-hidden="true"><span>Yosuljin <i>·</i> entre les mondes</span><span>Canal 00</span></p>
-    <p class="signal-gate-note" id="signal-gate-note">L’image et le son s’allument ensemble.</p>
+    <p class="signal-gate-note" id="signal-gate-note"><span class="note-loud">L’image et le son s’allument ensemble.</span><span class="note-loud-full">L’image et le son s’allument ensemble, en plein écran.</span><span class="note-mute-full">L’image s’allume en plein écran, sans le son.</span></p>
     <button type="button" class="signal-gate-quiet" data-gate="quiet">Allumer sans le son</button>
     <span class="signal-gate-led" aria-hidden="true">Veille</span>
   </dialog>
@@ -65,7 +66,7 @@
 
   <header class="topbar">
     <div class="brand-cluster">
-      <a class="brand" href="index.html" aria-label="Yosuljin — retour à l'entrée">
+      <a class="brand" href="index.html" aria-label="Yosuljin — retour à l’entrée">
         <span class="brand-mark">Y</span>
         <span class="brand-copy"><b>YOSULJIN</b><small>ENTRE LES MONDES</small></span>
       </a>
@@ -81,24 +82,40 @@
   <nav id="site-menu" class="site-menu" aria-label="Index du site" aria-hidden="true" inert>
     <div class="menu-inner">
       <div class="menu-top"><span>INDEX</span><span class="menu-top-mid">CANAL 03 · ÉCRITURE</span><span>Y / 2026</span></div>
-      <div class="menu-structure">
-        <div class="menu-block menu-domains">
-          <div class="menu-block-head"><span>DOMAINES</span><span>04 ANGLES</span></div>
-          <a href="developpement.html" data-accent="dev"><small>01</small><b>Développement</b><em>systèmes · Rust · <span lang="en">from scratch</span></em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
-          <a href="photographie.html" data-accent="photo"><small>02</small><b>Photographie</b><em>lumière · lieux · fragments</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
-          <a href="ecriture.html" data-accent="writing"><small>03</small><b>Écriture</b><em>corps · regard · existence</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
-          <a href="mondes.html" data-accent="worlds"><small>04</small><b>Mondes</b><em>Constellation · Libera · futurs</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
-        </div>
-        <div class="menu-aether">
-          <div class="menu-block-head"><span>DOSSIER CENTRAL</span><span>01</span></div>
+      <div class="menu-structure menu-categories">
+        <div class="menu-sentience">
+          <div class="menu-block-head"><span>SENTIENCES</span><span>01</span></div>
           <a class="menu-project-main" href="aether.html">
             <span class="menu-aether-sigil" aria-hidden="true"><i></i><i></i><i></i><b></b></span>
-            <small>DOSSIER 01</small>
+            <small>PROJET SENTIENCE</small>
             <b>AETHER</b>
-            <span>documentation · Lumina · TheHive · furu</span>
+            <span>Lumina, et tout ce qui la construit</span>
             <i>OUVRIR LE DOSSIER<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i>
           </a>
-          <p class="menu-note">Le seul dossier présenté comme tel. Les domaines sont des angles&#8239;; Aether est un dossier.</p>
+          <p class="menu-note">Un projet Sentience, c’est un être entier&nbsp;: un système qui pense, perçoit, agit et a un corps. Pour l’instant, Aether est le seul.</p>
+        </div>
+        <div class="menu-side">
+          <div class="menu-block menu-games">
+            <div class="menu-block-head"><span>GAME DEVELOPMENT</span><span>02</span></div>
+            <a class="menu-project-main menu-project-game" href="jeux.html" data-accent="games">
+              <span class="menu-frame-sigil" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>
+              <small>JEU VIDÉO · TITRE PROVISOIRE</small>
+              <b>FRAME</b>
+              <span>pas encore commencé, il sortira sur Steam</span>
+              <i>VOIR LE JEU<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i>
+            </a>
+          </div>
+          <div class="menu-block menu-others">
+            <div class="menu-block-head"><span>MONDES</span><span>03</span></div>
+            <div class="menu-domains">
+              <a href="mondes.html" data-accent="worlds"><small>01</small><b>Mondes</b><em>Libera et ce site</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+            </div>
+          </div>
+          <div class="menu-block menu-domains menu-angles">
+            <div class="menu-block-head"><span>DOMAINES</span><span>04</span></div>
+            <a href="photographie.html" data-accent="photo"><small>01</small><b>Photographie</b><em>la lumière, des lieux, des fragments</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+            <a href="ecriture.html" data-accent="writing"><small>02</small><b>Écriture</b><em>le corps, le regard, l’existence</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          </div>
         </div>
       </div>
       <div class="menu-bottom">
@@ -117,24 +134,23 @@
   <main id="content" class="detail-shell">
   <div class="detail-top"><a class="detail-back" href="index.html"><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-w"/></svg>RETOUR À L’ESPACE</a></div>
   <section class="detail-hero">
-    <div><p class="detail-index">DOMAINE 03 / 04</p><h1 class="detail-title">Écriture</h1><p class="detail-lead">Travailler la voix, le corps, la perception, la mémoire et ce qui ne se laisse pas réduire à une explication.</p></div>
-    <aside class="detail-aside" aria-labelledby="perimetre"><b id="perimetre">PÉRIMÈTRE</b><p>Cette page accueille les textes et univers littéraires. Les systèmes techniques peuvent leur servir de matière ou d’inspiration, mais ils restent dans leur domaine propre.</p></aside>
+    <div><p class="detail-index">DOMAINE 03 / 03</p><h1 class="detail-title">Écriture</h1><p class="detail-lead">Je réécris un récit&nbsp;: <cite>L’Œil de Linh</cite>.</p></div>
+    <aside class="detail-aside" aria-labelledby="perimetre"><b id="perimetre">CETTE PAGE</b><p>Mes textes viendront ici.</p></aside>
     <span class="colophon write" lang="zh-Hant" aria-hidden="true"><span class="write-win"><span class="write-ink">寫作</span></span><span class="write-beam"></span></span>
   </section>
   <div class="divider" aria-hidden="true"><svg class="salve" viewBox="0 0 48 12"><use href="motifs.svg#salve"/></svg><span class="rule"><i class="sweep"></i></span></div>
   <section class="detail-grid">
-    <article class="detail-block wide"><h2 class="write"><span class="write-win"><span class="write-ink">Écrire pour <em>faire vivre.</em></span></span><i class="write-beam" aria-hidden="true"></i></h2><p>L’écriture permet d’explorer ce que les diagrammes ne savent pas transmettre&nbsp;: une présence, une sensation, une perception, une existence vécue.</p></article>
-    <article class="detail-block"><h2>Travail en cours</h2><ul>
-      <li><b>01</b><span><strong><cite>L’Œil de Linh</cite></strong> — récit centré sur le corps, le regard et l’expérience.</span><i>TEXTE</i></li>
-      <li><b>02</b><span>Romans et fragments — voix, mondes intérieurs et formes narratives.</span><i>TEXTE</i></li>
-      <li><b>03</b><span>Regard — observer comment une histoire change selon le corps qui la traverse.</span><i>NOTE</i></li>
+    <article class="detail-block wide"><h2 class="write"><span class="write-win"><span class="write-ink">Le <em>récit.</em></span></span><i class="write-beam" aria-hidden="true"></i></h2><p>Ce récit décrit la vie.</p></article>
+    <figure class="detail-block wide domain-quote"><blockquote><p>«&nbsp;Après tout, je ne suis qu’une existence simpliste qui ne demande qu’à réellement voir.&nbsp;»</p></blockquote><figcaption>— <cite>L’Œil de Linh</cite></figcaption></figure>
+    <article class="detail-block"><h2>En ce moment</h2><ul>
+      <li><b>01</b><span><strong><cite>L’Œil de Linh</cite></strong> — mon récit.</span><i>EN RÉÉCRITURE</i></li>
     </ul></article>
-    <article class="detail-block"><h2>Frontière</h2><p>Une idée peut passer d’un domaine à l’autre, mais sa page d’entrée ne change pas&nbsp;: un sujet littéraire reste ici, un sujet technique reste dans <a href="developpement.html">Développement</a>.</p><p>Les univers littéraires vivent ici&#8239;; les projets de vision — Constellation, Libera, Réseau — vivent dans <a href="mondes.html">Mondes</a>.</p></article>
-    <article class="detail-block wide"><h2 class="write"><span class="write-win"><span class="write-ink">Publication</span></span><i class="write-beam" aria-hidden="true"></i></h2><p>Aucun texte n’est encore publié sur ce site. Chacun apparaîtra ici une fois publié, pas avant.</p><p class="domain-state"><span>Textes publiés ici</span><b>0</b></p></article>
+    <article class="detail-block"><h2>Ailleurs</h2><p>Mes autres projets sont dans <a href="mondes.html">Mondes</a>. Aether a son <a href="aether.html">dossier</a>.</p></article>
+    <article class="detail-block wide"><h2 class="write"><span class="write-win"><span class="write-ink">Publication</span></span><i class="write-beam" aria-hidden="true"></i></h2><p>Aucun texte n’est encore publié sur ce site. <cite>L’Œil de Linh</cite> est en réécriture&nbsp;; sa page de lecture l’attend.</p></article>
   </section>
   <nav class="domain-route" aria-label="Parcours des domaines">
-    <a class="a1" href="photographie.html" data-accent="photo"><small><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-w"/></svg>02 · précédent</small><b>Photographie</b><em>lumière · lieux · fragments</em></a>
-    <a class="a1 domain-route-next" href="mondes.html" data-accent="worlds"><small>04 · suivant<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></small><b>Mondes</b><em>Constellation · Libera · futurs</em></a>
+    <a class="a1" href="photographie.html" data-accent="photo"><small><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-w"/></svg>02 · précédent</small><b>Photographie</b><em>photographies, à venir</em></a>
+    <a class="a1 domain-route-next" href="mondes.html" data-accent="worlds"><small>suivant<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></small><b>Mondes</b><em>Libera et ce site</em></a>
   </nav>
   <div class="detail-foot">
     <div class="divider" aria-hidden="true"><svg class="salve" viewBox="0 0 48 12"><use href="motifs.svg#salve"/></svg><span class="rule"><i class="sweep"></i></span></div>

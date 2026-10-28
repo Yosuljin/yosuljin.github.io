@@ -2,8 +2,8 @@
 // lit, the current page's or the one being read, and only a lit line shows its Chinese word; a butterfly, the guide,
 // rests on the current page's line and flies only when a line is chosen.
 import { $, $$ } from "../core/dom.js?v=20261007-r7";
-import { reducedMotion, getMode } from "../core/prefs.js?v=20261014-r1";
-import { sfx } from "./sound.js?v=20261019-r1";
+import { reducedMotion, getMode } from "../core/prefs.js?v=20261025-r28";
+import { sfx } from "./sound.js?v=20261025-r28";
 
 const ZH = { dev: "開發", photo: "攝影", writing: "寫作", worlds: "世界" };
 // The sprite by this module's own address: the 404 page is served at any depth, where a path relative to the
@@ -54,12 +54,12 @@ function dress(menu) {
 }
 
 /** The current page's line is lit (and announced as the current page); the index and the pages outside the
- *  channels have none. */
+ *  channels have none. A link to a part of a page (Frame, in Mondes) is never the page itself. */
 function markCurrent(menu) {
   const path = href => { try { return new URL(href, location.href).pathname.replace(/index\.html$/, ""); } catch { return ""; } };
   const here = location.pathname.replace(/index\.html$/, "");
-  for (const a of $$(".menu-domains a[href], .menu-project-main[href]", menu)) {
-    const current = path(a.getAttribute("href")) === here;
+  for (const a of $$(".menu-domains a[href], .menu-project-main[href], .menu-project-alt[href]", menu)) {
+    const current = !a.hash && path(a.getAttribute("href")) === here;
     a.classList.toggle("is-lit", current);
     if (current) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   }
@@ -70,7 +70,7 @@ function markCurrent(menu) {
  *  in 400 ms, while the next page loads. Without motion (reduced motion, LITE) it stays where it is. */
 function guide(menu) {
   const fly = $(".menu-guide", menu), stage = $(".menu-structure", menu);
-  const lines = [...$$(".menu-domains a[data-accent]", menu), ...$$(".menu-project-main", menu)];
+  const lines = [...$$(".menu-domains a[data-accent]", menu), ...$$(".menu-project-main, .menu-project-alt", menu)];
   if (!fly || !stage || !lines.length) return { home() {} };
   const homeLine = () => lines.find(a => a.classList.contains("is-lit")) || $(".menu-project-main", menu) || lines[0];
   const place = a => {

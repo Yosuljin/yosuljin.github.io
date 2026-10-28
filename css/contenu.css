@@ -49,12 +49,19 @@
 .detail-block li:has(strong a:hover,strong a:focus-visible)::before{opacity:1;transition-duration:var(--t-on);transition-timing-function:ease-out}
 
 /* Thèse → projets (mondes). Le petit texte violet prend la teinte lisible des Mondes (--acc-text, styles.css 11). */
-.domain-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;max-width:1040px;margin:26px 0 0;background:var(--line-2);border:1px solid var(--line-2)}
+.domain-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;max-width:1040px;margin:26px 0 0;background:var(--line-2);border:1px solid var(--line-2)}
 .domain-strip>div{position:relative;display:flex;flex-direction:column;gap:8px;padding:16px 18px;background:rgba(6,4,11,.9)}
 .domain-strip dt a::after{content:"";position:absolute;inset:0}
 .domain-strip dt{font:500 var(--label) var(--mono);letter-spacing:var(--label-ls);text-transform:uppercase;color:var(--dim)}
 .domain-strip dt a{color:var(--acc-text)}
 .domain-strip dd{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
+
+/* Une citation (Écriture) : la serif de lecture (css/lecture.css), en italique, sous un trait de la teinte. */
+.detail-block.domain-quote{margin:0;min-height:0;padding:40px 30px 34px}
+.domain-quote blockquote{max-width:34em;margin:0;padding:4px 0 4px 22px;border-left:1px solid rgba(var(--tint),.55)}
+.domain-quote blockquote p{margin:0;font:italic 400 clamp(21px,1.05rem + .6vw,28px)/1.5 "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;color:var(--paper);text-wrap:pretty}
+.domain-quote figcaption{margin:16px 0 0 23px;font:400 var(--label) var(--mono);letter-spacing:var(--label-ls);text-transform:uppercase;color:var(--muted)}
+.domain-quote figcaption cite{font-style:normal}
 
 /* État de publication (écriture). */
 .detail-block .domain-state{display:flex;justify-content:space-between;align-items:baseline;gap:16px;max-width:680px;margin:22px 0 0;padding-top:14px;border-top:1px solid var(--line-2);font:400 var(--label) var(--mono);letter-spacing:var(--label-ls);text-transform:uppercase;color:var(--muted)}
@@ -75,14 +82,14 @@
    vue : un seul nom d'animation pour les deux attentes, aucune image nue entre elles. 2,4 s au plus (un délai : rien
    n'est échantillonné), le garde-fou de l'allumage (styles.css 18). En loopback, ?qa=nowrite (js/motifs.js) : repos. */
 html.js:is(:not(.booted),.power-hold,.power-pending):not(.mode-lite):not(.qa-nowrite) .detail-block h2.write .write-win,html.js:not(.mode-lite):not(.qa-nowrite) .detail-block.reveal:not(.visible) h2.write .write-win{animation:writeWait 1ms linear 2.4s both}
-@keyframes writeWait{from{visibility:hidden}to{visibility:visible}}
+@keyframes writeWait{from{opacity:0}to{opacity:1}}
 html.booted:not(.power-hold):not(.power-pending):not(.mode-lite):not(.qa-nowrite) .detail-block.reveal.visible h2.write .write-win{animation:winOpen .72s var(--ease-scan) var(--write-delay) both}
 html.booted:not(.power-hold):not(.power-pending):not(.mode-lite):not(.qa-nowrite) .detail-block.reveal.visible h2.write .write-ink{animation:inkHold .72s var(--ease-scan) var(--write-delay) both}
 html.booted:not(.power-hold):not(.power-pending):not(.mode-lite):not(.qa-nowrite) .detail-block.reveal.visible h2.write .write-beam{animation:beamDown .72s var(--ease-scan) var(--write-delay) both}
 /* Mouvement réduit : la section 16 de styles.css raccourcit les durées mais garde les délais, qui cacheraient le titre. */
 @media (prefers-reduced-motion:reduce){.detail-block h2.write :is(.write-win,.write-ink,.write-beam){animation:none!important}}
 
-/* Mondes, une fois : un pétale tombe sur le filet sous « Garde-fou », et sa lumière reste là où il a touché (A5).
+/* Frame, une fois : un pétale tombe sur le filet sous son titre, et sa lumière reste là où il a touché (A5).
    Un cœur blanc de 120 ms, un halo rose qui lui survit, un segment rose brûlé dans le filet ; le pétale, silhouette
    pleine (--sakura à .9, sans contour), finit couché sur la ligne. L'état de base est ce repos : LITE, mouvement
    réduit et absence de script le montrent tel quel. Il tombe quand le filet entre dans la vue (.is-seen,
@@ -129,6 +136,7 @@ html.booted:not(.power-hold):not(.power-pending):not(.mode-lite):not(.qa-nowrite
 .domain-route [data-accent="dev"]{--acc:var(--acc-dev);--acc-text:var(--acc-dev);--tint:var(--rgb-cyan)}
 .domain-route [data-accent="photo"]{--acc:var(--acc-photo);--acc-text:var(--acc-photo);--tint:var(--rgb-photo)}
 .domain-route [data-accent="writing"]{--acc:var(--acc-writing);--acc-text:var(--acc-writing);--tint:var(--rgb-magenta)}
+.domain-route [data-accent="games"]{--acc:var(--acc-games);--acc-text:var(--acc-games);--tint:var(--rgb-games)}
 .domain-route [data-accent="worlds"]{--acc:var(--acc-worlds);--acc-text:var(--acc-worlds-text);--tint:var(--rgb-violet)}
 .domain-route .domain-route-next{align-items:flex-end;text-align:right}
 /* Le tube du suivant est à droite, du côté où il mène. */
@@ -147,11 +155,14 @@ html.booted:not(.power-hold):not(.power-pending):not(.mode-lite):not(.qa-nowrite
 .detail-foot:has(>.detail-motto)>a{grid-column:2;grid-row:2;margin:0}
 .detail-foot .a1{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding-left:14px;margin-left:-14px;color:var(--muted);transition:color var(--t-off) var(--ease-decay)}
 .detail-foot .a1:is(:hover,:focus-visible){color:var(--acc-text);transition-duration:var(--t-on);transition-timing-function:ease-out}
+/* The hit area reaches into the gutter (18px under 700px): with the default 5px offset the ring would be cut by the screen edge. */
+@media (max-width:700px){.detail-foot .a1:focus-visible{outline-offset:0}}
 .detail-foot .detail-motto{margin:0;font:400 var(--label)/1.6 var(--mono);letter-spacing:.32em;text-transform:uppercase;color:var(--muted)}
+/* On a short page (photographie.html while it has no photos) the foot rises over the bright horizon of the world behind: the link read 1.94:1 there
+   (a halo round the letters did not move the measure). A plate, as the boxes of the page have (--dim is 5.9:1 on a plate over a bright world),
+   keeps it legible on any patch of the scene; nearly invisible where the scene is dark (28 October). */
+.detail-foot .a1{background:rgba(8,6,13,.8);padding-right:12px;border-radius:2px}
 
-@media(max-width:900px){
-  .domain-strip{grid-template-columns:1fr 1fr}
-}
 @media(max-width:700px){
   .domain-strip{grid-template-columns:1fr}
   .domain-strip>div{padding:14px 16px}
@@ -180,6 +191,10 @@ html:not(.mode-lite) .detail-hero :is(.detail-index,.detail-lead,.domain-state,.
 
 /* Couleurs forcées : le filet dessiné en dégradé disparaîtrait, une vraie bordure le remplace ; plus de halo. */
 @media (forced-colors:active){.detail-shell .divider .rule{height:0;border-top:1px solid CanvasText;background:none}}
+/* Increased contrast or forced colors: no soft glow on the Frame rule (halo and white core); the petal and the burnt segment stay. */
 @media (forced-colors:active),(prefers-contrast:more){.fall-halo,.fall-core{display:none}}
 /* The scope aside sits on the same glass plate on every domain page (the world's planet may pass behind it). */
 :is(.domain-dev,.domain-write,.domain-worlds) .detail-aside{padding:22px 24px 24px;border:1px solid var(--line-2);background:linear-gradient(120deg,rgba(var(--tint),.075),transparent 46%),var(--plate)}
+
+/* Téléphone : « Développement » tient sur la largeur, à l'échelle plus petite des autres titres (styles.css, fin). */
+@media (max-width:480px){.domain-dev .detail-title{font-size:min(44px,11.4vw)}}

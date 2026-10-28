@@ -106,8 +106,10 @@
 .contact-links{gap:4px 22px;margin:8px 0 0 -12px}
 .contact-links a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 4px 0 12px;font-size:var(--label);color:var(--paper)}
 .contact-links a:is(:hover,:focus-visible){color:var(--rose)}
+/* These links reach into the gutter (18px under 700px), 2-6px from the screen edge: with the default 5px offset the ring would be cut. */
+@media (max-width:700px){.legal-page .legal-nav a:focus-visible,.contact-links a:focus-visible{outline-offset:0}}
 .contact-note{max-width:62ch;margin:30px 0 0;font-size:14px;line-height:1.7;color:var(--muted)}
-.contact-note a{color:var(--rose);text-decoration:underline;text-decoration-color:rgba(var(--tint),.4);text-underline-offset:3px}
+.contact-note a{color:var(--rose);text-decoration:underline;text-decoration-color:rgba(var(--tint),.25);text-underline-offset:3px}
 
 /* 04 · PAGE 404 — page introuvable : le 404 allumé, un pétale sur le filet, les pages du site */
 .lost-page{display:flex;flex-direction:column;justify-content:center;min-height:100svh}
@@ -164,6 +166,7 @@ html.power-hold:not(.mode-lite) .lost-divider.is-seen :is(.lost-petal,.lost-core
 .lost-nav [data-accent="dev"]{--acc:var(--acc-dev);--tint:var(--rgb-cyan)}
 .lost-nav [data-accent="photo"]{--acc:var(--acc-photo);--tint:var(--rgb-photo)}
 .lost-nav [data-accent="writing"]{--acc:var(--acc-writing);--tint:var(--rgb-magenta)}
+.lost-nav [data-accent="games"]{--acc:var(--acc-games);--tint:var(--rgb-games)}
 .lost-nav [data-accent="worlds"]{--acc:var(--acc-worlds);--tint:var(--rgb-violet)}
 .lost-nav [data-accent="aether"]{--acc:var(--acc-aether);--tint:var(--rgb-gold)}
 .lost-page .legal-date{margin-top:36px}
@@ -184,6 +187,12 @@ html.power-hold:not(.mode-lite) .lost-divider.is-seen :is(.lost-petal,.lost-core
 @media (prefers-reduced-motion:reduce){
   .lost-divider *{animation:none!important}
 }
+/* Increased contrast or forced colors: the soft glow (halo and white core) is dropped, as on the Frame rule in
+   css/contenu.css; the petal and the burnt segment stay. */
+@media (forced-colors:active),(prefers-contrast:more){.lost-halo,.lost-core{display:none}}
 /* #7 the legal pages' back link: muted at rest, rose when lit (fast on, slow off), and it never slides. */
 .legal-page .legal-back{color:var(--muted);transition:color var(--t-off) var(--ease-decay)}
 .legal-page .legal-back:is(:hover,:focus-visible){color:var(--rose);transform:none;transition-duration:var(--t-on);transition-timing-function:ease-out}
+
+/* Téléphone : le 404 un peu moins haut, pour que la page et ses liens tiennent mieux dans le premier écran. */
+@media (max-width:480px){.legal-page .lost-title{font-size:clamp(84px,24vw,104px)}}

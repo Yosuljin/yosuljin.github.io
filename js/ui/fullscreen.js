@@ -1,5 +1,6 @@
-// Immersive display helper. A normal webpage cannot hide browser chrome by force;
-// fullscreen is entered only by an explicit user activation on the immersive control.
+// Immersive display helper. A page cannot hide the browser's chrome by itself: the browser grants the fullscreen to a
+// press. The site asks for it with the press that switches its standby screen on (js/boot.js, D165); this control
+// leaves it, or comes back to it.
 // Inside the immersive frame, the fullscreen is the owning page's (immersive-nav.js). A frame from another
 // origin cannot read it, and is never fullscreen through us.
 function parentFullscreen() {

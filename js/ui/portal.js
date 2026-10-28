@@ -3,9 +3,9 @@
 // page arrives covered (js/boot.js marks it before its first paint) and opens from the line. Nothing of it depends
 // on the browser. Where cross-document view transitions exist they add one thing, the afterimage: the title being
 // left turns rose and dies out over the next page (styles.css, 06). The first page of a visit powers the tube on.
-import { reducedMotion } from "../core/prefs.js?v=20261014-r1";
+import { reducedMotion } from "../core/prefs.js?v=20261025-r28";
 import { wake } from "../core/loop.js?v=20261014-r1";
-import { sfx, revive } from "./sound.js?v=20261019-r1";
+import { sfx, revive } from "./sound.js?v=20261025-r28";
 
 const FLAG = "yosuljin-portal";
 const DEPART = 260;
@@ -116,13 +116,14 @@ export function initPortal({ samePage } = {}) {
   try {
     const crossed = sessionStorage.getItem(FLAG);
     sessionStorage.removeItem(FLAG);
-    if (crossed) {
-      channelIn();
-    } else if (root.classList.contains("gate-pending") || document.querySelector(".signal-gate[open]")) {
-      // First page of a visit: the standby screen is up (shown by boot.js, or already modal through sound.js);
-      // the tube powers on when the reader enters.
+    if (root.classList.contains("gate-pending") || document.querySelector(".signal-gate[open]")) {
+      // The standby screen is up (shown by boot.js, or already modal through sound.js) — the first page of a visit, or
+      // a page that opens outside the fullscreen it should have, even one reached from the site: the tube powers on
+      // when the reader enters.
       root.classList.add("power-hold");
       addEventListener("yosuljin:enter", powerOn, { once: true });
+    } else if (crossed && root.classList.contains("channel-pending")) {
+      channelIn();
     } else {
       powerOn();
     }

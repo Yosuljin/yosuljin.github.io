@@ -1,8 +1,8 @@
 // The Yosuljin world: one WebGL space the camera travels through.
 // route 0..3 = Entrée → Repères → Domaines → Aether. Detail pages render a single world.
 // Frame: nebula sky (low resolution) → scene (bodies, rings, gates, particles) → bloom → signal post.
-import { mat4, vec3, program, buffer, indexBuffer, attribs, sphereMesh, torusMesh, ringMesh, tubeMesh, noiseTexture, floatFormat, colorTarget, sceneTarget, rng, cacheUniforms } from "./gl.js?v=20261009-r2";
-import * as S from "./shaders.js?v=20261014-r1";
+import { mat4, vec3, program, buffer, indexBuffer, attribs, sphereMesh, torusMesh, ringMesh, tubeMesh, noiseTexture, floatFormat, colorTarget, sceneTarget, rng, cacheUniforms } from "./gl.js?v=20261025-r28";
+import * as S from "./shaders.js?v=20261025-r28";
 
 const TAU = Math.PI * 2;
 const WHITE = [1, 1, 1];
@@ -421,7 +421,7 @@ export function createWorld(canvas, options = {}) {
     near.forEach(([j]) => { if (i < j) meshEdges.push([i, j]); });
   });
   // Node index -> project, chosen to spread the labels around the mesh.
-  const PARC = [[2, "THEHIVE", "squelette"], [7, "LA LUMINA", "langage .lum"], [12, "REMINISCENCE", "mémoire · à venir"], [16, "GREFFE", "contrat de modules"], [20, "LINH", "agent de terrain"], [25, "ALMAS", "banc d’essai"], [29, "NET", "accès"], [31, "LUCARNE", "interface"], [9, "LINHMESH", "réseau maillé · ouvert"]];
+  const PARC = [[2, "THEHIVE", "son OS"], [7, "LA LUMINA", "sa langue"], [12, "REMINISCENCE", "sa mémoire, en conception"], [16, "GREFFE", "des pièces à greffer"], [20, "FURU", "le sens de son corps"], [25, "ALMAS", "son agent"], [29, "NET", "AlmaS au travail en ligne"], [31, "LUCARNE", "où vivent les agents"], [4, "MISCELLANEOUS", "Net et Lara"], [23, "LARA", "navigateur, en conception"]];
   const parcNodes = new Set(PARC.map(([n]) => n));
   const meshBeams = beams(meshEdges.map(([i, j], k) => ({ a: meshNodes[i], b: meshNodes[j], phase: (k * 0.37) % 1, m0: (k % 3) / 2, m1: ((k + 1) % 3) / 2 })));
   const prominences = beams((() => {
@@ -504,8 +504,12 @@ export function createWorld(canvas, options = {}) {
   })();
 
   // Butterflies: two wings (quads) each, flapping in BFLY_VS; positions follow on the CPU.
-  // The guide, plus two or four by tier on the index (direction §8.1); the guide alone on a domain page.
-  const BFLY = kind === "index" ? [1, 3, 5][startTier] : 1;
+  // The guide, plus one, three or six by tier on the index (direction §8.1); on a domain page the guide and,
+  // from the middle tier, one or two that wander about the swarm point (MOOD). Twelve at most (BFLY_VS).
+  // A phone (coarse pointer or a small screen) keeps the counts of 2026-10-20 — two or four on the index, the guide
+  // alone on a domain page — so the extra ones never push the adaptive quality down a tier there.
+  const handheld = coarse || minSide < 600;
+  const BFLY = kind === "index" ? (handheld ? [1, 3, 5] : [2, 4, 7])[startTier] : handheld ? 1 : [1, 2, 3][startTier];
   const bflyData = new Float32Array(BFLY * 32), bflyIdx = new Uint16Array(BFLY * 12);
   for (let i = 0; i < BFLY; i++) for (let w = 0; w < 2; w++) {
     const b = i * 8 + w * 4;
@@ -1538,10 +1542,13 @@ export function createWorld(canvas, options = {}) {
 
     // Sky, at low resolution.
     gl.disable(gl.DEPTH_TEST); gl.disable(gl.BLEND);
-    // On a portrait screen the Entrée looks at a high, thin part of the sky, above the planet pushed under the row:
-    // the nebula's three colours gain up to +90 % and the deep sky +60 % there (the index only; landscape screens are unchanged), so the first
-    // screen of a phone carries the page's light. Behind the text the post pass still caps the luminance at .04.
-    const portraitK = kind === "index" ? portraitAmount() : 0, nebGain = 1 + 0.9 * portraitK, deepGain = 1 + 0.6 * portraitK;
+    // On a portrait screen the camera looks at a high, thin part of the sky: the Entrée above the planet pushed under
+    // the row, a domain page above its world set as a low horizon (camera()), further still from the galaxy's band.
+    // The nebula's three colours gain up to +90 % and the deep sky +60 % on the index, +200 % and +140 % on a domain
+    // page, at the rate of portraitAmount() (landscape screens are unchanged), so the first screen of a phone carries
+    // the page's light. Behind the text set on the sky (the hero, the foot, the section heads of Photographie: page.js
+    // ZONE_TEXT) the post pass still caps the luminance at .04; the blocks' text stands on its plates (--plate).
+    const portraitK = portraitAmount(), nebGain = 1 + (kind === "index" ? 0.9 : 2) * portraitK, deepGain = 1 + (kind === "index" ? 0.6 : 1.4) * portraitK;
     for (let k = 0; k < 3; k++) { nebP[0][k] = sky.a[k] * nebGain; nebP[1][k] = sky.b[k] * nebGain; nebP[2][k] = sky.c[k] * nebGain; nebP[3][k] = sky.deep[k] * deepGain; }
     pass(skyRT, P.sky, u => {
       gl.uniform3fv(u.uRight, camR); gl.uniform3fv(u.uUp, camU); gl.uniform3fv(u.uFwd, camF); gl.uniform2f(u.uTan, tanXY[0], tanXY[1]);
@@ -1700,8 +1707,8 @@ export function createWorld(canvas, options = {}) {
 
   /** Current safe zones as uv boxes: the active scene's and the HUD's, both fading out while the camera travels.
    *  In the flow layout (the page scrolls: state.scrollY — the index out of cinema, and every domain page, whose
-   *  hero and foot are zones 0 and 1, js/page.js) the text stays on the page: every scene's boxes, measured in
-   *  page coordinates, follow the scroll and keep their full strength wherever they are on screen. */
+   *  hero, foot and plateless section heads are zones 0, 1 and 2, js/page.js) the text stays on the page: every
+   *  scene's boxes, measured in page coordinates, follow the scroll and keep their full strength wherever they are on screen. */
   function packZones() {
     ZONE.fill(0); ZONEK.fill(0);
     const j = kind === "index" ? Math.min(3, Math.round(routeNow())) : 0, w = kind === "index" ? sceneAlpha(j) : 0;
@@ -1764,6 +1771,8 @@ export function createWorld(canvas, options = {}) {
       window.__YOSULJIN_WORLD_QA = {
         get guide() { const p = flock[0] && flock[0].pos ? project(flock[0].pos) : null; return { x: p ? p.x : null, y: p ? p.y : null, rest: REST[0], settled: state.clock - restAt > 1.2 }; },
         get day() { return { day: state.day, sun: sky.sun.slice(), rays: shaftK, tier: q.tier }; },
+        /** A change of tier in flight, as the adaptive quality makes one (setQuality): the bench forces it. */
+        quality(tier, scale = 1) { setQuality(tier, scale); return { tier: q.tier, scale: q.scale }; },
         /** The sap's runs: each branch's age in seconds (9: none) and the focus; the water's live rings. */
         get sap() { return { age: Array.from(RUN.subarray(0, 4)), focus: state.focus }; },
         get rings() { return rings.filter(r => r.k > 0 && state.time - r.t0 < 3).map(r => ({ x: r.x, z: r.z, age: state.time - r.t0 })); },

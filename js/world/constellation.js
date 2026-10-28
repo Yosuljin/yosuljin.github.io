@@ -1207,7 +1207,9 @@ export function createConstellation(stage, graph, adj) {
   // ---------- Wiring ----------
   try { init(); } catch (error) { console.warn("Constellation disabled:", error); canvas.remove(); return null; }
 
-  new ResizeObserver(() => { dirty = true; if (running) wake(); }).observe(stage);
+  // An engine without ResizeObserver listens to the window instead, as js/scenes/scene.js does.
+  const remeasure = () => { dirty = true; if (running) wake(); };
+  if ("ResizeObserver" in window) new ResizeObserver(remeasure).observe(stage); else addEventListener("resize", remeasure);
   document.fonts?.ready.then(() => { dirty = true; if (running) wake(); });
   if ("IntersectionObserver" in window) new IntersectionObserver(entries => {
     const e = entries[entries.length - 1];

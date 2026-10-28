@@ -1,0 +1,40 @@
+/* The butterfly cursor (js/ui/papillon.js adds this sheet; D170 (d) 101 to 112). One element in the top layer, as wide as
+   a point: its origin is the pointer's hot spot (the head), the drawing hangs around it. The butterfly is the menu guide's
+   (motifs.svg, styles.css 05): two wings hinged on a body, the wings turning on the body's axis. */
+.papillon{position:fixed;inset:auto;left:0;top:0;width:0;height:0;margin:0;padding:0;border:0;background:none;overflow:visible;pointer-events:none;
+  color:color-mix(in srgb,rgb(var(--tint)) 60%,var(--sakura));opacity:0;will-change:transform;
+  filter:drop-shadow(0 0 .6px #06040b) drop-shadow(0 0 .6px #06040b) drop-shadow(0 0 2.5px rgba(6,4,11,.7));transition:opacity .12s linear}
+.papillon.vu{opacity:1}
+.papillon.hors,:root.papillon-natif .papillon{opacity:0}
+/* 32 px wide on the 120 x 100 box of the sprite; the head (60, 36) is the origin; the body leans like an arrow. */
+.papillon-pose{position:absolute;left:-16px;top:-9.6px;width:32px;aspect-ratio:120/100;perspective:120px;transform-origin:16px 9.6px;
+  transform:rotate(-18deg) scale(var(--e,1));transition:transform .15s ease-out}
+.papillon.lien{--e:1.12}
+.papillon.centre{--e:.8}
+/* Mouse locked (the museum): a thin ring round the head, so it reads as the aim over the gold butterfly of the Aether painting. */
+.papillon.centre::after{content:"";position:absolute;left:-7px;top:-7px;width:14px;height:14px;box-sizing:border-box;border:1px solid currentColor;border-radius:50%}
+.papillon-aile,.papillon-corps{position:absolute;top:0;height:100%;overflow:visible}
+.papillon-aile{width:50%;--a:40deg;transform:rotateY(calc(var(--s) * var(--a)));transition:transform .15s ease-out}
+.papillon-g{left:0;transform-origin:100% 50%;--s:1}
+.papillon-d{right:0;transform-origin:0 50%;--s:-1}
+.papillon-corps{left:0;width:100%}
+/* Over a link or a button the wings open flat. */
+.papillon.lien .papillon-aile{--a:0deg}
+/* Over a scene that turns when dragged: the wings half fold. */
+.papillon.prise .papillon-aile{--a:62deg}
+/* In flight: one animation for both wings, 8 to 74 degrees in 0.24 s alternating = 2.1 wingbeats a second, under
+   the 3 flashes a second of WCAG 2.3.1; only a rotation, the opacity never moves. */
+.papillon.vol .papillon-aile{animation:papillonBat .24s ease-in-out infinite alternate;transition:none}
+@keyframes papillonBat{from{transform:rotateY(calc(var(--s) * 8deg))}to{transform:rotateY(calc(var(--s) * 74deg))}}
+
+/* The arrow goes only where this sheet is loaded and the butterfly has been seen to move (html.papillon-on, set by the
+   module at the first pointer move), only with a fine pointer, and not in forced colours or more contrast. */
+@media (pointer:fine) and (not (forced-colors:active)) and (not (prefers-contrast:more)){
+  html.papillon-on:not(.papillon-natif),html.papillon-on:not(.papillon-natif) *{cursor:none!important}
+}
+@media (forced-colors:active),(prefers-contrast:more),(pointer:coarse){.papillon{display:none!important}}
+@media print{.papillon{display:none!important}}
+@media (prefers-reduced-motion:reduce){
+  .papillon.vol .papillon-aile{animation:none}
+  .papillon-pose,.papillon-aile{transition:none}
+}

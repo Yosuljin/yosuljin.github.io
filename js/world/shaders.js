@@ -1013,6 +1013,10 @@ void main(){
   // Phosphor persistence: what was brighter a frame ago fades out instead of vanishing, per channel (red the
   // slowest: whatever fades turns pink); the epsilon brings an 8-bit history back to black.
   // Weighted by the history's luminance: only bright lights trail, the nebula and the planets' faces never smear.
+  // Not weighted by the reading zones: at tier 1 the history is the scene's, taken before the ceiling, and on a
+  // phone the text's zones cover nearly the whole screen, so the bodies come through it (a calm-weighted trail left
+  // the Entrée's planet, tree and Aether's constellation out on phones, 2026-10-21); text set on the sky keeps its
+  // own halo (css/photographie.css).
   if(uPersist.r>0.){vec3 pv=texture2D(uPrev,vUv).rgb;float pk=smoothstep(.30,.60,dot(pv,vec3(.2126,.7152,.0722)));col=max(col,pv*uPersist*pk-3./255.);}
   col=mix(col,vec3(.15,.9,.45),zone*.3*uShowZones);
   gl_FragColor=vec4(col,1.);

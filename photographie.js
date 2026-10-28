@@ -222,7 +222,7 @@ function show(i,announce){
   L.caption.hidden=!p.caption;
   L.counter.textContent=String(index+1).padStart(2,"0")+" / "+String(n).padStart(2,"0");
   L.prev.hidden=L.next.hidden=n<2;
-  L.live.textContent=announce?"Image "+(index+1)+" sur "+n+" : "+(p.title||p.alt):"";
+  L.live.textContent=announce?"Image "+(index+1)+" sur "+n+" : "+(p.title||p.alt):"";
   history.replaceState(history.state,"","#photo-"+encodeURIComponent(p.id));
 }
 const step=d=>show(index+d,true);

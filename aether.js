@@ -123,8 +123,11 @@ function show(id){
   field("state").textContent=text(c,".project-state");
   field("name").textContent=nameOf(id);
   field("line").textContent=text(c,".project-line");
-  const related=[...(near||[])].map(k=>nameOf(k)+(card(k)?.classList.contains("is-inscrit")?" (inscrit)":""));
-  field("links").textContent=related.length?"Relié à\u00a0: "+related.join(" · "):"Pas encore de relation de code.";
+  // The sheet's « Relié à » speaks for the project (it names Net, Lara: links the map draws no line for);
+  // the map's lines answer for a sheet without one.
+  const rel=[...(c?.querySelectorAll(".project-rel a")||[])].map(a=>a.firstChild.textContent.trim()+(a.classList.contains("rel-inscrit")?" (inscrit)":""));
+  const related=rel.length?rel:[...(near||[])].map(k=>nameOf(k)+(card(k)?.classList.contains("is-inscrit")?" (inscrit)":""));
+  field("links").textContent=related.length?"Relié à\u00a0: "+related.join(" · "):"Pas encore relié à un autre projet.";
 }
 const focusedNode=()=>document.activeElement?.closest?.(".a-node[data-node]");
 
@@ -228,7 +231,7 @@ const wanted=()=>html.classList.contains("mode-full")&&!reduced.matches&&!forced
 function syncSky(){
   if(!wanted()){sky?.stop();return;}
   if(sky){sky.start();return;}
-  loading??=import("./js/world/constellation.js?v=20261014-r1").then(m=>{
+  loading??=import("./js/world/constellation.js?v=20261025-r28").then(m=>{
     if(!wanted()){loading=null;return;} // switched to LITE meanwhile: no context for nothing
     sky=m.createConstellation(stage,graph,adj);
     if(!sky)return;

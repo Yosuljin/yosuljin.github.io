@@ -1,7 +1,7 @@
 // The tube over every page, and the press of a control. Nothing glitches any more (RÉMANENCE §11): the page
 // change is portal.js's channel change, and the world keeps its own light.
-import { reducedMotion } from "../core/prefs.js?v=20261014-r1";
-import { sfx } from "./sound.js?v=20261019-r1";
+import { reducedMotion } from "../core/prefs.js?v=20261025-r28";
+import { sfx } from "./sound.js?v=20261025-r28";
 
 const CONTROLS = "a[href], button";
 
@@ -28,5 +28,7 @@ export function initGlitch() {
   const isMenuToggle = el => el?.matches?.(".menu-toggle");
   // Hover and focus are silent and change nothing; only a press sounds and sinks.
   // On release, not on press: the target is fixed by then, so the click lands where the finger is.
-  document.addEventListener("pointerup", e => { const c = e.target.closest?.(CONTROLS); if (c && !isMenuToggle(c)) { sfx("press"); press(c); } }, { passive: true });
+  // « Allumer sans le son » asks for silence: its press makes no sound (the click that follows turns the sound off).
+  const isQuiet = el => el?.matches?.("[data-gate=quiet]");
+  document.addEventListener("pointerup", e => { const c = e.target.closest?.(CONTROLS); if (c && !isMenuToggle(c)) { if (!isQuiet(c)) sfx("press"); press(c); } }, { passive: true });
 }

@@ -4,16 +4,18 @@
 // LITE, touch devices and reduced motion keep a normal scrolling document.
 import { $, $$, clamp, smoothstep, setStyle } from "./js/core/dom.js?v=20261007-r7";
 import { every, wake } from "./js/core/loop.js?v=20261014-r1";
-import { getMode, isCinema, onModeChange, reducedMotion, finePointer } from "./js/core/prefs.js?v=20261014-r1";
-import { initGlitch } from "./js/ui/glitch.js?v=20261019-r1";
-import { initSpatialFX } from "./js/ui/fx.js?v=20261019-r1";
-import { initPortal } from "./js/ui/portal.js?v=20261019-r1";
-import { initMenu } from "./js/ui/menu.js?v=20261019-r1";
+import { getMode, isCinema, onModeChange, reducedMotion, finePointer } from "./js/core/prefs.js?v=20261025-r28";
+import { initGlitch } from "./js/ui/glitch.js?v=20261025-r28";
+import { initSpatialFX } from "./js/ui/fx.js?v=20261025-r28";
+import { initPortal } from "./js/ui/portal.js?v=20261025-r28";
+import { initMenu } from "./js/ui/menu.js?v=20261025-r28";
 import { initModeSwitch, initReveal } from "./js/ui/chrome.js?v=20261009-r2";
-import { initSound, sfx, setScene as soundScene, setVelocity } from "./js/ui/sound.js?v=20261019-r1";
+import { initSound, sfx, setScene as soundScene, setVelocity } from "./js/ui/sound.js?v=20261025-r28";
 import { idleLevel } from "./js/core/idle.js?v=20261009-r2";
 
 const root = document.documentElement;
+// The butterfly cursor: a fine pointer only, fetched apart so a phone never downloads it (js/ui/papillon.js).
+if (finePointer.matches) import("./js/ui/papillon.js?v=20261025-r28").then(m => m.demarrer()).catch(() => {});
 // Stable hooks and witness flags exist only on the loopback QA server; production exposes no navigation/debug API.
 const loopback = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 // Local QA only, as in world.js: ?qa=nodiorama,noeye,nodock,nofinger,norelief isolates each effect of the cinema's
@@ -70,7 +72,7 @@ let world = null, worldStop = null, lastRoute = -1, lastScene = -1, worldRecover
 // (modulepreload), so the import does not wait for the rest of this module graph.
 let createWorld = null, loadingWorld = null;
 function loadWorld() {
-  loadingWorld ??= import("./js/world/world.js?v=20261020-r2").then(m => { createWorld = m.createWorld; });
+  loadingWorld ??= import("./js/world/world.js?v=20261025-r28").then(m => { createWorld = m.createWorld; });
   return loadingWorld;
 }
 
@@ -527,6 +529,17 @@ document.fonts?.ready.then(remeasure);
 setTimeout(remeasure, 1600);
 
 // ---------- Boot ----------
+// In FULL the home is the museum's hall (D169 (b) 2, js/boot.js): leaving for it, this page starts nothing; switched
+// to FULL here, it goes there, through the site's change of channel (js/ui/portal.js).
+const museePossible = () => !reducedMotion.matches && !matchMedia("(forced-colors: active)").matches && !!(window.WebGL2RenderingContext || window.WebGLRenderingContext);
+const versMusee = root.classList.contains("vers-musee");
+onModeChange(m => {
+  if (m !== "full" || !museePossible()) return;
+  const a = document.createElement("a");
+  a.href = "musee.html"; a.hidden = true;
+  document.body.append(a); a.click(); a.remove();
+});
+if (!versMusee) {
 initModeSwitch();
 initSound();
 initGlitch();
@@ -556,6 +569,8 @@ Promise.race([document.fonts?.load?.('400 1em "Instrument Serif"'), new Promise(
   const win = heroTitle && $(".write-win", heroTitle);
   win?.addEventListener("animationstart", e => { if (e.target === win && e.animationName === "winOpen") heroTitle.classList.remove("is-written"); });
   win?.addEventListener("animationend", e => { if (e.target === win && e.animationName === "winOpen" && !QA.off("relief")) heroTitle.classList.add("is-written"); });
+}
+
 }
 
 if (loopback) {

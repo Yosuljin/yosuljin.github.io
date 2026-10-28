@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests; frame-src 'self'; child-src 'self'; worker-src 'self'; media-src 'self'; manifest-src 'self'">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+  <meta name="description" content="Le musée de Yosuljin, en 3D&nbsp;: on y marche comme dans un jeu vidéo, guidé par AlmaS, d’Aether à Game Development, Mondes, Photographie et Écriture.">
+  <meta name="theme-color" content="#06040b">
+  <meta name="color-scheme" content="dark">
+  <title>Le musée — Yosuljin</title>
+  <link rel="canonical" href="https://yosuljin.github.io/musee.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Yosuljin — Entre les mondes">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Le musée — Yosuljin">
+  <meta property="og:description" content="Le musée de Yosuljin, en 3D&nbsp;: on y marche comme dans un jeu vidéo, guidé par AlmaS, d’Aether à Game Development, Mondes, Photographie et Écriture.">
+  <meta property="og:url" content="https://yosuljin.github.io/musee.html">
+  <meta property="og:image" content="https://yosuljin.github.io/og/yosuljin.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Yosuljin&nbsp;: développement, photographie, écriture, mondes.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/contenu.css?v=20261025-r28">
+  <link rel="preload" href="fonts/instrument-serif-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=20261025-r28">
+  <link rel="stylesheet" href="css/menu-categories.css?v=20261025-r28">
+  <link rel="stylesheet" href="css/motifs.css?v=20261009-r2">
+  <link rel="stylesheet" href="css/aether.css?v=20261025-r28">
+  <link rel="stylesheet" href="css/scenes.css?v=20261025-r28">
+  <link rel="stylesheet" href="css/musee.css?v=20261025-r28">
+  <script src="js/boot.js?v=20261025-r28"></script>
+  <script src="js/ui/immersive-nav.js?v=20261025-r28" defer></script>
+  <script src="js/ui/fullscreen.js?v=20261025-r28" defer></script>
+  <script type="module" src="js/page.js?v=20261025-r28"></script>
+  <script type="module" src="js/musee/musee.js?v=20261025-r28"></script>
+  <script src="js/musee/garde.js?v=20261025-r28"></script>
+  <!-- The modules the entry module imports, announced here so they download with the page instead of after it
+       (measured on 2026-10-19, Slow 4G: they left at 2.5 s and arrived up to 4.2 s). Low priority: the stylesheet and
+       the fonts of the first paint go first. Same versions as the imports (verifier.py checks; bump.py keeps them). -->
+  <link rel="modulepreload" href="js/core/dom.js?v=20261007-r7" fetchpriority="low">
+  <link rel="modulepreload" href="js/core/loop.js?v=20261014-r1" fetchpriority="low">
+  <link rel="modulepreload" href="js/core/prefs.js?v=20261025-r28" fetchpriority="low">
+  <link rel="modulepreload" href="js/core/idle.js?v=20261009-r2" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/sound.js?v=20261025-r28" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/portal.js?v=20261025-r28" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/menu.js?v=20261025-r28" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/chrome.js?v=20261009-r2" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/glitch.js?v=20261025-r28" fetchpriority="low">
+  <link rel="modulepreload" href="js/ui/fx.js?v=20261025-r28" fetchpriority="low">
+  <script type="module" src="js/motifs.js?v=20261021-r1"></script>
+</head>
+<body class="detail-page domain-aether aether-grand musee-page">
+  <!-- The tube in standby (the first page of a visit, and any page that opens outside the fullscreen it should have): in the page itself so it shows at the first paint, long before the
+       scripts arrive on a slow network. js/boot.js shows it before the first paint when it is wanted; js/ui/sound.js
+       makes it modal and takes it down. Without JavaScript it stays hidden. -->
+  <dialog class="signal-gate" aria-label="Écran en veille">
+    <button type="button" class="signal-gate-switch" data-gate="sound" aria-label="Allumer l’écran" aria-describedby="signal-gate-note"><span class="signal-gate-name" aria-hidden="true">YOSULJIN</span><span class="signal-gate-dot" aria-hidden="true"></span><span class="signal-gate-hint" aria-hidden="true"><span class="hint-fine">Cliquez pour allumer</span><span class="hint-coarse">Touchez l’écran pour allumer</span></span><span class="signal-gate-keys" aria-hidden="true">ou appuyez sur une touche</span></button>
+    <p class="signal-gate-top" aria-hidden="true"><span>Yosuljin <i>·</i> entre les mondes</span><span>Canal 00</span></p>
+    <p class="signal-gate-note" id="signal-gate-note"><span class="note-loud">L’image et le son s’allument ensemble.</span><span class="note-loud-full">L’image et le son s’allument ensemble, en plein écran.</span><span class="note-mute-full">L’image s’allume en plein écran, sans le son.</span></p>
+    <button type="button" class="signal-gate-quiet" data-gate="quiet">Allumer sans le son</button>
+    <span class="signal-gate-led" aria-hidden="true">Veille</span>
+  </dialog>
+  <a class="skip-link" href="#content">Aller au contenu</a>
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand-cluster">
+      <a class="brand" href="index.html" aria-label="Yosuljin — retour à l’entrée">
+        <span class="brand-mark">Y</span>
+        <span class="brand-copy"><b>YOSULJIN</b><small>ENTRE LES MONDES</small></span>
+      </a>
+      <button class="mode-toggle" type="button" data-mode-toggle>FULL 3D</button>
+      <button class="sound-toggle" type="button" data-sound-toggle aria-pressed="true" aria-label="Son"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-word">SON</span></button>
+    </div>
+    <div class="top-meta" aria-hidden="true"><span>LE MUSÉE</span><span>2026</span></div>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu">
+      <span class="menu-word">MENU</span><span class="menu-icon" aria-hidden="true"><i></i><i></i></span>
+    </button>
+  </header>
+
+  <nav id="site-menu" class="site-menu" aria-label="Index du site" aria-hidden="true" inert>
+    <div class="menu-inner">
+      <div class="menu-top"><span>INDEX</span><span class="menu-top-mid">LE MUSÉE</span><span>Y / 2026</span></div>
+      <div class="menu-structure menu-categories">
+        <div class="menu-sentience">
+          <div class="menu-block-head"><span>SENTIENCES</span><span>01</span></div>
+          <a class="menu-project-main" href="aether.html">
+            <span class="menu-aether-sigil" aria-hidden="true"><i></i><i></i><i></i><b></b></span>
+            <small>PROJET SENTIENCE</small>
+            <b>AETHER</b>
+            <span>Lumina, et tout ce qui la construit</span>
+            <i>OUVRIR LE DOSSIER<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i>
+          </a>
+          <p class="menu-note">Un projet Sentience, c’est un être entier&nbsp;: un système qui pense, perçoit, agit et a un corps. Pour l’instant, Aether est le seul.</p>
+        </div>
+        <div class="menu-side">
+          <div class="menu-block menu-games">
+            <div class="menu-block-head"><span>GAME DEVELOPMENT</span><span>02</span></div>
+            <a class="menu-project-main menu-project-game" href="jeux.html" data-accent="games">
+              <span class="menu-frame-sigil" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>
+              <small>JEU VIDÉO · TITRE PROVISOIRE</small>
+              <b>FRAME</b>
+              <span>pas encore commencé, il sortira sur Steam</span>
+              <i>VOIR LE JEU<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i>
+            </a>
+          </div>
+          <div class="menu-block menu-others">
+            <div class="menu-block-head"><span>MONDES</span><span>03</span></div>
+            <div class="menu-domains">
+              <a href="mondes.html" data-accent="worlds"><small>01</small><b>Mondes</b><em>Libera et ce site</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+            </div>
+          </div>
+          <div class="menu-block menu-domains menu-angles">
+            <div class="menu-block-head"><span>DOMAINES</span><span>04</span></div>
+            <a href="photographie.html" data-accent="photo"><small>01</small><b>Photographie</b><em>la lumière, des lieux, des fragments</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+            <a href="ecriture.html" data-accent="writing"><small>02</small><b>Écriture</b><em>le corps, le regard, l’existence</em><i><svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="menu-bottom">
+        <div class="menu-presence">
+          <a href="https://github.com/Yosuljin" target="_blank" rel="noopener noreferrer">GITHUB<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+          <a href="https://www.instagram.com/myli.beral/" target="_blank" rel="noopener noreferrer">INSTAGRAM<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+          <a href="https://matrix.to/#/@yosuljin:matrix.org" target="_blank" rel="noopener noreferrer">ELEMENT X<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-ne"/></svg><span class="sr-only"> (nouvel onglet)</span></a>
+        </div>
+        <span class="menu-legal"><a href="contact.html">CONTACT</a><a href="mentions-legales.html">MENTIONS</a><a href="confidentialite.html">CONFIDENTIALITÉ</a><a href="cgu.html">CGU</a></span>
+        <span class="menu-motto">RIEN NE DISPARAÎT VRAIMENT.</span>
+      </div>
+    </div>
+  </nav>
+  <button class="menu-shade" type="button" aria-label="Fermer le menu" tabindex="-1"></button>
+
+  <main id="content" class="musee" data-musee>
+    <h1 class="aether-sr">Le musée de Yosuljin</h1>
+    <p class="aether-sr" role="status" lang="en" data-annonce></p>
+    <div class="musee-scene" data-musee-scene>
+      <div class="musee-stick" data-stick aria-hidden="true"><i></i></div>
+    </div>
+    <div class="musee-hud" inert>
+      <p class="musee-ici" aria-live="polite"><span>VOUS ÊTES DANS</span><b data-ici>LE HALL</b></p>
+      <nav class="musee-puces" aria-label="Les salles du musée"><button type="button" class="musee-puce" data-aller="hall" data-teinte="accent">HALL</button><button type="button" class="musee-puce" data-aller="aether" data-teinte="aether">AETHER</button><button type="button" class="musee-puce" data-aller="jeux" data-teinte="games">JEUX</button><button type="button" class="musee-puce" data-aller="mondes" data-teinte="worlds">MONDES</button><button type="button" class="musee-puce" data-aller="photographie" data-teinte="photo">PHOTO</button><button type="button" class="musee-puce" data-aller="ecriture" data-teinte="writing">ÉCRITURE</button></nav>
+      <button type="button" class="musee-mini" data-plan-ouvrir aria-label="Ouvrir le plan du musée"><svg class="musee-plan-svg" data-plan-svg aria-hidden="true"></svg><span>PLAN <i>M</i></span></button>
+      <p class="musee-souris" aria-hidden="true"><span class="souris-verrou">CLIQUEZ DANS LA VUE POUR REGARDER À LA SOURIS · ÉCHAP POUR LA LIBÉRER</span><span class="souris-glisse">GLISSEZ DANS LA VUE POUR REGARDER</span></p>
+      <button type="button" class="musee-action" data-action hidden></button>
+      <div class="musee-soustitres" data-soustitres hidden><span class="musee-qui">ALMAS</span><span class="zh" lang="zh-Hans" data-zh></span><span class="en" lang="en" data-en></span></div>
+    </div>
+    <div class="musee-tourner" data-tourner>
+      <div class="musee-tourner-tel" aria-hidden="true"><i></i></div>
+      <p><b>Tournez le téléphone</b>Le musée se visite à l’horizontale.</p>
+      <button type="button" class="musee-lien" data-lite>Lire le site à la place (version légère)<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></button>
+    </div>
+    <div class="musee-entree" data-entree>
+      <div class="musee-entree-carte">
+        <p class="detail-index">YOSULJIN · LE MUSÉE</p>
+        <h2>Entrez&nbsp;: <em>AlmaS vous attend.</em></h2>
+        <p class="musee-clavier"><b>ZQSD</b> ou <b>WASD</b> pour marcher, les <b>flèches</b> aussi, <b>Maj</b> pour courir. La <b>souris</b> pour regarder, <b>E</b> devant une œuvre, <b>M</b> pour le plan.</p>
+        <p class="musee-tactile">Le <b>joystick</b> sous le pouce gauche pour marcher, <b>glissez</b> à droite pour regarder, <b>REGARDER</b> devant une œuvre.</p>
+        <p class="musee-note">AlmaS parle mandarin si votre appareil a une voix mandarine et que le son est allumé. Dans tous les cas, ses phrases s’écrivent en chinois, sous-titrées en anglais. Six salles&nbsp;: le hall, Aether, Game Development, Mondes, Photographie, Écriture.</p>
+        <p class="aether-sr" role="status" data-pret></p>
+        <button type="button" class="musee-bouton" data-entrer disabled autocomplete="off">LE MUSÉE SE PRÉPARE…</button>
+        <button type="button" class="musee-lien" data-lite>Lire le site à la place (version légère)<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><use href="motifs.svg#arrow-e"/></svg></button>
+      </div>
+    </div>
+    <section class="musee-lisible" aria-labelledby="musee-lisible-titre">
+      <p class="detail-index">YOSULJIN · LE MUSÉE</p>
+      <h2 id="musee-lisible-titre"><span class="musee-titre-full">Le musée se visite <em>en FULL 3D.</em></span><span class="musee-titre-ailleurs">Le musée ne s’ouvre <em>pas ici.</em></span></h2>
+      <p class="musee-raison" data-raison-lite>Le site est en version légère (LITE). Pour marcher dans le musée, passez en FULL 3D.</p>
+      <button type="button" class="musee-bouton musee-raison" data-raison-lite data-full>PASSER EN FULL 3D</button>
+      <p class="musee-raison" data-raison-mouvement>Votre appareil demande moins de mouvement&nbsp;: le musée, où l’on marche, reste fermé.</p>
+      <p class="musee-raison" data-raison-couleurs>Votre appareil impose ses propres couleurs&nbsp;: le musée, dessiné en 3D, reste fermé.</p>
+      <p class="musee-raison" data-raison-webgl>Ce navigateur n’affiche pas la 3D (WebGL)&nbsp;: le musée ne peut pas s’ouvrir ici.</p>
+      <p class="musee-raison" data-raison-chargement>Le musée n’a pas pu se charger&nbsp;: la connexion a sans doute été coupée en route. Rechargez la page, ou lisez ses salles ci-dessous.</p>
+      <p class="musee-raison" data-raison-perdue>La 3D s’est interrompue&nbsp;: l’appareil a repris sa carte graphique. Rechargez la page pour rouvrir le musée, ou lisez ses salles ci-dessous.</p>
+      <button type="button" class="musee-bouton musee-raison" data-raison-chargement data-raison-perdue data-recharger>RECHARGER LA PAGE</button>
+      <noscript><p>JavaScript est désactivé&nbsp;: le musée a besoin de lui pour s’ouvrir.</p></noscript>
+      <p>Ses salles se lisent aussi, page par page&nbsp;:</p>
+      <ul class="musee-salles-lisibles">
+        <li><a href="aether.html">Aether</a></li><li><a href="jeux.html">Game Development</a></li><li><a href="mondes.html">Mondes</a></li>
+        <li><a href="photographie.html">Photographie</a></li><li><a href="ecriture.html">Écriture</a></li>
+      </ul>
+    </section>
+    <dialog class="musee-dialog musee-plan" data-plan aria-labelledby="musee-plan-titre">
+      <div class="musee-dialog-tete"><h2 id="musee-plan-titre">Le plan du musée</h2><button type="button" class="musee-fermer" data-fermer aria-label="Fermer le plan">×</button></div>
+      <div class="musee-plan-corps"><svg class="musee-plan-svg grand" data-plan-svg aria-hidden="true"></svg><ul class="musee-plan-liste"><li data-teinte-salle="hall"><b>Le hall</b><span><button type="button" class="musee-bouton" data-aller="hall" aria-label="Y aller : Le hall">Y ALLER</button><button type="button" class="musee-bouton faible" data-aller="hall" data-avec aria-label="Avec AlmaS : Le hall">AVEC ALMAS</button></span></li><li data-teinte-salle="aether"><b>Aether</b><span><button type="button" class="musee-bouton" data-aller="aether" aria-label="Y aller : Aether">Y ALLER</button><button type="button" class="musee-bouton faible" data-aller="aether" data-avec aria-label="Avec AlmaS : Aether">AVEC ALMAS</button></span></li><li data-teinte-salle="jeux"><b>Game Development</b><span><button type="button" class="musee-bouton" data-aller="jeux" aria-label="Y aller : Game Development">Y ALLER</button><button type="button" class="musee-bouton faible" data-aller="jeux" data-avec aria-label="Avec AlmaS : Game Development">AVEC ALMAS</button></span></li><li data-teinte-salle="mondes"><b>Mondes</b><span><button type="button" class="musee-bouton" data-aller="mondes" aria-label="Y aller : Mondes">Y ALLER</button><button type="button" class="musee-bouton faible" data-aller="mondes" data-avec aria-label="Avec AlmaS : Mondes">AVEC ALMAS</button></span></li><li data-teinte-salle="photographie"><b>Photographie</b><span><button type="button" class="musee-bouton" data-aller="photographie" aria-label="Y aller : Photographie">Y ALLER</button><button type="button" class="musee-bouton faible" data-aller="photographie" data-avec aria-label="Avec AlmaS : Photographie">AVEC ALMAS</button></span></li><li data-teinte-salle="ecriture"><b>Écriture</b><span><button type="button" class="musee-bouton" data-aller="ecriture" aria-label="Y aller : Écriture">Y ALLER</button><button type="button" class="musee-bouton faible" data-aller="ecriture" data-avec aria-label="Avec AlmaS : Écriture">AVEC ALMAS</button></span></li></ul></div>
+    </dialog>
+    <dialog class="musee-dialog musee-vitrine" data-vitrine aria-labelledby="musee-vitrine-titre">
+      <div class="musee-dialog-tete"><h2 id="musee-vitrine-titre" data-vitrine-titre></h2><button type="button" class="musee-fermer" data-fermer aria-label="Fermer la vitrine">×</button></div>
+      <div class="musee-vitrine-corps" data-vitrine-corps></div>
+    </dialog>
+  </main>
+</body>
+</html>
