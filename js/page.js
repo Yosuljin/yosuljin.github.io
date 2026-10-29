@@ -107,7 +107,9 @@ function renderTask(now, dt) {
   // Third argument: the real frame interval, for the world's quality loop (a skipped frame is not a missed one).
   world.render(now, dt + skippedDt, dt);
   skippedDt = 0;
-  return !reducedMotion.matches;
+  // Under reduced motion the world is drawn once, then the loop sleeps: but not before that frame exists. While the shaders are still
+  // compiling, render() draws nothing (the root has no world-live yet), and a page with nothing to scroll would never wake the loop again.
+  return !reducedMotion.matches || !root.classList.contains("world-live");
 }
 /** Idempotent: creates the world once, (re)starts its frame task whenever FULL is active. */
 function scheduleRecovery() {
